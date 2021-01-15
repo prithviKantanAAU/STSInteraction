@@ -17,6 +17,11 @@ StsinteractionAudioProcessorEditor::StsinteractionAudioProcessorEditor (Stsinter
 
 	// INITIALIZE CONTROLS
 	sensorConfig_initializeControls();
+	movementAnalysis_initializeControls();
+	musicControl_initializeControls();
+
+	// SET INITIAL TAB
+	switchTab(0);
 }
 
 StsinteractionAudioProcessorEditor::~StsinteractionAudioProcessorEditor()
@@ -41,6 +46,20 @@ void StsinteractionAudioProcessorEditor::timerCallback()
 	if (presentTab == 0)							sensorConfig_updateLabels();
 	if (previousTab != presentTab)					switchTab(presentTab);
 	previousTab = presentTab;
+
+	// UPDATE LABELS ON PRESENT TAB
+	switch (presentTab)
+	{
+	case 0:
+		sensorConfig_updateLabels();
+		break;
+	case 1:
+		movementAnalysis_updateLabels();
+		break;
+	case 2:
+		musicControls_updateLabels();
+		break;
+	}
 }
 
 void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
@@ -50,12 +69,18 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 	{
 	case 0:												// Sensors Tab
 		ui_sensorCon.toggleVisible(true);
+		ui_movementAnalysis.toggleVisible(false);
+		ui_musicControl.toggleVisible(false);
 		break;
 	case 1:												// Movement Tab
 		ui_sensorCon.toggleVisible(false);
+		ui_movementAnalysis.toggleVisible(true);
+		ui_musicControl.toggleVisible(false);
 		break;
 	case 2:												// Music Tab
 		ui_sensorCon.toggleVisible(false);
+		ui_movementAnalysis.toggleVisible(false);
+		ui_musicControl.toggleVisible(true);
 		break;
 	}
 	
@@ -71,4 +96,6 @@ void StsinteractionAudioProcessorEditor::paint (Graphics& g)
 void StsinteractionAudioProcessorEditor::resized()
 {
 	ui_sensorCon.setLayout();
+	ui_movementAnalysis.setLayout();
+	ui_musicControl.setLayout();
 }

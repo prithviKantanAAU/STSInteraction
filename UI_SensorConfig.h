@@ -15,6 +15,14 @@ public:
 		"Shank", 
 		"<UNASSIGNED>",
 	};
+
+	// STEPS TO ADD NEW CONTROLS
+	// Declare here
+	// Add and make visible in PluginEditor.h (add to existing function)
+	// Initialize here
+	// Initialize in PluginEditor.h
+	// Add SetVisible to ToggleVisible() here
+	// Set position in SetLayout() here
 	Label IP_Header;					// Column Header - Sr. No
 	Label Status_Header;				// Column Header - Online status
 	Label Status[3];					// Column Values - Online status

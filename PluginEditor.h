@@ -2,6 +2,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PluginProcessor.h"
 #include "UI_SensorConfig.h"
+#include "UI_MovementAnalysis.h"
+#include "UI_MusicControl.h"
 
 class StsinteractionAudioProcessorEditor  : public AudioProcessorEditor, public ComboBox::Listener,
 											public Timer
@@ -17,6 +19,8 @@ private:
     
 	// MEMBER OBJECTS
 	UI_SensorConfig ui_sensorCon;
+	UI_MovementAnalysis ui_movementAnalysis;
+	UI_MusicControl ui_musicControl;
     StsinteractionAudioProcessor& processor;
 	std::unique_ptr<TabbedComponent> tabs;
 
@@ -32,6 +36,8 @@ private:
 	void addControls_ALL()
 	{
 		addControls_SensorConfig();
+		addControls_MovementAnalysis();
+		addControls_MusicControl();
 	}
 	
 	// Add Sensor Config Tools
@@ -54,6 +60,26 @@ private:
 			addAndMakeVisible(ui_sensorCon.BatteryLevel[i]);
 			addAndMakeVisible(ui_sensorCon.PacketPercent[i]);
 		}
+	}
+
+	// Add Movement Analysis Controls
+	void addControls_MovementAnalysis()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			addAndMakeVisible(ui_movementAnalysis.IMUOnline[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMUOrientations[i]);
+		}
+
+		for (int j = 0; j < 2; j++)		
+			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
+		addAndMakeVisible(ui_movementAnalysis.STSPhasePresent);
+	}
+
+	// Add Music Control Controls
+	void addControls_MusicControl()
+	{
+
 	}
 
 	// Initialize Sensor Config Tab Elements
@@ -86,7 +112,19 @@ private:
 		}
 	}
 
-	// Update Sensor Config Tab Elements in Real Time
+	// Initialize Movement Analysis Elements
+	void movementAnalysis_initializeControls()
+	{
+		movementAnalysis_updateLabels();				// FIRST TIME UPDATE
+	}
+	
+	// Initialize Music Control Elements
+	void musicControl_initializeControls()
+	{
+		
+	}
+
+	// Update Sensor Config Tab Elements
 	void sensorConfig_updateLabels()
 	{
 		String text = "";
@@ -135,6 +173,45 @@ private:
 			);
 		}
 	};
+
+	// Update Movement Analysis Tab Elements
+	void movementAnalysis_updateLabels()
+	{
+		Colour colour_onlineIndicator;
+		for (int i = 0; i < 3; i++)
+		{
+			// SET COLOUR OF ONLINE INDICATOR
+			colour_onlineIndicator = processor.movementAnalysis.sensorInfo.isOnline[i] ? Colours::green : Colours::red;
+			ui_movementAnalysis.IMUOnline[i].setColour(ui_movementAnalysis.IMUOnline[i].backgroundColourId, colour_onlineIndicator);
+
+			// ORIENTATION ANGLE DISPLAYS
+			ui_movementAnalysis.IMUOrientations[i].setText(
+				ui_movementAnalysis.IMULocations[i] + " Orientation: "
+				+ String(processor.movementAnalysis.orientation_Deg[i], 2),
+				dontSendNotification
+			);
+		}
+
+		// JOINT ANGLE DISPLAYS
+		for (int j = 0; j < 2; j++)
+			ui_movementAnalysis.JointAngles[j].setText(
+				ui_movementAnalysis.JointNames[j] + " Angle: "
+				+ String(processor.movementAnalysis.jointAngles_Deg[j], 2)
+				, dontSendNotification
+			);
+
+		// STS PHASE DISPLAY
+		ui_movementAnalysis.STSPhasePresent.setText(
+			"Present Phase: " + processor.movementAnalysis.STS_Phases[processor.movementAnalysis.STS_Phase]
+			, dontSendNotification
+		);
+	}
+
+	// Update Music Control Tab Elements
+	void musicControls_updateLabels()
+	{
+
+	}
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessorEditor)
 };
