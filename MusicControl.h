@@ -1,37 +1,24 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GaitParam_Single.h"
+#include "AudioParam_Single.h"
 
 // INCLUDE FAUST
 
 class MusicControl
 {
     public:
-    MusicControl() {};
+    MusicControl() 
+	{
+		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	};
     ~MusicControl() {};
 
 	// FAUST OBJECT
-	// SOMETHING FOR MUSIC TRANSFORMATION
-
-	// Feedback Variable Array
-	float fbVariables[20] = { 0.0 };
-	// 0 = Instrument 1 Triggering / Timbre ....
-	String fbVariables_Names[20] = 
-	{
-		"Aud Param 1",
-		"Aud Param 2",
-		"Aud Param 3",
-		"Aud Param 4",
-		"Aud Param 5",
-		"Aud Param 6",
-		"Aud Param 7",
-		"Aud Param 8",
-		"Aud Param 9",
-		"Aud Param 10",
-	};
+	// CLASS FOR MUSIC TRANSFORMATION
+	
+	FeedbackVariable feedbackVariables[20];
 	short numFbVariables = 10;
-	float fbVariable_MAX = 10;
-	float fbVariable_MIN = 0;
 
 	// MAPPING MATRIX
 	bool mappingMatrix[20][20] = { false };
@@ -52,10 +39,7 @@ class MusicControl
 		mapFBVariables();
 	}
 
-
 	void mapFBVariables()
 	{
 	}
-
-
 };

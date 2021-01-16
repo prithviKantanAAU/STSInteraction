@@ -39,6 +39,19 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 			processor.movementAnalysis.sensorInfo.bodyLocation[i] = ui_sensorCon.Location[i].getSelectedId();
 		}
 	}
+
+	for (int i = 0; i < processor.movementAnalysis.musicControl.numFbVariables; i++)
+	{
+		if (box == &ui_mappingMatrix.mapping_Function[i])
+		{
+			// CHANGE MAPPING FUNCTION FOR THAT PARTICULAR AP
+		}
+
+		if (box == &ui_mappingMatrix.mapping_Polarity[i])
+		{
+			processor.movementAnalysis.musicControl.feedbackVariables[i].polarity = box->getSelectedId();
+		}
+	}
 }
 
 void StsinteractionAudioProcessorEditor::timerCallback()
@@ -99,11 +112,6 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 	}
 }
 
-void StsinteractionAudioProcessorEditor::setupMappingMatrix()
-{
-
-}
-
 void StsinteractionAudioProcessorEditor::paint (Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
@@ -116,4 +124,11 @@ void StsinteractionAudioProcessorEditor::resized()
 	ui_sensorCon.setLayout();
 	ui_movementAnalysis.setLayout();
 	ui_musicControl.setLayout();
+	ui_mappingMatrix.setLayout
+	(
+		interface_Width,
+		interface_Height,
+		processor.movementAnalysis.numMovementParams,
+		processor.movementAnalysis.musicControl.numFbVariables
+	);
 }

@@ -88,7 +88,17 @@ private:
 	// Add Mapping Matrix Controls
 	void addControls_MappingMatrix()
 	{
-
+		for (int i = 0; i < 20; i++)		// Columns
+		{
+			addAndMakeVisible(ui_mappingMatrix.labels_movementParams[i]);
+			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[i]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_Function[i]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[i]);
+			for (int j = 0; j < 20; j++)	// Rows
+			{
+				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
+			}
+		}
 	}
 
 	// Initialize Sensor Config Tab Elements
@@ -136,11 +146,42 @@ private:
 	// Initialize Mapping Matrix Elements
 	void mappingMatrix_initializeControls()
 	{
-		setupMappingMatrix();
-	}
+		for (int i = 0; i < processor.movementAnalysis.numMovementParams; i++)
+		{
+			ui_mappingMatrix.labels_movementParams[i].setText(
+				processor.movementAnalysis.movementParams[i].name
+				, dontSendNotification
+			);
 
-	// Dynamically Set Up Mapping Matrix
-	void setupMappingMatrix();
+			for (int j = 0; j < processor.movementAnalysis.musicControl.numFbVariables; j++)
+			{
+				ui_mappingMatrix.mapping_Matrix[i][j].setToggleState
+				(processor.movementAnalysis.musicControl.mappingMatrix[i][j],
+					dontSendNotification);
+
+				ui_mappingMatrix.mapping_Matrix[i][j].onStateChange = [this, i, j]
+				{
+					processor.movementAnalysis.musicControl.mappingMatrix[i][j] =
+						ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
+				};
+			}
+		}
+
+		for (int k = 0; k < processor.movementAnalysis.musicControl.numFbVariables; k++)
+		{
+			ui_mappingMatrix.labels_audioParams[k].setText(
+				processor.movementAnalysis.musicControl.feedbackVariables[k].name
+				, dontSendNotification
+			);
+
+			// ADD MAPPING FUNCTION SHAPES TO ui_mappingMatrix.mapping_Function[k]
+
+			ui_mappingMatrix.mapping_Polarity[k].addListener(this);
+			ui_mappingMatrix.mapping_Polarity[k].addItem("+", 1);
+			ui_mappingMatrix.mapping_Polarity[k].addItem("-", 2);
+			ui_mappingMatrix.mapping_Polarity[k].setSelectedId(1);
+		}
+	}
 
 	// Update Sensor Config Tab Elements
 	void sensorConfig_updateLabels()
