@@ -1,17 +1,6 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-    It contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
 StsinteractionAudioProcessor::StsinteractionAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
@@ -24,13 +13,24 @@ StsinteractionAudioProcessor::StsinteractionAudioProcessor()
                        )
 #endif
 {
+	startTimer(1);
 }
 
 StsinteractionAudioProcessor::~StsinteractionAudioProcessor()
 {
 }
 
-//==============================================================================
+void StsinteractionAudioProcessor::hiResTimerCallback()
+{
+	pulsesElapsed = (pulsesElapsed + 1) % 1000000;				// INCREMENT AND AVOID OVERFLOW
+	
+	if (pulsesElapsed % 10 == 0)								// Once every 10 ms
+	{
+		// MOVEMENT ANALYSIS, FB COMPUTATION, MAPPING CALLBACK
+		movementAnalysis.callback();
+	}
+}
+
 const String StsinteractionAudioProcessor::getName() const
 {
     return JucePlugin_Name;

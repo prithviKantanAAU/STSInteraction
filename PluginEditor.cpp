@@ -11,6 +11,7 @@ StsinteractionAudioProcessorEditor::StsinteractionAudioProcessorEditor (Stsinter
 	tabs->addTab("Sensors", Colours::black, Component::getParentComponent(), 1);
 	tabs->addTab("Movement", Colours::black, Component::getParentComponent(), 1);
 	tabs->addTab("Music", Colours::black, Component::getParentComponent(), 1);
+	tabs->addTab("Mapping Matrix", Colours::black, Component::getParentComponent(), 1);
 	tabs->setBounds(0, 0, getWidth(), getHeight());
 	addControls_ALL();
 	startTimerHz(UIRefreshFreq);								// START UI TIMER CALLBACK
@@ -19,6 +20,7 @@ StsinteractionAudioProcessorEditor::StsinteractionAudioProcessorEditor (Stsinter
 	sensorConfig_initializeControls();
 	movementAnalysis_initializeControls();
 	musicControl_initializeControls();
+	mappingMatrix_initializeControls();
 
 	// SET INITIAL TAB
 	switchTab(0);
@@ -43,8 +45,8 @@ void StsinteractionAudioProcessorEditor::timerCallback()
 {
 	// CHECK FOR TAB CHANGES
 	presentTab = tabs->getCurrentTabIndex();
-	if (presentTab == 0)							sensorConfig_updateLabels();
-	if (previousTab != presentTab)					switchTab(presentTab);
+	if (previousTab != presentTab)
+		switchTab(presentTab);
 	previousTab = presentTab;
 
 	// UPDATE LABELS ON PRESENT TAB
@@ -59,6 +61,9 @@ void StsinteractionAudioProcessorEditor::timerCallback()
 	case 2:
 		musicControls_updateLabels();
 		break;
+	case 3:
+		mappingMatrix_updateLabels();
+		break;
 	}
 }
 
@@ -71,19 +76,32 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 		ui_sensorCon.toggleVisible(true);
 		ui_movementAnalysis.toggleVisible(false);
 		ui_musicControl.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 1:												// Movement Tab
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(true);
 		ui_musicControl.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 2:												// Music Tab
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(false);
 		ui_musicControl.toggleVisible(true);
+		ui_mappingMatrix.toggleVisible(false);
+		break;
+	case 3:												// Mapping Matrix
+		ui_sensorCon.toggleVisible(false);
+		ui_movementAnalysis.toggleVisible(false);
+		ui_musicControl.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(true);
 		break;
 	}
-	
+}
+
+void StsinteractionAudioProcessorEditor::setupMappingMatrix()
+{
+
 }
 
 void StsinteractionAudioProcessorEditor::paint (Graphics& g)

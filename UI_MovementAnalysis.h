@@ -25,7 +25,8 @@ public:
 	Label IMUOnline[3];							// 0 = TRUNK // 1 = THIGH // 2 = SHANK
 	Label IMUOrientations[3];					// 0 = TRUNK // 1 = THIGH // 2 = SHANK
 	Label JointAngles[2];						// 0 = HIP	 // 1 = KNEE
-	Label STSPhasePresent;						
+	Label STSPhasePresent;	
+
 
 	void configure()
 	{

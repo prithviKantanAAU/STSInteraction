@@ -4,6 +4,7 @@
 #include "UI_SensorConfig.h"
 #include "UI_MovementAnalysis.h"
 #include "UI_MusicControl.h"
+#include "UI_MappingMatrix.h"
 
 class StsinteractionAudioProcessorEditor  : public AudioProcessorEditor, public ComboBox::Listener,
 											public Timer
@@ -21,6 +22,7 @@ private:
 	UI_SensorConfig ui_sensorCon;
 	UI_MovementAnalysis ui_movementAnalysis;
 	UI_MusicControl ui_musicControl;
+	UI_MappingMatrix ui_mappingMatrix;
     StsinteractionAudioProcessor& processor;
 	std::unique_ptr<TabbedComponent> tabs;
 
@@ -38,6 +40,7 @@ private:
 		addControls_SensorConfig();
 		addControls_MovementAnalysis();
 		addControls_MusicControl();
+		addControls_MappingMatrix();
 	}
 	
 	// Add Sensor Config Tools
@@ -78,6 +81,12 @@ private:
 
 	// Add Music Control Controls
 	void addControls_MusicControl()
+	{
+
+	}
+
+	// Add Mapping Matrix Controls
+	void addControls_MappingMatrix()
 	{
 
 	}
@@ -123,6 +132,15 @@ private:
 	{
 		
 	}
+
+	// Initialize Mapping Matrix Elements
+	void mappingMatrix_initializeControls()
+	{
+		setupMappingMatrix();
+	}
+
+	// Dynamically Set Up Mapping Matrix
+	void setupMappingMatrix();
 
 	// Update Sensor Config Tab Elements
 	void sensorConfig_updateLabels()
@@ -209,6 +227,12 @@ private:
 
 	// Update Music Control Tab Elements
 	void musicControls_updateLabels()
+	{
+
+	}
+
+	// Update Mapping Matrix Tab Elements
+	void mappingMatrix_updateLabels()
 	{
 
 	}

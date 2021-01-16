@@ -3,7 +3,7 @@
 
 #include "MovementAnalysis.h"
 
-class StsinteractionAudioProcessor  : public AudioProcessor
+class StsinteractionAudioProcessor  : public AudioProcessor, public HighResolutionTimer
 {
 public:
     StsinteractionAudioProcessor();
@@ -31,6 +31,10 @@ public:
     void changeProgramName (int index, const String& newName) override;
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+	
+	// CALLBACK RELATED
+	void hiResTimerCallback();
+	long pulsesElapsed = 0;
 
 	MovementAnalysis movementAnalysis;
 
