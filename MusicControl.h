@@ -20,6 +20,19 @@ class MusicControl
 	FeedbackVariable feedbackVariables[20];
 	short numFbVariables = 10;
 
+	// MAPPING FUNCTIONS
+	short numMapFunc = 7;
+	String mapFunc_Names[20] = 
+	{
+		"MapFunc 1",
+		"MapFunc 2",
+		"MapFunc 3",
+		"MapFunc 4",
+		"MapFunc 5",
+		"MapFunc 6",
+		"MapFunc 7",
+	};
+
 	// MAPPING MATRIX
 	bool mappingMatrix[20][20] = { false };
 	void updateMappingMatrix(short row, short col, bool onOff)

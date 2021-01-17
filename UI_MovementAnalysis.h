@@ -25,12 +25,13 @@ public:
 	Label IMUOnline[3];							// 0 = TRUNK // 1 = THIGH // 2 = SHANK
 	Label IMUOrientations[3];					// 0 = TRUNK // 1 = THIGH // 2 = SHANK
 	Label JointAngles[2];						// 0 = HIP	 // 1 = KNEE
-	Label STSPhasePresent;	
-
+	Label JointVelocities[2];					// 0 = HIP	 // 1 = KNEE
+	Label STSPhasePresent;
+	ComboBox operationMode;
+	ComboBox orientationAlgo;
 
 	void configure()
 	{
-		
 	}
 
 	void toggleVisible(bool on)
@@ -41,8 +42,14 @@ public:
 			IMUOrientations[i].setVisible(on);
 		}
 
-		for (int j = 0; j < 2; j++)		JointAngles[j].setVisible(on);
+		for (int j = 0; j < 2; j++)
+		{
+			JointAngles[j].setVisible(on);
+			JointVelocities[j].setVisible(on);
+		}
 		STSPhasePresent.setVisible(on);
+		orientationAlgo.setVisible(on);
+		operationMode.setVisible(on);
 	}
 
 	void setLayout()
@@ -53,7 +60,13 @@ public:
 			IMUOrientations[i].setBounds(80, 50 + 15 * i, 150, 15);
 		}
 
-		for (int j = 0; j < 2; j++)		JointAngles[j].setBounds(250, 57.5 + 15 * j, 150, 15);
-		STSPhasePresent.setBounds(400, 65, 200, 15);
+		for (int j = 0; j < 2; j++)
+		{
+			JointAngles[j].setBounds(250, 57.5 + 15 * j, 150, 15);
+			JointVelocities[j].setBounds(425, 57.5 + 15 * j, 150, 15);
+		}
+		STSPhasePresent.setBounds(600, 65, 200, 15);
+		operationMode.setBounds(50, 105, 150, 20);
+		orientationAlgo.setBounds(220, 105, 150, 20);
 	}
 };

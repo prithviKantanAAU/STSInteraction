@@ -17,6 +17,8 @@ public:
 		movementParams[3].initialize(-90, 90, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 180, "Angle Hip");
 		movementParams[5].initialize(0, 180, "Angle Knee");
+		movementParams[6].initialize(0, 200, "Ang Velocity Knee");
+		movementParams[7].initialize(0, 200, "Ang Velocity Hip");
 	};
 	~MovementAnalysis() {};
 
@@ -25,13 +27,24 @@ public:
 	MusicControl musicControl;
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
 	MovementParameter movementParams[10];
+
+	short numOrientationAlgos = 2;
+	short orientAlgo_Present = 1;
+	String OrientationAlgos[5] = { "Madgwick","ACCGYR CompFilt" };
+	short numOperationModes = 2;
+	short operationMode_Present = 1;
+	String OperationModes[5] = { "Slider Simulation","Sensor" };
+
 	// 0 = Trunk AP Orientation
 	// 1 = Thigh AP Orientation
 	// 2 = Shank AP Orientation
 	// 3 = Trunk ML Orientation
 	// 4 = Hip Angle
 	// 5 = Knee Angle
-	short numMovementParams = 6;
+	// 6 = Hip Angular Velocity
+	// 7 = Knee Angular Velocity
+
+	short numMovementParams = 8;
 
 	// STS Phase Variable
 	// 0 = Steady Sitting
@@ -71,6 +84,9 @@ public:
 
 	// Joint Bend Angles
 	float jointAngles_Deg[2] = { 0.0 };
+
+	// Joint Bend Angular Velocities
+	float jointAngularVel_DegPerSec[2] = { 0.0 };
 
 	// Timed Callback
 	void callback()

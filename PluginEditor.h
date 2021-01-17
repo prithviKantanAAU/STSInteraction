@@ -74,9 +74,14 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.IMUOrientations[i]);
 		}
 
-		for (int j = 0; j < 2; j++)		
+		for (int j = 0; j < 2; j++)
+		{
 			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
+			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
+		}
 		addAndMakeVisible(ui_movementAnalysis.STSPhasePresent);
+		addAndMakeVisible(ui_movementAnalysis.operationMode);
+		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
 	}
 
 	// Add Music Control Controls
@@ -135,6 +140,19 @@ private:
 	void movementAnalysis_initializeControls()
 	{
 		movementAnalysis_updateLabels();				// FIRST TIME UPDATE
+
+		// Operation Mode - Sensor / Simulation
+		ui_movementAnalysis.operationMode.addListener(this);
+		for (int i = 0; i < processor.movementAnalysis.numOperationModes; i++)
+			ui_movementAnalysis.operationMode.addItem(processor.movementAnalysis.OperationModes[i], i + 1);
+		ui_movementAnalysis.operationMode.setSelectedId(processor.movementAnalysis.operationMode_Present);
+
+		// Orientation Detection Algorithm - Madgwick / 6DOF Complementary Filter
+		ui_movementAnalysis.orientationAlgo.addListener(this);
+		for (int i = 0; i < processor.movementAnalysis.numOrientationAlgos; i++)
+			ui_movementAnalysis.orientationAlgo.addItem(processor.movementAnalysis.OrientationAlgos[i], i + 1);
+		ui_movementAnalysis.orientationAlgo.setSelectedId(processor.movementAnalysis.orientAlgo_Present);
+		
 	}
 	
 	// Initialize Music Control Elements
@@ -253,11 +271,19 @@ private:
 
 		// JOINT ANGLE DISPLAYS
 		for (int j = 0; j < 2; j++)
+		{
 			ui_movementAnalysis.JointAngles[j].setText(
 				ui_movementAnalysis.JointNames[j] + " Angle: "
 				+ String(processor.movementAnalysis.jointAngles_Deg[j], 2)
 				, dontSendNotification
 			);
+
+			ui_movementAnalysis.JointVelocities[j].setText(
+				ui_movementAnalysis.JointNames[j] + " Ang Vel: "
+				+ String(processor.movementAnalysis.jointAngularVel_DegPerSec[j], 2)
+				, dontSendNotification
+			);
+		}
 
 		// STS PHASE DISPLAY
 		ui_movementAnalysis.STSPhasePresent.setText(

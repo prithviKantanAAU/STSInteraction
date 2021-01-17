@@ -40,6 +40,16 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		}
 	}
 
+	if (box == &ui_movementAnalysis.operationMode)
+	{
+		processor.movementAnalysis.operationMode_Present = box->getSelectedId();
+	}
+
+	if (box == &ui_movementAnalysis.orientationAlgo)
+	{
+		processor.movementAnalysis.orientAlgo_Present = box->getSelectedId();
+	}
+
 	for (int i = 0; i < processor.movementAnalysis.musicControl.numFbVariables; i++)
 	{
 		if (box == &ui_mappingMatrix.mapping_Function[i])
