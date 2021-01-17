@@ -44,7 +44,7 @@ public:
 	// 6 = Hip Angular Velocity
 	// 7 = Knee Angular Velocity
 
-	short numMovementParams = 8;
+	short numMovementParams = 10;
 
 	// STS Phase Variable
 	// 0 = Steady Sitting

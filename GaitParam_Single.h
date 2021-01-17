@@ -5,7 +5,7 @@ class MovementParameter
 {
 public:
 
-	String name = "";
+	String name = "Placeholder";
 	double value = 0;		
 	double minVal = 0;
 	double maxVal = 0;

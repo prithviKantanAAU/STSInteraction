@@ -5,7 +5,7 @@ class FeedbackVariable
 {
 public:
 
-	String name = "";
+	String name = "Placeholder";
 	float minVal = 0;
 	float maxVal = 1;
 	float value = 0;
