@@ -76,7 +76,6 @@ public:
 
 	// DETECTION THRESHOLDS
 	float thresh_Stand_trunk_AP = 10;
-	float thresh_Sit_trunk_AP = 15;
 	float range_horiz[2] = { -95, -85 };
 	float range_vert[2] = {-15,15};
 

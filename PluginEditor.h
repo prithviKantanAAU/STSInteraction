@@ -131,6 +131,13 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
 		}
 
+		addAndMakeVisible(ui_movementAnalysis.range_Horiz);
+		addAndMakeVisible(ui_movementAnalysis.range_Horiz_LAB);
+		addAndMakeVisible(ui_movementAnalysis.range_Vert);
+		addAndMakeVisible(ui_movementAnalysis.range_Vert_LAB);
+		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand);
+		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand_LAB);
+
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
 			addAndMakeVisible(ui_movementAnalysis.stsAnim_joint[i]);
@@ -220,6 +227,28 @@ private:
 				(i, ui_movementAnalysis.simulation_OrientAngles[i].getValue());
 			};
 		}
+
+		ui_movementAnalysis.range_Horiz.setMinValue(processor.movementAnalysis.range_horiz[0]);
+		ui_movementAnalysis.range_Horiz.setMaxValue(processor.movementAnalysis.range_horiz[1]);
+		ui_movementAnalysis.range_Horiz.onValueChange = [this]
+		{
+			processor.movementAnalysis.range_horiz[0] = ui_movementAnalysis.range_Horiz.getMinValue();
+			processor.movementAnalysis.range_horiz[1] = ui_movementAnalysis.range_Horiz.getMaxValue();
+		};
+
+		ui_movementAnalysis.range_Vert.setMinValue(processor.movementAnalysis.range_vert[0]);
+		ui_movementAnalysis.range_Vert.setMaxValue(processor.movementAnalysis.range_vert[1]);
+		ui_movementAnalysis.range_Vert.onValueChange = [this]
+		{
+			processor.movementAnalysis.range_vert[0] = ui_movementAnalysis.range_Vert.getMinValue();
+			processor.movementAnalysis.range_vert[1] = ui_movementAnalysis.range_Vert.getMaxValue();
+		};
+
+		ui_movementAnalysis.thresh_AP_preStand.setValue(processor.movementAnalysis.thresh_Stand_trunk_AP);
+		ui_movementAnalysis.thresh_AP_preStand.onValueChange = [this]
+		{
+			processor.movementAnalysis.thresh_Stand_trunk_AP = ui_movementAnalysis.thresh_AP_preStand.getValue();
+		};
 	}
 	
 	// Initialize Music Control Elements

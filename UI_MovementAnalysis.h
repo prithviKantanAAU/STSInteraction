@@ -29,6 +29,12 @@ public:
 	Label STSPhasePresent;
 	ComboBox operationMode;
 	ComboBox orientationAlgo;
+	Slider range_Vert;
+	Label range_Vert_LAB;
+	Slider range_Horiz;
+	Label range_Horiz_LAB;
+	Slider thresh_AP_preStand;
+	Label thresh_AP_preStand_LAB;
 
 	// Simulation Sliders
 	Slider simulation_OrientAngles[3];
@@ -66,6 +72,34 @@ public:
 				30, 20
 			);
 		}
+
+		// Horizontal Classification Range
+		range_Horiz.setRange(-110, -70);
+		range_Horiz.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+		range_Horiz.setNumDecimalPlacesToDisplay(0);
+		range_Horiz.setColour(range_Horiz.trackColourId, Colours::yellow);
+		range_Horiz.setColour(range_Horiz.backgroundColourId, Colours::blue);
+		range_Horiz_LAB.attachToComponent(&range_Horiz, true);
+		range_Horiz_LAB.setText("Horiz Range", dontSendNotification);
+		range_Horiz.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox,false,30, 20);
+
+		// Vertical Classification Range
+		range_Vert.setRange(-20, 20);
+		range_Vert.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+		range_Vert.setNumDecimalPlacesToDisplay(0);
+		range_Vert.setColour(range_Vert.trackColourId, Colours::yellow);
+		range_Vert.setColour(range_Vert.backgroundColourId, Colours::blue);
+		range_Vert_LAB.attachToComponent(&range_Vert, true);
+		range_Vert_LAB.setText("Vert Range", dontSendNotification);
+		range_Vert.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+
+		// Onset AP Threshold
+		thresh_AP_preStand.setRange(0,40);
+		thresh_AP_preStand.setNumDecimalPlacesToDisplay(0);
+		thresh_AP_preStand.setColour(thresh_AP_preStand.trackColourId, Colours::yellow);
+		thresh_AP_preStand.setColour(thresh_AP_preStand.backgroundColourId, Colours::blue);
+		thresh_AP_preStand_LAB.attachToComponent(&thresh_AP_preStand, true);
+		thresh_AP_preStand_LAB.setText("Onset AP Thresh",dontSendNotification);
 	}
 
 	void toggleVisible(bool on)
@@ -87,6 +121,10 @@ public:
 
 		for (int i = 0; i < 3; i++)
 			simulation_OrientAngles[i].setVisible(on);
+
+		range_Horiz.setVisible(on);
+		range_Vert.setVisible(on);
+		thresh_AP_preStand.setVisible(on);
 
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
@@ -116,8 +154,12 @@ public:
 		operationMode.setBounds(50, 105, 150, 20);
 		orientationAlgo.setBounds(220, 105, 150, 20);
 
-		for (int i = 0; i < 3; i++)
-			simulation_OrientAngles[i].setBounds(50, 135 + 25 * i, 200, 20);
+		range_Horiz.setBounds(100, 135, 200, 20);
+		range_Vert.setBounds(100, 160, 200, 20);
+		thresh_AP_preStand.setBounds(100, 185, 200, 20);
+
+		/*for (int i = 0; i < 3; i++)
+			simulation_OrientAngles[i].setBounds(50, 135 + 25 * i, 200, 20);*/
 	}
 
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
