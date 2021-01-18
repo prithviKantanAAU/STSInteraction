@@ -26,6 +26,48 @@ private:
     StsinteractionAudioProcessor& processor;
 	std::unique_ptr<TabbedComponent> tabs;
 
+	// SIMULATION KEYPRESSES
+	KeyPress TrunkThigh_PlusMinus_RLUD[4];
+
+	void simulation_HandleKeyPresses()
+	{
+		bool isKeyDown[4] = { false, false, false, false};
+		isKeyDown[0] = TrunkThigh_PlusMinus_RLUD[0].isKeyCurrentlyDown(KeyPress::rightKey);
+		isKeyDown[1] = TrunkThigh_PlusMinus_RLUD[1].isKeyCurrentlyDown(KeyPress::leftKey);
+		isKeyDown[2] = TrunkThigh_PlusMinus_RLUD[2].isKeyCurrentlyDown(KeyPress::upKey);
+		isKeyDown[3] = TrunkThigh_PlusMinus_RLUD[3].isKeyCurrentlyDown(KeyPress::downKey);
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (isKeyDown[i])
+			{
+				switch (i)
+				{
+				case 0:
+					ui_movementAnalysis.simulation_OrientAngles[0].setValue(
+						ui_movementAnalysis.simulation_OrientAngles[0].getValue() + 1
+					);
+					break;
+				case 1:
+					ui_movementAnalysis.simulation_OrientAngles[0].setValue(
+						ui_movementAnalysis.simulation_OrientAngles[0].getValue() - 1
+					);
+					break;
+				case 2:
+					ui_movementAnalysis.simulation_OrientAngles[1].setValue(
+						ui_movementAnalysis.simulation_OrientAngles[1].getValue() + 1
+					);
+					break;
+				case 3:
+					ui_movementAnalysis.simulation_OrientAngles[1].setValue(
+						ui_movementAnalysis.simulation_OrientAngles[1].getValue() - 1
+					);
+					break;
+				}
+			}
+		}
+	}
+
 	// INTERFACE PROPERTIES
 	int interface_Width = 900;						// Pixels
 	int interface_Height = 500;						// Pixels
@@ -82,6 +124,22 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.STSPhasePresent);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
 		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
+
+		for (int i = 0; i < 3; i++)
+		{
+			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles[i]);
+			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
+		}
+
+		// STS VISUALIZER
+		for (int i = 0; i < 4; i++)
+			addAndMakeVisible(ui_movementAnalysis.stsAnim_joint[i]);
+		for (int j = 0; j < 20; j++)
+		{
+			addAndMakeVisible(ui_movementAnalysis.stsAnim_trunk[j]);
+			addAndMakeVisible(ui_movementAnalysis.stsAnim_thigh[j]);
+			addAndMakeVisible(ui_movementAnalysis.stsAnim_shank[j]);
+		}
 	}
 
 	// Add Music Control Controls
@@ -153,6 +211,15 @@ private:
 			ui_movementAnalysis.orientationAlgo.addItem(processor.movementAnalysis.OrientationAlgos[i], i + 1);
 		ui_movementAnalysis.orientationAlgo.setSelectedId(processor.movementAnalysis.orientAlgo_Present);
 		
+		// Simulation Sliders
+		for (int i = 0; i < 3; i++)
+		{
+			ui_movementAnalysis.simulation_OrientAngles[i].onValueChange = [this, i]
+			{
+				processor.movementAnalysis.setSimulationAngle
+				(i, ui_movementAnalysis.simulation_OrientAngles[i].getValue());
+			};
+		}
 	}
 	
 	// Initialize Music Control Elements
@@ -289,6 +356,13 @@ private:
 		ui_movementAnalysis.STSPhasePresent.setText(
 			"Present Phase: " + processor.movementAnalysis.STS_Phases[processor.movementAnalysis.STS_Phase]
 			, dontSendNotification
+		);
+
+		// REAL TIME VISUALIZE
+		ui_movementAnalysis.updateSTSAnim(
+			processor.movementAnalysis.orientation_Deg[0],
+			processor.movementAnalysis.orientation_Deg[1],
+			processor.movementAnalysis.orientation_Deg[2]
 		);
 	}
 

@@ -80,7 +80,7 @@ public:
 	float thresh_Deg_Standing_Both = 5;
 
 	// IMU AP Orientation Values
-	float orientation_Deg[3] = { 0.0 };
+	float orientation_Deg[3] = { 0.0, -90.0, 0.0 };
 
 	// Joint Bend Angles
 	float jointAngles_Deg[2] = { 0.0 };
@@ -110,6 +110,12 @@ public:
 		// SHUFFLE PHASE
 		STS_Phase_isChanged = (STS_Phase != STS_Phase_z1) ? true : false;
 		STS_Phase_z1 = STS_Phase;
+	}
+
+	void setSimulationAngle(int sliderIdx, float val)
+	{
+		if (operationMode_Present == 1)
+			orientation_Deg[sliderIdx] = val;
 	}
 
 	float getFBVar_RangedTrigger(float rangeStart, float rangeEnd, int numSteps, float presentValue)

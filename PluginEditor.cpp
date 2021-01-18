@@ -80,6 +80,8 @@ void StsinteractionAudioProcessorEditor::timerCallback()
 		break;
 	case 1:
 		movementAnalysis_updateLabels();
+		if (processor.movementAnalysis.operationMode_Present == 1)
+			simulation_HandleKeyPresses();
 		break;
 	case 2:
 		musicControls_updateLabels();
