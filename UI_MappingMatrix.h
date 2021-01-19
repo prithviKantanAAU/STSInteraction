@@ -42,6 +42,8 @@ class UI_MappingMatrix
 			movementParams_Value[i][1].setColour(movementParams_Value[i][1].backgroundColourId, Colours::blue);
 			audioParams_Value[i][0].setColour(audioParams_Value[i][0].backgroundColourId, Colours::yellow);
 			audioParams_Value[i][1].setColour(audioParams_Value[i][1].backgroundColourId, Colours::blue);
+			labels_movementParams[i].setJustificationType(Justification::centred);
+			labels_audioParams[i].setJustificationType(Justification::centred);
 		}
     }
     
@@ -166,11 +168,11 @@ class UI_MappingMatrix
 
 		for (int i = 0; i < numAP; i++)
 		{
-			width_Lab1 = (fbVars[i].value - fbVars[i].minVal) / (fbVars[i].maxVal - fbVars[i].minVal) * width_Value;
+			width_Lab1 = (fbVars[i].value - fbVars[i].minVal) / (fbVars[i].maxVal - fbVars[i].minVal) * width_Value_AP;
 			width_Lab2 = width_Value_AP - width_Lab1;
 
 			audioParams_Value[i][0].setBounds(
-				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3,
+				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + 8,
 				matrix_startPointY + numMP * gap_interRow + 150,
 				width_Lab1,
 				20

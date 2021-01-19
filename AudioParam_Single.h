@@ -11,13 +11,16 @@ public:
 	float value = 0;
 	short polarity = 1;
 	short mapFunc = 1;
+	short quantLevels_2raisedTo = -1;
 
-	void initialize(float mini, float maxi, short pol, short mapF)
+	void initialize(String apName, float mini, float maxi, short pol, short mapF, short numQuantLevels)
 	{
+		name = apName;
 		minVal = mini;
 		maxVal = maxi;
 		polarity = pol;
 		mapFunc = mapF;
+		quantLevels_2raisedTo = numQuantLevels;
 	}
 
 	FeedbackVariable()

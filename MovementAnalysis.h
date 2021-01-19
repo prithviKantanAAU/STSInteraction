@@ -105,7 +105,7 @@ public:
 	{
 		computeAngles();
 		updateSTSPhase();
-		musicControl.updateFBVariables(movementParams);
+		musicControl.updateFBVariables(movementParams, numMovementParams);
 	}
 
 	// Calculate IMU Orientations and Joint Angles
