@@ -164,6 +164,12 @@ private:
 			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[i]);
 			addAndMakeVisible(ui_mappingMatrix.mapping_Function[i]);
 			addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[i]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[i]);
+			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][0]);
+			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][0]);
+			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][1]);
+			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][1]);
+
 			for (int j = 0; j < 20; j++)	// Rows
 			{
 				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
@@ -266,6 +272,10 @@ private:
 				processor.movementAnalysis.movementParams[i].name
 				, dontSendNotification
 			);
+			if (processor.movementAnalysis.movementParams[i].name == "Placeholder")
+				ui_mappingMatrix.labels_movementParams[i].setColour(
+					ui_mappingMatrix.labels_movementParams[i].textColourId, Colours::red
+				);
 
 			for (int j = 0; j < processor.movementAnalysis.musicControl.numFbVariables; j++)
 			{
@@ -288,12 +298,19 @@ private:
 				, dontSendNotification
 			);
 
+			if (processor.movementAnalysis.musicControl.feedbackVariables[k].name == "Placeholder")
+				ui_mappingMatrix.labels_audioParams[k].setColour(
+					ui_mappingMatrix.labels_audioParams[k].textColourId, Colours::red
+				);
+
 			// ADD MAPPING FUNCTION SHAPES TO ui_mappingMatrix.mapping_Function[k]
 
 			ui_mappingMatrix.mapping_Polarity[k].addListener(this);
 			ui_mappingMatrix.mapping_Polarity[k].addItem("+", 1);
 			ui_mappingMatrix.mapping_Polarity[k].addItem("-", 2);
 			ui_mappingMatrix.mapping_Polarity[k].setSelectedId(1);
+
+			// ADD QUANTIZATION LEVELS 
 		}
 	}
 
@@ -404,7 +421,14 @@ private:
 	// Update Mapping Matrix Tab Elements
 	void mappingMatrix_updateLabels()
 	{
-
+		ui_mappingMatrix.updateValueVisualizers(
+			interface_Width,
+			interface_Height,
+			processor.movementAnalysis.numMovementParams,
+			processor.movementAnalysis.musicControl.numFbVariables,
+			processor.movementAnalysis.movementParams,
+			processor.movementAnalysis.musicControl.feedbackVariables
+		);
 	}
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessorEditor)

@@ -8,7 +8,7 @@ public:
 	String name = "Placeholder";
 	double value = 0;		
 	double minVal = 0;
-	double maxVal = 0;
+	double maxVal = 1;
 
 	void initialize(float mini, float maxi, String mpName)
 	{

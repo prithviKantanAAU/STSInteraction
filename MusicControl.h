@@ -21,16 +21,15 @@ class MusicControl
 	short numFbVariables = 10;
 
 	// MAPPING FUNCTIONS
-	short numMapFunc = 7;
+	short numMapFunc = 6;
 	String mapFunc_Names[20] = 
 	{
-		"MapFunc 1",
-		"MapFunc 2",
-		"MapFunc 3",
-		"MapFunc 4",
-		"MapFunc 5",
-		"MapFunc 6",
-		"MapFunc 7",
+		"Linear",
+		"Exp 1",
+		"Exp 2",
+		"Log 1",
+		"Log 2",
+		"Sigmoid"
 	};
 
 	// MAPPING MATRIX
@@ -40,13 +39,13 @@ class MusicControl
 		mappingMatrix[row][col] = onOff;
 	}
 
-	void updateFBVariables(MovementParameter[], short STSPhase, bool isSTSPhaseChanged)
+	void updateFBVariables(MovementParameter[])
 	{
-		// PHASE CHANGE PERC TRIGGER
-		if (isSTSPhaseChanged)
-		{
-			// HANDLE CASEWISE DEPENDING ON ACTUAL PHASE
-		}
+		// FIND FRACTION SUM OF ALL MPs MAPPED TO A SINGLE AP (LIMIT TO 1)
+
+		// CALCULATE MAPPING FUNCTION FOR EACH AP, APPLY QUANTIZATION IF NEEDED
+
+		// APPLY SPECIAL PROCESSING (E.G. NOTE FREQUENCY COMPUTATION)
 
 		// MAP FB VARIABLES TO FAUST
 		mapFBVariables();

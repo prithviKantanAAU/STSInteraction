@@ -12,14 +12,15 @@ class MovementAnalysis
 public:
 	MovementAnalysis() 
 	{
-		movementParams[0].initialize(-90, 90, "Orientation Trunk AP");
+		movementParams[0].initialize(-30, 90, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 90, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
 		movementParams[3].initialize(-90, 90, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 180, "Angle Hip");
 		movementParams[5].initialize(0, 180, "Angle Knee");
-		movementParams[6].initialize(0, 200, "Ang Velocity Knee");
-		movementParams[7].initialize(0, 200, "Ang Velocity Hip");
+		movementParams[6].initialize(0, 5, "Ang Velocity Knee");
+		movementParams[7].initialize(0, 5, "Ang Velocity Hip");
+		movementParams[8].initialize(0, 5, "STS Phase");
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -104,7 +105,7 @@ public:
 	{
 		computeAngles();
 		updateSTSPhase();
-		musicControl.updateFBVariables(movementParams, STS_Phase, STS_Phase_isChanged);
+		musicControl.updateFBVariables(movementParams);
 	}
 
 	// Calculate IMU Orientations and Joint Angles
@@ -133,6 +134,7 @@ public:
 		// COMPUTE STS PHASE BASED ON ANGLES AND PREVIOUS PHASE
 		if(!updateSTSPhase_CheckTransition_POS());
 		updateSTSPhase_CheckTransition_NEG();
+		movementParams[8].storeValue(STS_Phase);
 
 		// SHUFFLE PHASE
 		STS_Phase_isChanged = (STS_Phase != STS_Phase_z1) ? true : false;
