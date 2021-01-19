@@ -54,12 +54,18 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 	{
 		if (box == &ui_mappingMatrix.mapping_Function[i])
 		{
-			// CHANGE MAPPING FUNCTION FOR THAT PARTICULAR AP
+			processor.movementAnalysis.musicControl.feedbackVariables[i].mapFunc = box->getSelectedId();
 		}
 
 		if (box == &ui_mappingMatrix.mapping_Polarity[i])
 		{
 			processor.movementAnalysis.musicControl.feedbackVariables[i].polarity = box->getSelectedId();
+		}
+
+		if (box == &ui_mappingMatrix.mapping_QuantLevels[i])
+		{
+			processor.movementAnalysis.musicControl.feedbackVariables[i].quantLevels_2raisedTo 
+				= box->getSelectedId() - 1;
 		}
 	}
 }

@@ -304,6 +304,17 @@ private:
 				);
 
 			// ADD MAPPING FUNCTION SHAPES TO ui_mappingMatrix.mapping_Function[k]
+			ui_mappingMatrix.mapping_Function[k].addListener(this);
+			for (int m = 0; m < processor.movementAnalysis.musicControl.numMapFunc; m++)
+			{
+				ui_mappingMatrix.mapping_Function[k].addItem(
+					processor.movementAnalysis.musicControl.mapFunc_Names[m]
+					,m + 1
+				);
+			}
+			ui_mappingMatrix.mapping_Function[k].setSelectedId(
+				processor.movementAnalysis.musicControl.feedbackVariables[k].mapFunc
+			);
 
 			ui_mappingMatrix.mapping_Polarity[k].addListener(this);
 			ui_mappingMatrix.mapping_Polarity[k].addItem("+", 1);
@@ -311,6 +322,16 @@ private:
 			ui_mappingMatrix.mapping_Polarity[k].setSelectedId(1);
 
 			// ADD QUANTIZATION LEVELS 
+			ui_mappingMatrix.mapping_QuantLevels[k].addListener(this);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("0 (none)", 1);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("1", 2);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("2", 3);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("3", 4);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("4", 5);
+			ui_mappingMatrix.mapping_QuantLevels[k].setSelectedId(
+				processor.movementAnalysis.musicControl.feedbackVariables[k].quantLevels_2raisedTo + 1
+			);
+
 		}
 	}
 

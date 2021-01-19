@@ -53,6 +53,7 @@ class MusicControl
 		double fbVar_Value_Temp = 0;
 		for (int i = 0; i < numFbVariables; i++)
 		{
+			fbVar_Value_Temp = 0;
 			if (checkIfFbVarMapped(i, numMP))		// ONLY COMPUTE IF SOMETHING IS MAPPED TO FBVAR
 			{
 				// FIND FRACTION SUM OF ALL MPs MAPPED TO A SINGLE AP (LIMIT TO 1)
@@ -100,25 +101,27 @@ class MusicControl
 	{
 		short mapFuncIdx = feedbackVariables[fbVar_Idx].mapFunc;
 
+		if (feedbackVariables[fbVar_Idx].polarity == 2) *val = 1 - *val;
+
 		switch (mapFuncIdx)
 		{
 		case 1:
 			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 2:
-			*val = pow(*val, 2);
+			*val = pow(*val, 1.5);
 			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 3:
-			*val = pow(*val, 3);
+			*val = pow(*val, 2);
 			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 4:
-			*val = pow(*val, 0.5);
+			*val = pow(*val, 0.75);
 			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 5:
-			*val = pow(*val, 0.33);
+			*val = pow(*val, 0.5);
 			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 6:
