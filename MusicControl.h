@@ -2,43 +2,49 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "GaitParam_Single.h"
 #include "AudioParam_Single.h"
-
-// INCLUDE FAUST
+#include "FaustStrings.h"
+#include "MusicInfoCompute.h"
+#include "MixerSettings.h"
 
 class MusicControl
 {
-    public:
-    MusicControl() 
+public:
+	MusicControl()
 	{
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// initialize(String apName, float mini, float maxi, short pol, short mapF)
-		feedbackVariables[0].initialize("Perc Tr", 0, 5, 1, 1, 4);
-		feedbackVariables[1].initialize("Mel Tr/Fr", 0, 15, 1, 1, 4);
-		feedbackVariables[2].initialize("Chord Tr/Fr", 0, 7, 1, 2, 3);
-		feedbackVariables[3].initialize("Detune", 0, 1, 1, 6, 0);
-		feedbackVariables[4].initialize("Pan", 0, 1, 1, 5, 0);
-		feedbackVariables[5].initialize("Perc2 Tr", 0, 10, 1, 4, 4);
-		feedbackVariables[6].initialize("Bass Tr", 0, 7, 1, 3, 3);
-		feedbackVariables[7].initialize("Dynamics", 0, 10, 1, 2, 0);
+		// initialize(String apName, float mini, float maxi, short pol, short mapF, short numSynthControls)
+		feedbackVariables[0].initialize("Perc Tr", 0, 5, 1, 1, 4, 1);
+		feedbackVariables[1].initialize("Mel Tr/Fr", 0, 15, 1, 1, 4, 1);
+		feedbackVariables[2].initialize("Chord Tr/Fr", 0, 7, 1, 2, 3, 4);
+		feedbackVariables[3].initialize("Detune", 0, 1, 1, 6, 0, 1);
+		feedbackVariables[4].initialize("Pan", 0, 1, 1, 5, 0, 1);
+		feedbackVariables[5].initialize("Perc2 Tr", 0, 10, 1, 4, 4, 1);
+		feedbackVariables[6].initialize("Bass Tr/Fr", 0, 7, 1, 3, 3, 1);
+		feedbackVariables[7].initialize("Dynamics", 0, 10, 1, 2, 0, 1);
 	};
-    ~MusicControl() {};
+	~MusicControl() {};
 
 	// FAUST OBJECT
-	// CLASS FOR MUSIC TRANSFORMATION
-	
+	bool isMusicDSP_On = false;
+
 	FeedbackVariable feedbackVariables[20];
 	short numFbVariables = 10;
 
+	// HELPER CLASSES
+	FaustStrings faustStrings;
+	MusicInfoCompute musicInfoCompute;
+	MixerSettings mixerSettings;
+
 	// MAPPING FUNCTIONS
 	short numMapFunc = 6;
-	String mapFunc_Names[20] = 
+	String mapFunc_Names[20] =
 	{
-		"Linear",
-		"Exp 1",
-		"Exp 2",
-		"Log 1",
-		"Log 2",
-		"Sigmoid"
+		"Ln",
+		"Ex1",
+		"Ex2",
+		"Lg1",
+		"Lg2",
+		"Sgm"
 	};
 
 	// MAPPING MATRIX
@@ -48,9 +54,12 @@ class MusicControl
 		mappingMatrix[row][col] = onOff;
 	}
 
+	// MAIN CALLBACK FUNCTION IN CLASS
 	void updateFBVariables(MovementParameter mpArray[], int numMP)
 	{
 		double fbVar_Value_Temp = 0;
+		double fbVar_FinalVals[4] = { 0,0,0,0 };
+
 		for (int i = 0; i < numFbVariables; i++)
 		{
 			fbVar_Value_Temp = 0;
@@ -61,11 +70,11 @@ class MusicControl
 				{
 					if (mappingMatrix[j][i])
 					{
-						fbVar_Value_Temp += (mpArray[j].value - mpArray[j].minVal) 
-											/ (mpArray[j].maxVal - mpArray[j].minVal);
+						fbVar_Value_Temp += (mpArray[j].value - mpArray[j].minVal)
+							/ (mpArray[j].maxVal - mpArray[j].minVal);
 					}
 				}
-				
+
 				// CONSTRAIN VALUE BETWEEN 0 and 1
 				fbVar_Value_Temp = jlimit(0.0, 1.0, fbVar_Value_Temp);
 
@@ -73,19 +82,25 @@ class MusicControl
 				applyMapFunc(&fbVar_Value_Temp, i);
 
 				// APPLY SPECIAL PROCESSING (E.G. NOTE FREQUENCY COMPUTATION)
-				applySpecialMappingProcessing(&fbVar_Value_Temp, i);
+				applySpecialMappingProcessing(&fbVar_Value_Temp, i, fbVar_FinalVals);
 
 				feedbackVariables[i].value = fbVar_Value_Temp;
 			}
-			else feedbackVariables[i].value = 0;	// SET FB VAR TO 0 IF UNMAPPED
-			mapFBVariable(i);
+			else // SET FB VAR TO 0 IF UNMAPPED
+			{
+				feedbackVariables[i].value = 0;
+				for (int k = 0; k < 4; k++) fbVar_FinalVals[k] = 0;
+			}
+
+			// MAP TO FAUST
+			mapFBVariable(i, fbVar_FinalVals);
 		}
 	}
 
 	bool checkIfFbVarMapped(short fbVar_Idx, short numMp)
 	{
 		bool isMapped = false;
-		
+
 		for (int i = 0; i < numMp; i++)
 		{
 			if (mappingMatrix[i][fbVar_Idx])
@@ -129,7 +144,7 @@ class MusicControl
 			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		}
-		
+
 		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo,
 			(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal));
 	}
@@ -160,12 +175,48 @@ class MusicControl
 		}
 	};
 
-	void applySpecialMappingProcessing(double *val, short fbVar_Idx)
+	void applySpecialMappingProcessing(double *val, short fbVar_Idx, double fbVar_finalArray[])
+	{
+		// DEFAULT
+		fbVar_finalArray[0] = *val;
+
+		// MEL FREQ
+		if (feedbackVariables[fbVar_Idx].name == "Mel Tr/Fr")
+		{
+
+		}
+
+		// CHORD FREQS
+		if (feedbackVariables[fbVar_Idx].name == "Chord Tr/Fr")
+		{
+
+		}
+
+		// BASS FREQS
+		if (feedbackVariables[fbVar_Idx].name == "Bass Tr/Fr")
+		{
+
+		}
+	}
+
+	void mapFBVariable(int fbVar_Idx, double fbVar_finalValues[])
+	{
+		// FOR EACH SYNTH CONTROL
+		for (int i = 0; i < feedbackVariables[fbVar_Idx].numSynthControls; i++)
+		{
+			// MAP ARRAY VALUES TO DSPFAUST CONTROLS
+		}
+	}
+
+	// WHEN MUSIC PLAYBACK IS ENABLED - SAME AS PREPARE TO PLAY
+	void startMusicDSP()
 	{
 
 	}
 
-	void mapFBVariable(int fbVar_Idx)
+	// WHEN MUSIC PLAYBACK IS DISABLED
+	void stopMusicDSP()
 	{
+
 	}
 };

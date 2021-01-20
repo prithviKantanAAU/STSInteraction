@@ -323,7 +323,7 @@ private:
 
 			// ADD QUANTIZATION LEVELS 
 			ui_mappingMatrix.mapping_QuantLevels[k].addListener(this);
-			ui_mappingMatrix.mapping_QuantLevels[k].addItem("0 (none)", 1);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("0", 1);
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("1", 2);
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("2", 3);
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("3", 4);
