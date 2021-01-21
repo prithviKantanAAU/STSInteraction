@@ -35,47 +35,44 @@ array_soniSliders(idx,defaultVals) = finalGroup with
 SONI_1_DefaultVals = 0,0,0,0;
 SONI_1_PercTr = array_soniSliders(1,SONI_1_DefaultVals);
 SONI_2_DefaultVals = 440,0,0,0;
-SONI_2_MelodyTrFr = array_soniSliders(2,SONI_2_DefaultVals);
-SONI_3_DefaultVals = 440,440,440,440;
-SONI_3_ChordTrFr = array_soniSliders(3,SONI_3_DefaultVals);
-SONI_4_DefaultVals = 0,0,0,0;
-SONI_4_Detune = array_soniSliders(4,SONI_4_DefaultVals);
-SONI_5_DefaultVals = 0.5,0,0,0;
-SONI_5_Pan = array_soniSliders(5,SONI_5_DefaultVals);
+SONI_2_MelodyFr = array_soniSliders(2,SONI_2_DefaultVals);
+SONI_3_DefaultVals = 0,0,0,0;
+SONI_3_MelodyTr = array_soniSliders(3,SONI_3_DefaultVals);
+SONI_4_DefaultVals = 440, 440, 440, 440;
+SONI_4_ChordFr = array_soniSliders(4,SONI_4_DefaultVals);
+SONI_5_DefaultVals = 0,0,0,0;
+SONI_5_ChordTr = array_soniSliders(5,SONI_5_DefaultVals);
 SONI_6_DefaultVals = 0,0,0,0;
-SONI_6_Perc2Tr = array_soniSliders(6,SONI_6_DefaultVals);
-SONI_7_DefaultVals = 0,0,0,0;
-SONI_7_BassTrFr = array_soniSliders(7,SONI_7_DefaultVals);
-SONI_8_DefaultVals = 7,0,0,0;
-SONI_8_Dynamics = array_soniSliders(8,SONI_8_DefaultVals);
-SONI_9_DefaultVals = 0.5,0,0,0;
-SONI_9_Pitch = array_soniSliders(9,SONI_9_DefaultVals);
+SONI_6_Detune = array_soniSliders(6,SONI_6_DefaultVals);
+SONI_7_DefaultVals = 0.5,0,0,0;
+SONI_7_Pan = array_soniSliders(7,SONI_7_DefaultVals);
+SONI_8_DefaultVals = 0,0,0,0;
+SONI_8_Perc2Tr = array_soniSliders(8,SONI_8_DefaultVals);
+SONI_9_DefaultVals = 7,0,0,0;
+SONI_9_Dynamics = array_soniSliders(9,SONI_9_DefaultVals);
+SONI_10_DefaultVals = 0.5,0,0,0;
+SONI_10_PitchWarp = array_soniSliders(10,SONI_10_DefaultVals);
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
 
-FRQ_MEL = SONI_2_MelodyTrFr : ba.selectn(4,0);						// TRACK 2
-TRG_MEL = FVToTrigger(FRQ_MEL);										
+FRQ_MEL = SONI_2_MelodyFr : ba.selectn(4,0);						// TRACK 2
+TRG_MEL = FVToTrigger(SONI_3_MelodyTr : ba.selectn(4,0));										
 
-FRQ_CHORD_N1 = SONI_3_ChordTrFr : ba.selectn(4,0);					// TRACK 3
-TRG_CHORD_N1 = FVToTrigger(FRQ_CHORD_N1);		
-FRQ_CHORD_N2 = SONI_3_ChordTrFr : ba.selectn(4,1);
-TRG_CHORD_N2 = FVToTrigger(FRQ_CHORD_N2);
-FRQ_CHORD_N3 = SONI_3_ChordTrFr : ba.selectn(4,2);
-TRG_CHORD_N3 = FVToTrigger(FRQ_CHORD_N3);
-FRQ_CHORD_N4 = SONI_3_ChordTrFr : ba.selectn(4,3);
-TRG_CHORD_N4 = FVToTrigger(FRQ_CHORD_N4);
-TRG_LIST_CHORD = TRG_CHORD_N1,TRG_CHORD_N2,TRG_CHORD_N3,TRG_CHORD_N4;
+FRQ_CHORD_N1 = SONI_4_ChordFr : ba.selectn(4,0);					// TRACK 3
+FRQ_CHORD_N2 = SONI_4_ChordFr : ba.selectn(4,1);
+FRQ_CHORD_N3 = SONI_4_ChordFr : ba.selectn(4,2);
+FRQ_CHORD_N4 = SONI_4_ChordFr : ba.selectn(4,3);
+TRG_CHORD = FVToTrigger(SONI_5_ChordTr : ba.selectn(4,0));		
 
-TRG_PERC_2 = FVToTrigger(SONI_6_Perc2Tr : ba.selectn(4,0));			// TRACK 4
+TRG_PERC_2 = FVToTrigger(SONI_8_Perc2Tr : ba.selectn(4,0));			// TRACK 4
 
-FRQ_BASS = SONI_7_BassTrFr: ba.selectn(4,0);						// TRACK 5
-TRG_BASS = FVToTrigger(FRQ_BASS);
+FRQ_BASS = FRQ_CHORD_N1 / 2.0;										// TRACK 5
 
-PARAM_VAL_DETUNE = SONI_4_Detune : ba.selectn(4,0);					// DETUNE
-PARAM_VAL_PAN = SONI_5_Pan : ba.selectn(4,0);						// PAN
-PARAM_VAL_DYNAMICS = SONI_8_Dynamics : ba.selectn(4,0);				// DYNAMICS
-PARAM_VAL_PITCH = SONI_9_Pitch : ba.selectn(4,0);					// PITCH
+PARAM_VAL_DETUNE = SONI_6_Detune : ba.selectn(4,0);					// DETUNE
+PARAM_VAL_PAN = SONI_7_Pan : ba.selectn(4,0);						// PAN
+PARAM_VAL_DYNAMICS = SONI_9_Dynamics : ba.selectn(4,0);				// DYNAMICS
+PARAM_VAL_PITCH = SONI_10_PitchWarp : ba.selectn(4,0);				// PITCH
 
 // TRACK SYNTHESIS DEFINITION  
 
@@ -89,15 +86,15 @@ samplePlayer(PERC_MAIN_SMPL_5,TRG_PERC_MAIN),
 samplePlayer(PERC_MAIN_SMPL_6,TRG_PERC_MAIN) : ba.selectn(6,TRG_PERC_MAIN) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
 
 // TRACK 2 - MELODY
-F0_M = FRQ_MEL : Soni_FreqWarpFactor;
+F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
 synthFunc_Melody(freq) = fmSynth_Versatile(freq,MALLET_MRATIO,MALLET_I_FIXED,MALLET_I_ENV,MALLET_A,MALLET_D,MALLET_S,MALLET_R,MALLET_ENVTYPE,TRG_MEL,PARAM_VAL_DYNAMICS,PARAM_VAL_DYNAMICS/2.0);
 Synth_T2_Melody = leadSynth(F0_M,synthFunc_Melody,PARAM_VAL_DYNAMICS,TRG_MEL,RL_M,FC_LP_M,PARAM_VAL_DYNAMICS/2.0) : stereoChannel(2);
   
 // TRACK 3 - CHORD
 FREQ_LIST_C = FRQ_CHORD_N1,FRQ_CHORD_N2,FRQ_CHORD_N3,FRQ_CHORD_N4;																// LIST MIDI KEYS
 F0_LIST_HZ_C = getChordFinalFreqs(FREQ_LIST_C);																					// MIDI KEYS TO FREQ
-chordFreq(noteIdx) = F0_LIST_HZ_C : ba.selectn(4,noteIdx);																		// FREQ SELECTOR
-chordTrg(noteIdx) =  TRG_LIST_CHORD	  : ba.selectn(4,noteIdx);																	// TRG SELECTOR
+chordFreq(noteIdx) = F0_LIST_HZ_C : ba.selectn(4,noteIdx) : ba.sAndH(TRG_CHORD);																		// FREQ SELECTOR
+chordTrg(noteIdx) =  TRG_CHORD;																								// TRG SELECTOR
 synthFunc_Chord(trigger,freq) = pianoSim_singleNote(freq,trigger,PARAM_VAL_DYNAMICS/2);
 chordSum = par(i,4,chordSingle_Synth(chordFreq(i), synthFunc_Chord(chordTrg(i))) : stereoEffect(applyVelocity(PARAM_VAL_DYNAMICS,chordTrg(i),10))) :> _,_;
 Synth_T3_Chord = chordSum : stereoChannel(3);
@@ -108,8 +105,8 @@ samplePlayer(PERC_SEC_SMPL_1,TRG_PERC_2),
 samplePlayer(PERC_SEC_SMPL_2,TRG_PERC_2) : ba.selectn(2, PARAM_VAL_DYNAMICS > 8.5) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_2,10) : monoChannel(4) : getPanFunction(2);
 
 // TRACK 5 - BASSLINE
-F0_R = FRQ_BASS : Soni_FreqWarpFactor;
-Synth_T5_Bass = fmSynth(F0_R,MOD_NUM_R,FREQ_FACTOR_R,RL_R,MOD_DEPTH_R,TRG_BASS) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_BASS,10) : monoChannel(5) : getPanFunction(0);
+F0_R = FRQ_BASS : ba.sAndH(TRG_CHORD) : Soni_FreqWarpFactor;
+Synth_T5_Bass = fmSynth(F0_R,MOD_NUM_R,FREQ_FACTOR_R,RL_R,MOD_DEPTH_R,TRG_CHORD) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_CHORD,10) : monoChannel(5) : getPanFunction(0);
 
 track1 = Synth_T1_MainPerc : stereoMasterSection(1);
 track2 = Synth_T2_Melody   : stereoMasterSection(2);
