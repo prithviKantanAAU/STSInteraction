@@ -5,6 +5,7 @@
 #include "FaustStrings.h"
 #include "MusicInfoCompute.h"
 #include "MixerSettings.h"
+#include "DspFaust.h"
 
 class MusicControl
 {
@@ -13,18 +14,26 @@ public:
 	{
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// initialize(String apName, float mini, float maxi, short pol, short mapF, short numSynthControls)
-		feedbackVariables[0].initialize("Perc Tr", 0, 5, 1, 1, 4, 1);
-		feedbackVariables[1].initialize("Mel Tr/Fr", 0, 15, 1, 1, 4, 1);
-		feedbackVariables[2].initialize("Chord Tr/Fr", 0, 7, 1, 2, 3, 4);
-		feedbackVariables[3].initialize("Detune", 0, 1, 1, 6, 0, 1);
-		feedbackVariables[4].initialize("Pan", 0, 1, 1, 5, 0, 1);
-		feedbackVariables[5].initialize("Perc2 Tr", 0, 10, 1, 4, 4, 1);
-		feedbackVariables[6].initialize("Bass Tr/Fr", 0, 7, 1, 3, 3, 1);
-		feedbackVariables[7].initialize("Dynamics", 0, 10, 1, 2, 0, 1);
+		feedbackVariables[0].initialize("Perc Tr", 0, 5, 0, 1, 4, 1);
+		feedbackVariables[1].initialize("Mel Fr", 100, 700, 1, 1, 4, 1);
+		feedbackVariables[2].initialize("Mel Tr", 0, 1, 0, 1, 4, 1);
+		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 1, 2, 3, 4);
+		feedbackVariables[4].initialize("Chord Tr", 0, 1, 1, 2, 3, 4);
+		feedbackVariables[5].initialize("Detune", 0, 1, 1, 6, 0, 1);
+		feedbackVariables[6].initialize("Pan", 0, 1, 1, 5, 0, 1);
+		feedbackVariables[7].initialize("Perc2 Tr", 0, 10, 1, 4, 4, 1);
+		feedbackVariables[8].initialize("Dynamics", 7, 10, 1, 2, 0, 1);
+		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 1, 2, 0, 1);
+
+		dspFaust.start();
 	};
-	~MusicControl() {};
+	~MusicControl() 
+	{
+		dspFaust.stop();
+	};
 
 	// FAUST OBJECT
+	DspFaust dspFaust;
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
@@ -83,13 +92,11 @@ public:
 
 				// APPLY SPECIAL PROCESSING (E.G. NOTE FREQUENCY COMPUTATION)
 				applySpecialMappingProcessing(&fbVar_Value_Temp, i, fbVar_FinalVals);
-
-				feedbackVariables[i].value = fbVar_Value_Temp;
 			}
 			else // SET FB VAR TO 0 IF UNMAPPED
 			{
-				feedbackVariables[i].value = 0;
-				for (int k = 0; k < 4; k++) fbVar_FinalVals[k] = 0;
+				feedbackVariables[i].value = feedbackVariables[i].minVal;
+				for (int k = 0; k < 4; k++) fbVar_FinalVals[k] = feedbackVariables[i].minVal;
 			}
 
 			// MAP TO FAUST
@@ -147,6 +154,10 @@ public:
 
 		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo,
 			(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal));
+
+		*val += feedbackVariables[fbVar_Idx].minVal;
+
+		feedbackVariables[fbVar_Idx].value = *val;
 	}
 
 	double quantizeParam(float currentParamValue, int quantLevels_2raisedTo, float range)
@@ -205,6 +216,8 @@ public:
 		for (int i = 0; i < feedbackVariables[fbVar_Idx].numSynthControls; i++)
 		{
 			// MAP ARRAY VALUES TO DSPFAUST CONTROLS
+			dspFaust.setParamValue(faustStrings.getFBVar_FAUSTAddress_Full(fbVar_Idx, i).c_str(),
+			fbVar_finalValues[i]);
 		}
 	}
 
