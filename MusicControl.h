@@ -192,15 +192,21 @@ public:
 		fbVar_finalArray[0] = *val;
 
 		// MEL FREQ
-		if (feedbackVariables[fbVar_Idx].name == "Mel Tr/Fr")
+		if (feedbackVariables[fbVar_Idx].name == "Mel Fr")
 		{
+			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
+				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 
+			musicInfoCompute.convert_FbVar_to_ScaleDeg_to_Freq_MONO(&fbVar_finalArray[0]);
 		}
 
 		// CHORD FREQS
-		if (feedbackVariables[fbVar_Idx].name == "Chord Tr/Fr")
+		if (feedbackVariables[fbVar_Idx].name == "Chord Fr")
 		{
+			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
+				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 
+			musicInfoCompute.convert_FbVar_to_ChordDeg_to_Freqs_POLY(fbVar_finalArray);
 		}
 
 		// BASS FREQS
