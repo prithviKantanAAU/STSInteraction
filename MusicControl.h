@@ -168,17 +168,18 @@ public:
 			int numQuantizationSteps = pow(2, quantLevels_2raisedTo);
 			float quantizationStepSize = range / (float)numQuantizationSteps;
 
-			float diff = 100;
+			float diff = 1000;
+			bool stepFound = false;
 			for (int i = 0; i < numQuantizationSteps + 1; i++)
 			{
-				float currentStepForTest = 0;
-				currentStepForTest += i * quantizationStepSize;
-				if (diff > fabs(currentParamValue - currentStepForTest))
+				float currentStepForTest = i * quantizationStepSize;
+				if (fabs(currentParamValue - currentStepForTest) <= diff && currentParamValue > currentStepForTest)
 				{
+					stepFound = true;
 					diff = currentParamValue - currentStepForTest;
 				}
 			}
-			quantizedParam = currentParamValue - diff;
+			if (stepFound) quantizedParam = currentParamValue - diff;
 			return quantizedParam;
 		}
 	};

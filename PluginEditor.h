@@ -45,22 +45,22 @@ private:
 				{
 				case 0:
 					ui_movementAnalysis.simulation_OrientAngles[0].setValue(
-						ui_movementAnalysis.simulation_OrientAngles[0].getValue() + 1
+						ui_movementAnalysis.simulation_OrientAngles[0].getValue() + 1.7
 					);
 					break;
 				case 1:
 					ui_movementAnalysis.simulation_OrientAngles[0].setValue(
-						ui_movementAnalysis.simulation_OrientAngles[0].getValue() - 1
+						ui_movementAnalysis.simulation_OrientAngles[0].getValue() - 1.7
 					);
 					break;
 				case 2:
 					ui_movementAnalysis.simulation_OrientAngles[1].setValue(
-						ui_movementAnalysis.simulation_OrientAngles[1].getValue() + 1
+						ui_movementAnalysis.simulation_OrientAngles[1].getValue() + 2.3
 					);
 					break;
 				case 3:
 					ui_movementAnalysis.simulation_OrientAngles[1].setValue(
-						ui_movementAnalysis.simulation_OrientAngles[1].getValue() - 1
+						ui_movementAnalysis.simulation_OrientAngles[1].getValue() - 2.3
 					);
 					break;
 				}
@@ -412,6 +412,7 @@ private:
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("2", 3);
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("3", 4);
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("4", 5);
+			ui_mappingMatrix.mapping_QuantLevels[k].addItem("5", 6);
 			ui_mappingMatrix.mapping_QuantLevels[k].setSelectedId(
 				processor.movementAnalysis.musicControl.feedbackVariables[k].quantLevels_2raisedTo + 1
 			);
