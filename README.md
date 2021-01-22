@@ -135,17 +135,18 @@ In case you would like to use the the built-in accelerometer or gyroscope of you
 * **80**: `/STS_Synth/Mapping_Tabs/Mixer_And_Master/Track_Mute/5`
 * **81**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_1/Control_0`
 * **82**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_10/Control_0`
-* **83**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_2/Control_0`
-* **84**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_3/Control_0`
-* **85**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_0`
-* **86**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_1`
-* **87**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_2`
-* **88**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_3`
-* **89**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_5/Control_0`
-* **90**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_6/Control_0`
-* **91**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_7/Control_0`
-* **92**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_8/Control_0`
-* **93**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_9/Control_0`
+* **83**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_11/Control_0`
+* **84**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_2/Control_0`
+* **85**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_3/Control_0`
+* **86**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_0`
+* **87**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_1`
+* **88**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_2`
+* **89**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_4/Control_3`
+* **90**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_5/Control_0`
+* **91**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_6/Control_0`
+* **92**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_7/Control_0`
+* **93**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_8/Control_0`
+* **94**: `/STS_Synth/Mapping_Tabs/Sonification_Control/Soni_9/Control_0`
 
 
 ## API Reference

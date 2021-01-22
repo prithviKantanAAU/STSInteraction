@@ -24,6 +24,7 @@ public:
 		feedbackVariables[7].initialize("Perc2 Tr", 0, 10, 1, 4, 4, 1);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 1, 2, 0, 1);
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 1, 2, 0, 1);
+		feedbackVariables[10].initialize("Vowel", 0, 2, 1, 2, 0, 1);
 	};
 	~MusicControl() 
 	{
@@ -34,7 +35,7 @@ public:
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 10;
+	short numFbVariables = 11;
 
 	// HELPER CLASSES
 	FaustStrings faustStrings;
