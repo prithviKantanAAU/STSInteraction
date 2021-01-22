@@ -50,6 +50,33 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		processor.movementAnalysis.orientAlgo_Present = box->getSelectedId();
 	}
 
+	if (box == &ui_musicControl.tonic)
+	{
+		processor.movementAnalysis.musicControl.musicInfoCompute.idx_tonic_Present = 
+			box->getSelectedId() - 1;
+	}
+
+	if (box == &ui_musicControl.scale)
+	{
+		processor.movementAnalysis.musicControl.musicInfoCompute.idx_scale_Present = 
+			box->getSelectedId() - 1;
+	}
+
+	if (box == &ui_musicControl.chord_Type)
+	{
+		processor.movementAnalysis.musicControl.musicInfoCompute.idx_chordTypes_Present =
+			box->getSelectedId() - 1;
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (box == &ui_musicControl.chord_Degree[i])
+		{
+			processor.movementAnalysis.musicControl.musicInfoCompute.chord_degSequence[i] =
+				box->getSelectedId();
+		}
+	}
+
 	for (int i = 0; i < processor.movementAnalysis.musicControl.numFbVariables; i++)
 	{
 		if (box == &ui_mappingMatrix.mapping_Function[i])
@@ -142,7 +169,7 @@ void StsinteractionAudioProcessorEditor::resized()
 {
 	ui_sensorCon.setLayout();
 	ui_movementAnalysis.setLayout();
-	ui_musicControl.setLayout();
+	ui_musicControl.setLayout(processor.movementAnalysis.musicControl.mixerSettings.num_Tracks);
 	ui_mappingMatrix.setLayout
 	(
 		interface_Width,

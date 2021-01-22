@@ -152,7 +152,19 @@ private:
 	// Add Music Control Controls
 	void addControls_MusicControl()
 	{
-
+		addAndMakeVisible(ui_musicControl.toggle_DSP_OnOff);
+		addAndMakeVisible(ui_musicControl.gain_Master);
+		addAndMakeVisible(ui_musicControl.gain_Master_LAB);
+		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
+		{
+			addAndMakeVisible(ui_musicControl.gain_Track[i]);
+			addAndMakeVisible(ui_musicControl.gain_Track_LAB[i]);
+		}
+		addAndMakeVisible(ui_musicControl.tonic);
+		addAndMakeVisible(ui_musicControl.scale);
+		for (int i = 0; i < 8; i++)
+			addAndMakeVisible(ui_musicControl.chord_Degree[i]);
+		addAndMakeVisible(ui_musicControl.chord_Type);
 	}
 
 	// Add Mapping Matrix Controls
@@ -260,7 +272,79 @@ private:
 	// Initialize Music Control Elements
 	void musicControl_initializeControls()
 	{
-		
+		ui_musicControl.toggle_DSP_OnOff.onClick = [this]
+		{
+			if (!processor.movementAnalysis.musicControl.isMusicDSP_On)
+			{
+				processor.movementAnalysis.musicControl.startMusicDSP();
+				ui_musicControl.toggle_DSP_OnOff.setColour(
+					ui_musicControl.toggle_DSP_OnOff.buttonColourId,Colours::red);
+				ui_musicControl.toggle_DSP_OnOff.setButtonText("Stop Music DSP");
+			}
+			else
+			{
+				processor.movementAnalysis.musicControl.stopMusicDSP();
+				ui_musicControl.toggle_DSP_OnOff.setColour(
+					ui_musicControl.toggle_DSP_OnOff.buttonColourId, Colours::blue);
+				ui_musicControl.toggle_DSP_OnOff.setButtonText("Start Music DSP");
+			}
+		};
+
+		ui_musicControl.gain_Master.setValue(processor.movementAnalysis.musicControl.mixerSettings.masterGain);
+		ui_musicControl.gain_Master.onValueChange = [this]
+		{
+			processor.movementAnalysis.musicControl.set_masterGain(ui_musicControl.gain_Master.getValue());
+		};
+
+		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
+		{
+			ui_musicControl.gain_Track[i].setValue(
+				processor.movementAnalysis.musicControl.mixerSettings.gain_Track[i]);
+			ui_musicControl.gain_Track_LAB[i].setText(
+				processor.movementAnalysis.musicControl.mixerSettings.names_Tracks[i],
+				dontSendNotification
+			);
+
+			ui_musicControl.gain_Track[i].onValueChange = [this,i]
+			{
+				processor.movementAnalysis.musicControl.set_trackFader
+				(i, ui_musicControl.gain_Track[i].getValue());
+			};
+		}
+
+		ui_musicControl.tonic.addListener(this);
+		for (int i = 0; i < 12; i++)
+		{
+			ui_musicControl.tonic.addItem(
+				processor.movementAnalysis.musicControl.musicInfoCompute.tonics_Names[i], i + 1);
+		}
+		ui_musicControl.tonic.setSelectedId(1);
+
+		ui_musicControl.scale.addListener(this);
+		for (int i = 0; i < processor.movementAnalysis.musicControl.musicInfoCompute.numScales; i++)
+		{
+			ui_musicControl.scale.addItem(
+				processor.movementAnalysis.musicControl.musicInfoCompute.scales_Names[i], i + 1);
+		}
+		ui_musicControl.scale.setSelectedId(1);
+
+		ui_musicControl.chord_Type.addListener(this);
+		for (int i = 0; i < processor.movementAnalysis.musicControl.musicInfoCompute.numChordTypes; i++)
+		{
+			ui_musicControl.chord_Type.addItem(
+				processor.movementAnalysis.musicControl.musicInfoCompute.chordTypes_Names[i], i + 1
+			);
+		}
+		ui_musicControl.chord_Type.setSelectedId(1);
+
+		for (int i = 0; i < 8; i++)
+		{
+			ui_musicControl.chord_Degree[i].addListener(this);
+			for (int j = 1; j <= 8; j++)
+				ui_musicControl.chord_Degree[i].addItem(String(j), j);
+			ui_musicControl.chord_Degree[i].setSelectedId
+			(processor.movementAnalysis.musicControl.musicInfoCompute.chord_degSequence[i]);
+		}
 	}
 
 	// Initialize Mapping Matrix Elements

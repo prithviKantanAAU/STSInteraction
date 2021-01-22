@@ -24,12 +24,9 @@ public:
 		feedbackVariables[7].initialize("Perc2 Tr", 0, 10, 1, 4, 4, 1);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 1, 2, 0, 1);
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 1, 2, 0, 1);
-
-		dspFaust.start();
 	};
 	~MusicControl() 
 	{
-		dspFaust.stop();
 	};
 
 	// FAUST OBJECT
@@ -208,12 +205,6 @@ public:
 
 			musicInfoCompute.convert_FbVar_to_ChordDeg_to_Freqs_POLY(fbVar_finalArray);
 		}
-
-		// BASS FREQS
-		if (feedbackVariables[fbVar_Idx].name == "Bass Tr/Fr")
-		{
-
-		}
 	}
 
 	void mapFBVariable(int fbVar_Idx, double fbVar_finalValues[])
@@ -230,12 +221,31 @@ public:
 	// WHEN MUSIC PLAYBACK IS ENABLED - SAME AS PREPARE TO PLAY
 	void startMusicDSP()
 	{
+		isMusicDSP_On = true;
+		dspFaust.start();
 
+		// CONFIGURE MIXER FADERS, MUTES, EQ, COMP, MASTER GAIN
+		set_masterGain(mixerSettings.masterGain);
+		for (int i = 0; i < mixerSettings.num_Tracks; i++)
+			set_trackFader(i, mixerSettings.gain_Track[i]);
 	}
 
 	// WHEN MUSIC PLAYBACK IS DISABLED
 	void stopMusicDSP()
 	{
+		isMusicDSP_On = false;
+		dspFaust.stop();
+	}
 
+	void set_masterGain(float faderVal)
+	{
+		mixerSettings.masterGain = faderVal;
+		dspFaust.setParamValue(faustStrings.masterGain.toStdString().c_str(), faderVal);
+	}
+
+	void set_trackFader(short trackIdx, float faderVal)
+	{
+		mixerSettings.gain_Track[trackIdx] = faderVal;
+		dspFaust.setParamValue(faustStrings.getTrackGainAddress(trackIdx).c_str(), faderVal);
 	}
 };

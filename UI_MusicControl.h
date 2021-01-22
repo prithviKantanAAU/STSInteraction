@@ -11,6 +11,19 @@ public:
 
 	~UI_MusicControl()
 	{}
+	
+	// AUDIO PROCESSING
+	TextButton toggle_DSP_OnOff;
+	Slider gain_Master;
+	Label gain_Master_LAB;
+	Slider gain_Track[10];
+	Label gain_Track_LAB[10];
+
+	// MUSIC
+	ComboBox tonic;
+	ComboBox scale;
+	ComboBox chord_Degree[8];
+	ComboBox chord_Type;
 
 	//MEMBER ELEMENTS
 	// STEPS TO ADD NEW CONTROLS
@@ -23,15 +36,62 @@ public:
 
 	void configure()
 	{
+		// Start Music DSP - Off by Default
+		toggle_DSP_OnOff.setButtonText("Start Music DSP");
+		toggle_DSP_OnOff.setColour(toggle_DSP_OnOff.buttonColourId, Colours::blue);
+
+		// Master Gain
+		gain_Master.setRange(-96, 12);
+		gain_Master.setValue(-6);
+		gain_Master.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, false, 10, 10);
+		gain_Master.setColour(gain_Master.trackColourId, Colours::yellow);
+		gain_Master.setColour(gain_Master.backgroundColourId, Colours::blue);
+		gain_Master_LAB.setText("Master Volume", dontSendNotification);
+		gain_Master_LAB.attachToComponent(&gain_Master,true);
+
+		// Track Gain
+		for (int i = 0; i < 10; i++)
+		{
+			gain_Track[i].setRange(-50, 30);
+			gain_Track[i].setSkewFactor(2.5);
+			gain_Track[i].setValue(0);
+			gain_Track[i].setColour(gain_Track[i].trackColourId, Colours::yellow);
+			gain_Track[i].setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, false, 10, 10);
+			gain_Track_LAB[i].attachToComponent(&gain_Track[i], true);
+		}
 
 	}
 
 	void toggleVisible(bool on)
 	{
+		toggle_DSP_OnOff.setVisible(on);
+		gain_Master.setVisible(on);
+		gain_Master_LAB.setVisible(on);
+		for (int i = 0; i < 8; i++)
+		{
+			gain_Track[i].setVisible(on);
+			gain_Track_LAB[i].setVisible(on);
+		}
+		tonic.setVisible(on);
+		scale.setVisible(on);
+		for (int i = 0; i < 8; i++)		chord_Degree[i].setVisible(on);
+		chord_Type.setVisible(on);
 	}
 
-	void setLayout()
+	void setLayout(int numTracks)
 	{
+		toggle_DSP_OnOff.setBounds(20, 50, 300, 25);
+		gain_Master.setBounds(450, 50, 350, 25);
+		for (int i = 0; i < numTracks; i++)
+		{
+			gain_Track[i].setBounds(70, 100 + 30 * i, 250, 25);
+		}
 
+		tonic.setBounds(350, 100, 110, 25);
+		scale.setBounds(470, 100, 110, 25);
+		chord_Type.setBounds(590, 100, 230, 25);
+
+		for (int i = 0; i < 8; i++)
+			chord_Degree[i].setBounds(350 + 60 * i, 130, 50, 25);
 	}
 };

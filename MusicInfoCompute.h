@@ -33,12 +33,9 @@ public:
 	short idx_chordTypes_Present = 0;
 	short idx_chord_degSeq_Present = 0;
 
-	short chord_degSequences[7][8] =
+	short chord_degSequence[8] =
 	{
-		{1, 2, 3, 4, 5, 6, 7, 8},
-		{1, 4, 5, 1, 1, 4, 5, 1},
-		{1, 6, 4, 5, 1, 6, 4, 5},
-		{1, 3, 2, 1, 5, 4, 3, 1}
+		1, 2, 3, 4, 5, 6, 7, 8
 	};
 
 	short numChordTypes = 5;
@@ -76,12 +73,13 @@ public:
 	void convert_FbVar_to_ScaleDeg_to_Freq_MONO(double *fbVar)
 	{
 		int scaleDeg = (int)(*fbVar * 16.0);
-		*fbVar = MidiMessage::getMidiNoteInHertz(48 + scales[idx_scale_Present]	[scaleDeg]);
+		*fbVar = MidiMessage::getMidiNoteInHertz(48 + tonics_Offsets[idx_tonic_Present] +
+			scales[idx_scale_Present][scaleDeg]);
 	}
 
 	void convert_FbVar_to_ChordDeg_to_Freqs_POLY(double fbVar[])
 	{
-		int chordDeg = (int)(fbVar[0] * 8);
+		int chordDeg = chord_degSequence[(int)(fbVar[0] * 8)];
 		int midiKeys[4] = { 36,36,36,36 };
 		for (int i = 0; i < 4; i++)
 		{
