@@ -52,6 +52,8 @@ SONI_9_DefaultVals = 7,0,0,0;
 SONI_9_Dynamics = array_soniSliders(9,SONI_9_DefaultVals);
 SONI_10_DefaultVals = 0.5,0,0,0;
 SONI_10_PitchWarp = array_soniSliders(10,SONI_10_DefaultVals);
+SONI_11_DefaultVals = 0,0,0,0;
+SONI_11_Vowel = array_soniSliders(11,SONI_11_DefaultVals);
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
@@ -73,6 +75,7 @@ PARAM_VAL_DETUNE = SONI_6_Detune : ba.selectn(4,0);					// DETUNE
 PARAM_VAL_PAN = SONI_7_Pan : ba.selectn(4,0);						// PAN
 PARAM_VAL_DYNAMICS = SONI_9_Dynamics : ba.selectn(4,0);				// DYNAMICS
 PARAM_VAL_PITCH = SONI_10_PitchWarp : ba.selectn(4,0);				// PITCH
+PARAM_VAL_VOWEL = SONI_11_Vowel : ba.selectn(4,0);					// VOWEL
 
 // TRACK SYNTHESIS DEFINITION  
 
@@ -83,11 +86,12 @@ samplePlayer(PERC_MAIN_SMPL_2,TRG_PERC_MAIN),
 samplePlayer(PERC_MAIN_SMPL_3,TRG_PERC_MAIN),
 samplePlayer(PERC_MAIN_SMPL_4,TRG_PERC_MAIN),
 samplePlayer(PERC_MAIN_SMPL_5,TRG_PERC_MAIN),
-samplePlayer(PERC_MAIN_SMPL_6,TRG_PERC_MAIN) : ba.selectn(6,TRG_PERC_MAIN) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
+samplePlayer(PERC_MAIN_SMPL_6,TRG_PERC_MAIN) : ba.selectn(6,SONI_1_PercTr : ba.selectn(4,0)) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
 
 // TRACK 2 - MELODY
 F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
-synthFunc_Melody(freq) = fmSynth_Versatile(freq,MALLET_MRATIO,MALLET_I_FIXED,MALLET_I_ENV,MALLET_A,MALLET_D,MALLET_S,MALLET_R,MALLET_ENVTYPE,TRG_MEL,PARAM_VAL_DYNAMICS,PARAM_VAL_DYNAMICS/2.0);
+//synthFunc_Melody(freq) = fmSynth_Versatile(freq,MALLET_MRATIO,MALLET_I_FIXED,MALLET_I_ENV,MALLET_A,MALLET_D,MALLET_S,MALLET_R,MALLET_ENVTYPE,TRG_MEL,PARAM_VAL_DYNAMICS,PARAM_VAL_DYNAMICS/2.0);
+synthFunc_Melody(freq) = voiceSynth_FormantBP(freq,PARAM_VAL_DYNAMICS,TRG_MEL,PARAM_VAL_DYNAMICS/2.0);
 Synth_T2_Melody = leadSynth(F0_M,synthFunc_Melody,PARAM_VAL_DYNAMICS,TRG_MEL,RL_M,FC_LP_M,PARAM_VAL_DYNAMICS/2.0) : stereoChannel(2);
   
 // TRACK 3 - CHORD
@@ -318,12 +322,11 @@ pianoSim_singleNote(freq,trigger,acc) = monoOut
 
 voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(2,vowel_H,fric,freqLow,0.04) * env : fi.resonlp(8000,3,1) with
 {
-  	fric = 0.13 - acc/10.0 * 0.13 : max(0);
+  	fric = 0;
 	freqLow = freq / 2.0;
-  	//vowel_idx = _~+(trigger) : %(4) : _ + 0.2;
-  	vowel_idx = Soni_X_D1_Vowel;
-	env = en.ar(0.02, 1.5  / tempo * 78.6 * 1 * (1 + acc/5.0), trigger);
-  	vowel_H = vowel_idx : si.smooth(ba.tau2pole(0.01));
+  	vowel_idx = PARAM_VAL_VOWEL;
+	env = en.ar(0.02, 2, trigger);
+  	vowel_H = vowel_idx : si.smooth(ba.tau2pole(0.001));
 };
 
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
