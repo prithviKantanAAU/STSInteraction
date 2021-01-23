@@ -27,39 +27,18 @@ public:
 		isOnline[sensorIndex] = status;
 	};
 
-	bool check_isAssignedAndOnline_TrunkSensor()
+	void check_areSensorsOnline(short locationsOnline[]) // [TRUNK THIGH SHANK] LOCATIONS
 	{
+		short out = 0;
 		for (int i = 0; i < numSensorsMax; i++)
 		{
 			if (bodyLocation[i] == 1 && isOnline[i])
-				return true;
+				locationsOnline[0] = i;
+			if (bodyLocation[i] == 2 && isOnline[i])
+				locationsOnline[1] = i;
+			if (bodyLocation[i] == 3 && isOnline[i])
+				locationsOnline[2] = i;
 		}
-		return false;
-	};
-	bool check_isAssignedAndOnline_FootSensors()
-	{
-		bool isAssignedAndOnline_L = false;
-		bool isAssignedAndOnline_R = false;
-
-		for (int i = 0; i < numSensorsMax; i++)
-		{
-			isAssignedAndOnline_L = (bodyLocation[i] == 2 && isOnline[i]) ? true : isAssignedAndOnline_L;
-			isAssignedAndOnline_R = (bodyLocation[i] == 3 && isOnline[i]) ? true : isAssignedAndOnline_R;
-		}
-		return (isAssignedAndOnline_L && isAssignedAndOnline_R) ? true : false;
-	}
-
-	bool check_isAssignedAndOnline_JointSensors()
-	{
-		bool isAssignedAndOnline_Upper = false;
-		bool isAssignedAndOnline_Lower = false;
-
-		for (int i = 0; i < numSensorsMax; i++)
-		{
-			isAssignedAndOnline_Upper = (bodyLocation[i] == 5 && isOnline[i]) ? true : isAssignedAndOnline_Upper;
-			isAssignedAndOnline_Lower = (bodyLocation[i] == 6 && isOnline[i]) ? true : isAssignedAndOnline_Lower;
-		}
-		return (isAssignedAndOnline_Upper && isAssignedAndOnline_Lower) ? true : false;
 	}
 };
 

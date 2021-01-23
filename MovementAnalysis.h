@@ -6,6 +6,10 @@
 #include "quaternionFilters.h"
 #include "GaitParam_Single.h"
 #include "BiQuad.h"
+#define M_PI           3.14159265358979323846  /* pi */
+#define RAD_TO_DEG		180 / M_PI
+#define DEG_TO_RAD		M_PI / 180.0
+
 
 class MovementAnalysis
 {
@@ -24,6 +28,8 @@ public:
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
+
+		setupReceivers();
 	};
 	~MovementAnalysis() {};
 
@@ -91,7 +97,9 @@ public:
 	float thresh_Deg_Standing_Both = 5;
 
 	// IMU AP Orientation Values
-	float orientation_Deg[3] = { 0.0, -90.0, 0.0 };
+	float orientation_Deg[3] = { 0.0, -90.0, 0.0 };				// AP
+	float orientation_Deg_ML[3] = { 0.0, 0, 0.0 };				// ML
+	float orientation_Deg_Yaw[3] = { 0.0, 0, 0.0 };				// Yaw
 
 	// Joint Bend Angles
 	float jointAngles_Deg[2] = { 0.0 };
@@ -99,6 +107,26 @@ public:
 
 	// Joint Bend Angular Velocities
 	float jointAngularVel_DegPerSec[2] = { 0.0 };
+
+	// SETUP OSC UDP RECEIVERS - PORT, LISTENER, SAMPLE RATE
+	void setupReceivers()
+	{
+		for (int i = 0; i < sensorInfo.numSensorsMax; i++)
+		{
+			sensors_OSCReceivers[i].setupPortAndListener(sensorInfo.UDP_Ports[i], sensorInfo.sensors_OSCAddress[i]);
+			sensors_OSCReceivers[i].setSampleRate(sensorInfo.IMU_SampleRate);
+		}
+	}
+
+	void updateSensorStatus()
+	{
+		for (int i = 0; i < sensorInfo.numSensorsMax; i++)
+		{
+			sensorInfo.isOnline[i] = sensors_OSCReceivers[i].isSensorActive();
+			if (sensorInfo.isOnline[i])
+				sensorInfo.batteryPercent[i] = sensors_OSCReceivers[i].level_Battery;
+		}
+	};
 
 	// Timed Callback
 	void callback()
@@ -112,10 +140,18 @@ public:
 	void computeAngles()
 	{
 		// COMPUTE ORIENTATION - Trunk, Thigh, Shank
-		// .........................................
+		switch (operationMode_Present)
+		{
+		case 1:
+			break;
+		case 2: 
+			computeIMUOrientations();
+			break;
+		}
 		// COMPUTE JOINT ANGLES
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
-		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);		
+		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
+		movementParams[3].storeValue(orientation_Deg_ML[0]);
 		movementParams[4].storeValue(jointAngles_Deg[0]);
 		movementParams[5].storeValue(jointAngles_Deg[1]);
 
@@ -126,6 +162,66 @@ public:
 		jointAngles_Deg_Z1[1] = jointAngles_Deg[1];
 		movementParams[6].storeValue(jointAngularVel_DegPerSec[0]);
 		movementParams[7].storeValue(jointAngularVel_DegPerSec[1]);
+	}
+
+	void computeIMUOrientations()
+	{
+		// FIGURE OUT INDEX OF EACH IMU LOCATION
+		short locationsOnline[3] = { -1,-1,-1 };
+		sensorInfo.check_areSensorsOnline(locationsOnline);
+		
+		// FIND ORIENTATION OF ALL SENSORS
+		for (int i = 0; i < 3; i++)
+		{
+			if (locationsOnline[i] == -1) orientation_Deg[i] = 0;			// Set to zero if offline
+
+			else 
+			{
+				if (orientAlgo_Present == 1)									// Madgwick
+					getOrientation_Quaternion(
+						sensors_OSCReceivers[locationsOnline[i]].acc_Buf,
+						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
+						sensors_OSCReceivers[locationsOnline[i]].mag_Buf,
+						&quaternionFilters[i],
+						&orientation_Deg[i],
+						&orientation_Deg_ML[i],
+						&orientation_Deg_Yaw[i]);
+
+				if (orientAlgo_Present == 2)									// Regular Complementary Filter
+				{
+					// ADD COMP FILT IF NECESSARY
+				}
+			}
+		}
+	}
+
+	void getOrientation_Quaternion(float *accBuf, float *gyrBuf,
+		float *magBuf, QuaternionFilter *qFilt, float *pitch, float *roll, float *yaw)
+	{
+		qFilt->MadgwickQuaternionUpdate(accBuf[0], accBuf[1], accBuf[2], gyrBuf[0] * DEG_TO_RAD,
+			gyrBuf[1] * DEG_TO_RAD, gyrBuf[2] * DEG_TO_RAD,
+			magBuf[0], magBuf[1], magBuf[2], 1.0 / sensorInfo.IMU_SampleRate);
+
+		*yaw = atan2(2.0f * (*(qFilt->getQ() + 1) * *(qFilt->getQ() + 2)
+			+ *qFilt->getQ() * *(qFilt->getQ() + 3)), *qFilt->getQ() *
+			*qFilt->getQ() + *(qFilt->getQ() + 1) * *(qFilt->getQ() + 1)
+			- *(qFilt->getQ() + 2) * *(qFilt->getQ() + 2) - *(qFilt->getQ() + 3)
+			* *(qFilt->getQ() + 3));
+
+		*roll = -asin(2.0f * (*(qFilt->getQ() + 1) * *(qFilt->getQ() + 3)
+			- *qFilt->getQ() * *(qFilt->getQ() + 2)));
+
+		*pitch = atan2(2.0f * (*qFilt->getQ() * *(qFilt->getQ() + 1) +
+			*(qFilt->getQ() + 2) * *(qFilt->getQ() + 3)), *qFilt->getQ() *
+			*qFilt->getQ() - *(qFilt->getQ() + 1) * *(qFilt->getQ() + 1)
+			- *(qFilt->getQ() + 2) * *(qFilt->getQ() + 2) + *(qFilt->getQ() + 3)
+			* *(qFilt->getQ() + 3));
+
+		*roll *= RAD_TO_DEG;
+		*yaw *= RAD_TO_DEG;
+		*yaw -= 8.5;
+		*pitch *= RAD_TO_DEG;
+		*pitch -= 90;
 	}
 
 	// Calculate STS Phase from

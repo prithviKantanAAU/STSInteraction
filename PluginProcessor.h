@@ -36,6 +36,29 @@ public:
 	void hiResTimerCallback();
 	long pulsesElapsed = 0;
 
+	// SENSOR RELATED
+	void ipVerify_AssignedSensors()
+	{
+		int remotePort = 0;
+		String remoteIP = "";
+
+		for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)		// CHECK FOR ALL SENSORS
+			if (movementAnalysis.sensorInfo.bodyLocation[i] != 4)				// ONLY IF ASSIGNED
+			{
+				if (!movementAnalysis.sensorInfo.isOnline[i])					// ONLY IF OFFLINE
+				{
+					remotePort = movementAnalysis.sensorInfo.UDP_Ports_REMOTE[i];
+					remoteIP = movementAnalysis.sensorInfo.remoteIP[i];
+					if (movementAnalysis.sensorInfo.connectionVerify_IP[i].connect(remoteIP, remotePort))
+					{
+						OSCMessage message("/CONNECT");
+						message.addString("Please Connect");
+						movementAnalysis.sensorInfo.connectionVerify_IP[i].send(message);
+					}
+				}
+			}
+	}
+
 	MovementAnalysis movementAnalysis;
 
 private:

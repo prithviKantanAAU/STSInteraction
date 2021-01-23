@@ -26,8 +26,20 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 	
 	if (pulsesElapsed % 10 == 0)								// Once every 10 ms
 	{
+		// UPDATE IMU BUFFERS FOR ALL ACTIVE SENSORS
+		for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
+			if (movementAnalysis.sensorInfo.isOnline[i])
+				movementAnalysis.sensors_OSCReceivers[i].updateBuffers();
+
 		// MOVEMENT ANALYSIS, FB COMPUTATION, MAPPING CALLBACK
 		movementAnalysis.callback();
+		ipVerify_AssignedSensors();
+	}
+
+	if (pulsesElapsed % 2000 == 0)
+	{
+		if (pulsesElapsed % 2000 == 0)
+			movementAnalysis.updateSensorStatus();
 	}
 }
 

@@ -13,18 +13,19 @@ public:
 	MusicControl()
 	{
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// initialize(String apName, float mini, float maxi, short pol, short mapF, short numSynthControls)
-		feedbackVariables[0].initialize("Perc Tr", 0, 5, 0, 1, 4, 1);
-		feedbackVariables[1].initialize("Mel Fr", 100, 700, 1, 1, 4, 1);
-		feedbackVariables[2].initialize("Mel Tr", 0, 1, 0, 1, 4, 1);
-		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 1, 2, 3, 4);
-		feedbackVariables[4].initialize("Chord Tr", 0, 1, 1, 2, 3, 4);
-		feedbackVariables[5].initialize("Detune", 0, 1, 1, 6, 0, 1);
-		feedbackVariables[6].initialize("Pan", 0, 1, 1, 5, 0, 1);
-		feedbackVariables[7].initialize("Perc2 Tr", 0, 10, 1, 4, 4, 1);
-		feedbackVariables[8].initialize("Dynamics", 7, 10, 1, 2, 0, 1);
-		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 1, 2, 0, 1);
-		feedbackVariables[10].initialize("Vowel", 0, 2, 1, 2, 0, 1);
+		// initialize(String apName, float mini, float maxi, float defaultVal,
+		//            short pol, short mapF, short numSynthControls)
+		feedbackVariables[0].initialize("Perc Tr", 0, 5, 0, 0, 1, 4, 1);
+		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 4, 1);
+		feedbackVariables[2].initialize("Mel Tr", 0, 1, 0, 0, 1, 4, 1);
+		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50, 1, 2, 3, 4);
+		feedbackVariables[4].initialize("Chord Tr", 0, 1, 0, 1, 2, 3, 4);
+		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 6, 0, 1);
+		feedbackVariables[6].initialize("Pan", 0, 1, 0.5, 1, 5, 0, 1);
+		feedbackVariables[7].initialize("Perc2 Tr", 0, 1, 0, 1, 4, 4, 1);
+		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 2, 0, 1);
+		feedbackVariables[9].initialize("Pitch Warp", 0, 1, 0.5, 1, 2, 0, 1);
+		feedbackVariables[10].initialize("Vowel", 0, 3, 0, 1, 2, 0, 1);
 	};
 	~MusicControl() 
 	{
@@ -93,8 +94,8 @@ public:
 			}
 			else // SET FB VAR TO 0 IF UNMAPPED
 			{
-				feedbackVariables[i].value = feedbackVariables[i].minVal;
-				for (int k = 0; k < 4; k++) fbVar_FinalVals[k] = feedbackVariables[i].minVal;
+				feedbackVariables[i].value = feedbackVariables[i].defaultVal;
+				for (int k = 0; k < 4; k++) fbVar_FinalVals[k] = feedbackVariables[i].defaultVal;
 			}
 
 			// MAP TO FAUST
