@@ -148,7 +148,10 @@ public:
 			computeIMUOrientations();
 			break;
 		}
-		// COMPUTE JOINT ANGLES
+		// COMPUTE JOINT ANGLES	
+		movementParams[0].storeValue(orientation_Deg[0]);
+		movementParams[1].storeValue(orientation_Deg[1]);
+		movementParams[2].storeValue(orientation_Deg[2]);
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
 		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
 		movementParams[3].storeValue(orientation_Deg_ML[0]);

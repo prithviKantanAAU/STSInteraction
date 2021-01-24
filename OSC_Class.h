@@ -45,7 +45,7 @@ public:
 	BiQuad LPF_Gyr_3[3];
 	BiQuad LPF_Mag_3[3];
 
-	float filterFc = 20;
+	float filterFc = 50;
 	short oscSampleReceived_BUFFER[200] = { 0 };
 	int oscSampleReceived_WriteIdx = 0;
 	float oscSampleReceived_Percent = 0;
