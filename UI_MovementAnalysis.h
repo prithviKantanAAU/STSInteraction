@@ -31,6 +31,8 @@ public:
 	ComboBox orientationAlgo;
 	Slider range_Vert;
 	Label range_Vert_LAB;
+	Slider range_TrunkAP;
+	Label range_TrunkAP_LAB;
 	Slider range_Horiz;
 	Label range_Horiz_LAB;
 	Slider thresh_AP_preStand;
@@ -93,6 +95,15 @@ public:
 		range_Vert_LAB.setText("Vert Range", dontSendNotification);
 		range_Vert.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
 
+		// Trunk AP Limits
+		range_TrunkAP.setRange(-90, 90);
+		range_TrunkAP.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+		range_TrunkAP.setNumDecimalPlacesToDisplay(0);
+		range_TrunkAP.setColour(range_TrunkAP.trackColourId, Colours::yellow);
+		range_TrunkAP.setColour(range_TrunkAP.backgroundColourId, Colours::blue);
+		range_TrunkAP_LAB.attachToComponent(&range_TrunkAP, true);
+		range_TrunkAP.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+
 		// Onset AP Threshold
 		thresh_AP_preStand.setRange(0,40);
 		thresh_AP_preStand.setNumDecimalPlacesToDisplay(0);
@@ -124,6 +135,7 @@ public:
 
 		range_Horiz.setVisible(on);
 		range_Vert.setVisible(on);
+		range_TrunkAP.setVisible(on);
 		thresh_AP_preStand.setVisible(on);
 
 		// STS VISUALIZER
@@ -157,9 +169,7 @@ public:
 		range_Horiz.setBounds(100, 135, 200, 20);
 		range_Vert.setBounds(100, 160, 200, 20);
 		thresh_AP_preStand.setBounds(100, 185, 200, 20);
-
-		/*for (int i = 0; i < 3; i++)
-			simulation_OrientAngles[i].setBounds(50, 135 + 25 * i, 200, 20);*/
+		range_TrunkAP.setBounds(100, 210, 200, 20);
 	}
 
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //

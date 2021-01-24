@@ -135,6 +135,8 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.range_Horiz_LAB);
 		addAndMakeVisible(ui_movementAnalysis.range_Vert);
 		addAndMakeVisible(ui_movementAnalysis.range_Vert_LAB);
+		addAndMakeVisible(ui_movementAnalysis.range_TrunkAP);
+		addAndMakeVisible(ui_movementAnalysis.range_TrunkAP_LAB);
 		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand);
 		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand_LAB);
 
@@ -266,6 +268,21 @@ private:
 		ui_movementAnalysis.thresh_AP_preStand.onValueChange = [this]
 		{
 			processor.movementAnalysis.thresh_Stand_trunk_AP = ui_movementAnalysis.thresh_AP_preStand.getValue();
+		};
+
+		ui_movementAnalysis.range_TrunkAP.setMinValue(processor.movementAnalysis.movementParams[0].minVal);
+		ui_movementAnalysis.range_TrunkAP.setMaxValue(processor.movementAnalysis.movementParams[0].maxVal);
+		ui_movementAnalysis.range_TrunkAP.onValueChange = [this]
+		{
+			processor.movementAnalysis.setMovementLimits(
+				ui_movementAnalysis.range_TrunkAP.getMinValue(),
+				ui_movementAnalysis.range_TrunkAP.getMaxValue()
+			);
+
+			ui_movementAnalysis.simulation_OrientAngles[0].setRange(
+				ui_movementAnalysis.range_TrunkAP.getMinValue(),
+				ui_movementAnalysis.range_TrunkAP.getMaxValue()
+			);
 		};
 	}
 	
@@ -515,6 +532,13 @@ private:
 			processor.movementAnalysis.orientation_Deg[0],
 			processor.movementAnalysis.orientation_Deg[1],
 			processor.movementAnalysis.orientation_Deg[2]
+		);
+
+		// MOVEMENT RANGE SLIDER LABELS
+		ui_movementAnalysis.range_TrunkAP_LAB.setText(
+			String(processor.movementAnalysis.movementParams[0].minVal, 2) + " to " 
+			+ String(processor.movementAnalysis.movementParams[0].maxVal, 2)
+			, dontSendNotification
 		);
 	}
 

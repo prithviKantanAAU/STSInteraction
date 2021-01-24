@@ -367,6 +367,15 @@ public:
 		}
 	}
 
+	void setMovementLimits(float minVal, float maxVal)
+	{
+		movementParams[0].minVal = minVal;
+		movementParams[0].maxVal = maxVal;
+
+		movementParams[4].minVal = 90 - maxVal;
+		movementParams[4].maxVal = 180 - minVal;
+	}
+
 	float getFBVar_RangedTrigger(float rangeStart, float rangeEnd, int numSteps, float presentValue)
 	{
 		float fbVar = 0;
