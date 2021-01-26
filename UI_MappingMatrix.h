@@ -57,13 +57,9 @@ class UI_MappingMatrix
 
 		preset_Name.setJustification(Justification::centred);
 		preset_Save.setButtonText("Save as Preset");
-		preset_Save.onClick = [this]
-		{
-			saveAsPreset();
-		};
 
-		preset_ListLoad.addItem("No Preset", 1);
-		preset_ListLoad.setSelectedId(1);
+		/*preset_ListLoad.addItem("No Preset", 1);
+		preset_ListLoad.setSelectedId(1);*/
     }
 
 	void populatePresets(int numPresets, MappingPreset presetArray[])
@@ -138,6 +134,8 @@ class UI_MappingMatrix
 
 	void populatePresets(MappingPreset presetArray[])
 	{
+		preset_ListLoad.clear();
+		preset_ListLoad.addItem("No Preset", 1);
 		String presetPath = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
 		presetPath = presetPath.upToLastOccurrenceOf("\\", true, false) + "Mapping Presets\\";
 

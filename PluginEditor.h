@@ -442,6 +442,19 @@ private:
 			);
 
 		}
+
+		ui_mappingMatrix.preset_Save.onClick = [this]
+		{
+			ui_mappingMatrix.saveAsPreset();
+			ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets);
+			for (int i = 0; i < ui_mappingMatrix.num_Presets; i++)
+			{
+				if (processor.movementAnalysis.musicControl.mappingPresets[i].name ==
+					ui_mappingMatrix.preset_Name.getText())
+					ui_mappingMatrix.preset_ListLoad.setSelectedId(i + 1);
+				ui_mappingMatrix.preset_Name.setText("");
+			}
+		};
 	}
 
 	// Update Sensor Config Tab Elements
