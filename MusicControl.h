@@ -27,8 +27,6 @@ public:
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 2, 0, 1);
 		feedbackVariables[9].initialize("Pitch Warp", 0, 1, 0.5, 1, 2, 0, 1);
 		feedbackVariables[10].initialize("Vowel", 0, 3, 0, 1, 2, 0, 1);
-
-		populatePresets();
 	};
 	~MusicControl() 
 	{
@@ -281,95 +279,5 @@ public:
 
 	// // // // // // // // // // // // // M A P P I N G  P R E S E T S // // // // // // // // // // // //
 
-	short num_Presets = 0;
-
-	void load_MappingPreset(int presetIdx)
-	{
-		for (int i = 0; i < numFbVariables; i++)
-		{
-			feedbackVariables[i].mapFunc = mappingPresets[presetIdx].mapFunc_Idx[i];
-			feedbackVariables[i].polarity = mappingPresets[presetIdx].polarity[i];
-			feedbackVariables[i].quantLevels_2raisedTo = mappingPresets[presetIdx].num_quantBits[i];
-
-			for (int j = 0; j < numMovementParams; j++)
-				mappingMatrix[j][i] = mappingPresets[presetIdx].mappingMatrix[j][i];
-		}
-	}
-
-	void populatePresets()
-	{
-		String presetPath = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
-		presetPath = presetPath.upToLastOccurrenceOf("\\", true, false) + "Mapping Presets\\";
-
-		auto dir_Base = File(presetPath);
-		num_Presets = dir_Base.getNumberOfChildFiles(2, "*.csv");
-		auto presetFiles = dir_Base.findChildFiles(2, false, "*.csv");
-		presetFiles.sort();
-		File currentFile;
-
-		for (int i = 0; i < num_Presets; i++)						// Load Styles from Defined Directory
-		{
-			currentFile = presetFiles.getUnchecked(i);
-			mappingPresets[i].name = currentFile.getFileNameWithoutExtension();
-			loadPreset_SINGLE(&mappingPresets[i], currentFile);
-		}
-	}
-
-	void loadPreset_SINGLE(MappingPreset *presetContainer, File currentFile)
-	{
-		juce::FileInputStream inputStream(currentFile); // [2]
-
-		if (!inputStream.openedOk())
-			return;  // failed to open
-
-		while (!inputStream.isExhausted())
-		{
-			auto line = inputStream.readNextLine();
-			auto line_Rem = line;
-
-			String line_header = line.upToFirstOccurrenceOf(",", false, true);
-			line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
-
-			for (int i = 0; i < numMovementParams; i++)
-			{
-				if (line_header == "MM Row " + String(i + 1))
-				{
-					for (int j = 0; j < numFbVariables; j++)
-						presetContainer->mappingMatrix[i][j] = 
-						line_Rem.upToFirstOccurrenceOf(",", false, true) == "1" ? true : false;
-					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
-				}
-			}
-
-			if (line_header == "Map Func Idx")
-			{
-				for (int j = 0; j < numFbVariables; j++)
-				{
-					presetContainer->mapFunc_Idx[j] =
-						line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
-					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
-				}
-			}
-
-			if (line_header == "Polarity")
-			{
-				for (int j = 0; j < numFbVariables; j++)
-				{
-					presetContainer->polarity[j] =
-						line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
-					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
-				}
-			}
-
-			if (line_header == "Quant Bits")
-			{
-				for (int j = 0; j < numFbVariables; j++)
-				{
-					presetContainer->num_quantBits[j] =
-						line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
-					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
-				}
-			}
-		}
-	}
+	
 };

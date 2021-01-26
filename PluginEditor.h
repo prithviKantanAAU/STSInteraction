@@ -395,6 +395,8 @@ private:
 						ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
 				};
 			}
+
+			ui_mappingMatrix.preset_ListLoad.addListener(this);
 		}
 
 		for (int k = 0; k < processor.movementAnalysis.musicControl.numFbVariables; k++)

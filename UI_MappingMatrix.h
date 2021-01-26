@@ -33,12 +33,15 @@ class UI_MappingMatrix
 	Label audioParams_Value[20][2];
 	float width_Value = 90;
 	float width_Value_AP = 50;
+	int num_MP = 0;
+	int num_AP = 0;
 
 	// PRESETS
 	TextButton preset_Save;
 	ComboBox preset_ListLoad;
 	Label  preset_ListLoad_LAB;
 	TextEditor preset_Name;
+	FILE *presetFile;
     
     void configure()
     {
@@ -63,13 +66,167 @@ class UI_MappingMatrix
 		preset_ListLoad.setSelectedId(1);
     }
 
+	void populatePresets(int numPresets, MappingPreset presetArray[])
+	{
+
+	}
+
 	void saveAsPreset()
 	{
 		if (preset_Name.getText() == "")
 			return;
 		else
 		{
+			String presetFile_Path = "";
+			// INITIALIZE PATHS, STORE INFO
+			presetFile_Path = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+			presetFile_Path = presetFile_Path.upToLastOccurrenceOf("\\", true, false);
+			presetFile_Path += "Mapping Presets\\" + preset_Name.getText() + ".csv";
+			
+			presetFile = fopen(presetFile_Path.toStdString().c_str(), "w");
+
 			// SAVE CSV FILE
+			//String formatSpecifier = String::repeatedString("%s,", num_AP + 1) + "\n";
+			String formatSpecifier = "%s,\n";
+
+			int numLines = num_MP + 3;
+			String lineString = "";
+			String lineHeader = "";
+
+			for (int l = 0; l < numLines; l++)
+			{
+				lineString = "";
+				for (int a = 0; a < num_AP; a++)
+				{
+					if (l < num_MP)
+					{
+						lineHeader = "MP Row " + String(l + 1);
+						lineString += mapping_Matrix[l][a].getToggleState() ? "1," : "0,";
+					}
+
+					if (l == num_MP)
+					{
+						lineHeader = "Map Func Idx";
+						lineString += String(mapping_Function[a].getSelectedId()) + ",";
+					}
+
+					if (l == num_MP + 1)
+					{
+						lineHeader = "Polarity";
+						lineString += String(mapping_Polarity[a].getSelectedId()) + ",";
+					}
+
+					if (l == num_MP + 2)
+					{
+						lineHeader = "Quant Bits";
+						lineString += String(mapping_QuantLevels[a].getSelectedId() - 1) + ",";
+					}
+				}
+
+				fprintf(
+					presetFile,
+					formatSpecifier.toStdString().c_str(),
+					lineHeader + "," + lineString
+				);
+			}
+
+			fclose(presetFile);
+		}
+	}
+
+	short num_Presets = 0;
+
+	void populatePresets(MappingPreset presetArray[])
+	{
+		String presetPath = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+		presetPath = presetPath.upToLastOccurrenceOf("\\", true, false) + "Mapping Presets\\";
+
+		auto dir_Base = File(presetPath);
+		num_Presets = dir_Base.getNumberOfChildFiles(2, "*.csv");
+		auto presetFiles = dir_Base.findChildFiles(2, false, "*.csv");
+		presetFiles.sort();
+		File currentFile;
+
+		for (int i = 0; i < num_Presets; i++)						// Load Styles from Defined Directory
+		{
+			currentFile = presetFiles.getUnchecked(i);
+			presetArray[i].name = currentFile.getFileNameWithoutExtension();
+			loadPreset_SINGLE(&presetArray[i + 1], currentFile);
+			preset_ListLoad.addItem(presetArray[i].name, i + 2);
+		}
+	}
+
+	void loadPreset_SINGLE(MappingPreset *presetContainer, File currentFile)
+	{
+		juce::FileInputStream inputStream(currentFile); // [2]
+
+		if (!inputStream.openedOk())
+			return;  // failed to open
+
+		while (!inputStream.isExhausted())
+		{
+			auto line = inputStream.readNextLine();
+			auto line_Rem = line;
+
+			String line_header = line.upToFirstOccurrenceOf(",", false, true);
+			line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+
+			for (int i = 0; i < num_MP; i++)
+			{
+				if (line_header == "MP Row " + String(i + 1))
+				{
+					for (int j = 0; j < num_AP; j++)
+					{
+						presetContainer->mappingMatrix[i][j] =
+							line_Rem.upToFirstOccurrenceOf(",", false, true) == "1" ? true : false;
+						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					}
+				}
+			}
+
+			if (line_header == "Map Func Idx")
+			{
+				for (int j = 0; j < num_AP; j++)
+				{
+					presetContainer->mapFunc_Idx[j] =
+						line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+				}
+			}
+
+			if (line_header == "Polarity")
+			{
+				for (int j = 0; j < num_AP; j++)
+				{
+					presetContainer->polarity[j] =
+						line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+				}
+			}
+
+			if (line_header == "Quant Bits")
+			{
+				for (int j = 0; j < num_AP; j++)
+				{
+					presetContainer->num_quantBits[j] =
+						line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+				}
+			}
+		}
+	}
+
+	void loadPreset(MappingPreset *loadedPreset)
+	{
+		for (int i = 0; i < num_AP; i++)
+		{
+			for (int j = 0; j < num_MP; j++)
+			{
+				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],dontSendNotification);
+			}
+			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
+			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);
+			mapping_QuantLevels[i].setSelectedId(loadedPreset->num_quantBits[i] + 1);
 		}
 	}
     
@@ -99,6 +256,9 @@ class UI_MappingMatrix
     
     void setLayout(int interfaceWidth, int interfaceHeight, int numMP, int numAP)
     {
+		num_MP = numMP;
+		num_AP = numAP;
+
 		int matrix_Width = 0.75 * interfaceWidth;
 		int matrix_Height = 0.5 * interfaceHeight;
 

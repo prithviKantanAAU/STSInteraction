@@ -22,6 +22,8 @@ StsinteractionAudioProcessorEditor::StsinteractionAudioProcessorEditor (Stsinter
 	musicControl_initializeControls();
 	mappingMatrix_initializeControls();
 
+	ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets);
+
 	// SET INITIAL TAB
 	switchTab(0);
 }
@@ -93,6 +95,12 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		{
 			processor.movementAnalysis.musicControl.feedbackVariables[i].quantLevels_2raisedTo 
 				= box->getSelectedId() - 1;
+		}
+
+		if (box == &ui_mappingMatrix.preset_ListLoad)
+		{
+			ui_mappingMatrix.loadPreset(&processor.movementAnalysis.musicControl.mappingPresets
+				[box->getSelectedId() - 1]);
 		}
 	}
 }
