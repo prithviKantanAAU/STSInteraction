@@ -3,9 +3,11 @@
 #include "OSC_Class.h"
 #include "SensorInfo.h"
 #include "MusicControl.h"
+#include "complementaryFilter.h"
 #include "quaternionFilters.h"
 #include "GaitParam_Single.h"
 #include "BiQuad.h"
+
 #define M_PI           3.14159265358979323846  /* pi */
 #define RAD_TO_DEG		180 / M_PI
 #define DEG_TO_RAD		M_PI / 180.0
@@ -30,13 +32,17 @@ public:
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
 
 		setupReceivers();
+
+		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
 
 	SensorInfo sensorInfo;
+	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
 	MusicControl musicControl;
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
+	ComplementaryFilter compFilters[3];
 	BiQuad angularVel_Smooth[2];						// 1 = Hip	 // 2 = Knee
 	MovementParameter movementParams[10];
 
@@ -170,7 +176,7 @@ public:
 	void computeIMUOrientations()
 	{
 		// FIGURE OUT INDEX OF EACH IMU LOCATION
-		short locationsOnline[3] = { -1,-1,-1 };
+		for (int i = 0; i < 3; i++) locationsOnline[i] = -1;
 		sensorInfo.check_areSensorsOnline(locationsOnline);
 		
 		// FIND ORIENTATION OF ALL SENSORS
@@ -192,7 +198,12 @@ public:
 
 				if (orientAlgo_Present == 2)									// Regular Complementary Filter
 				{
-					// ADD COMP FILT IF NECESSARY
+					compFilters[locationsOnline[i]].getOrientation_Fused(
+						sensors_OSCReceivers[locationsOnline[i]].acc_Buf,
+						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
+						&orientation_Deg_ML[i],
+						&orientation_Deg[i]
+					);
 				}
 			}
 		}
@@ -377,12 +388,5 @@ public:
 
 		movementParams[4].minVal = 90 - maxVal;
 		movementParams[4].maxVal = 180 - minVal;
-	}
-
-	float getFBVar_RangedTrigger(float rangeStart, float rangeEnd, int numSteps, float presentValue)
-	{
-		float fbVar = 0;
-		
-		return fbVar;
 	}
 };

@@ -76,7 +76,7 @@ public:
 		}
 
 		// Horizontal Classification Range
-		range_Horiz.setRange(-110, -70);
+		range_Horiz.setRange(-130, -50);
 		range_Horiz.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
 		range_Horiz.setNumDecimalPlacesToDisplay(0);
 		range_Horiz.setColour(range_Horiz.trackColourId, Colours::yellow);
@@ -86,7 +86,7 @@ public:
 		range_Horiz.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox,false,30, 20);
 
 		// Vertical Classification Range
-		range_Vert.setRange(-20, 20);
+		range_Vert.setRange(-30, 30);
 		range_Vert.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
 		range_Vert.setNumDecimalPlacesToDisplay(0);
 		range_Vert.setColour(range_Vert.trackColourId, Colours::yellow);

@@ -33,6 +33,12 @@ class UI_MappingMatrix
 	Label audioParams_Value[20][2];
 	float width_Value = 90;
 	float width_Value_AP = 50;
+
+	// PRESETS
+	TextButton preset_Save;
+	ComboBox preset_ListLoad;
+	Label  preset_ListLoad_LAB;
+	TextEditor preset_Name;
     
     void configure()
     {
@@ -45,7 +51,27 @@ class UI_MappingMatrix
 			labels_movementParams[i].setJustificationType(Justification::centred);
 			labels_audioParams[i].setJustificationType(Justification::centred);
 		}
+
+		preset_Name.setJustification(Justification::centred);
+		preset_Save.setButtonText("Save as Preset");
+		preset_Save.onClick = [this]
+		{
+			saveAsPreset();
+		};
+
+		preset_ListLoad.addItem("No Preset", 1);
+		preset_ListLoad.setSelectedId(1);
     }
+
+	void saveAsPreset()
+	{
+		if (preset_Name.getText() == "")
+			return;
+		else
+		{
+			// SAVE CSV FILE
+		}
+	}
     
     void toggleVisible(bool on)
     {
@@ -65,6 +91,10 @@ class UI_MappingMatrix
 				mapping_Matrix[i][j].setVisible(on);
 			}
 		}
+
+		preset_Save.setVisible(on);
+		preset_ListLoad.setVisible(on);
+		preset_Name.setVisible(on);
     }
     
     void setLayout(int interfaceWidth, int interfaceHeight, int numMP, int numAP)
@@ -127,6 +157,23 @@ class UI_MappingMatrix
 			);
 		}
 
+		preset_Save.setBounds(
+			matrix_startPointX - 110 - width_Value,
+			matrix_startPointY + numMP * gap_interRow + 20,
+			160,25
+		);
+
+		preset_Name.setBounds(
+			matrix_startPointX - 110 - width_Value,
+			matrix_startPointY + numMP * gap_interRow + 60,
+			160, 25
+		);
+
+		preset_ListLoad.setBounds(
+			matrix_startPointX - 110 - width_Value,
+			matrix_startPointY + numMP * gap_interRow + 100,
+			160, 25
+		);
     }
 
 	void updateValueVisualizers(int interfaceWidth, int interfaceHeight

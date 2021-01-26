@@ -189,6 +189,11 @@ private:
 				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
 			}
 		}
+
+		addAndMakeVisible(ui_mappingMatrix.preset_Save);
+		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad);
+		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad_LAB);
+		addAndMakeVisible(ui_mappingMatrix.preset_Name);
 	}
 
 	// Initialize Sensor Config Tab Elements

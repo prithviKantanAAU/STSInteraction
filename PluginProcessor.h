@@ -1,6 +1,5 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
-
 #include "MovementAnalysis.h"
 
 class StsinteractionAudioProcessor  : public AudioProcessor, public HighResolutionTimer
@@ -32,6 +31,8 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 	
+	MovementAnalysis movementAnalysis;
+
 	// CALLBACK RELATED
 	void hiResTimerCallback();
 	long pulsesElapsed = 0;
@@ -58,8 +59,6 @@ public:
 				}
 			}
 	}
-
-	MovementAnalysis movementAnalysis;
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessor)
