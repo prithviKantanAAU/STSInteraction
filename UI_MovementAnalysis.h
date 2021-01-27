@@ -37,6 +37,7 @@ public:
 	Label range_Horiz_LAB;
 	Slider thresh_AP_preStand;
 	Label thresh_AP_preStand_LAB;
+	TextButton record_MovementLog;
 
 	// Simulation Sliders
 	Slider simulation_OrientAngles[3];
@@ -111,6 +112,10 @@ public:
 		thresh_AP_preStand.setColour(thresh_AP_preStand.backgroundColourId, Colours::blue);
 		thresh_AP_preStand_LAB.attachToComponent(&thresh_AP_preStand, true);
 		thresh_AP_preStand_LAB.setText("Onset AP Thresh",dontSendNotification);
+
+		// Record Movement Log
+		record_MovementLog.setColour(record_MovementLog.buttonColourId, Colours::red);
+		record_MovementLog.setButtonText("Record");
 	}
 
 	void toggleVisible(bool on)
@@ -137,6 +142,7 @@ public:
 		range_Vert.setVisible(on);
 		range_TrunkAP.setVisible(on);
 		thresh_AP_preStand.setVisible(on);
+		record_MovementLog.setVisible(on);
 
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
@@ -163,6 +169,7 @@ public:
 			JointVelocities[j].setBounds(425, 57.5 + 15 * j, 150, 15);
 		}
 		STSPhasePresent.setBounds(600, 65, 200, 15);
+		record_MovementLog.setBounds(600, 85, 200, 20);
 		operationMode.setBounds(50, 105, 150, 20);
 		orientationAlgo.setBounds(220, 105, 150, 20);
 

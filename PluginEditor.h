@@ -122,6 +122,7 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
 		}
 		addAndMakeVisible(ui_movementAnalysis.STSPhasePresent);
+		addAndMakeVisible(ui_movementAnalysis.record_MovementLog);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
 		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
 
@@ -288,6 +289,24 @@ private:
 				ui_movementAnalysis.range_TrunkAP.getMinValue(),
 				ui_movementAnalysis.range_TrunkAP.getMaxValue()
 			);
+		};
+
+		ui_movementAnalysis.record_MovementLog.onClick = [this]
+		{
+			if (!processor.is_Recording_MPLog)
+			{
+				processor.start_Recording_MPLog();
+				ui_movementAnalysis.record_MovementLog.setButtonText("Stop Recording");
+				ui_movementAnalysis.record_MovementLog.setColour(
+					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::blue);
+			}
+			else
+			{
+				processor.stop_Recording_MPLog();
+				ui_movementAnalysis.record_MovementLog.setButtonText("Record");
+				ui_movementAnalysis.record_MovementLog.setColour(
+					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::red);
+			}
 		};
 	}
 	

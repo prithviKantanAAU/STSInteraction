@@ -1,6 +1,9 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "MovementAnalysis.h"
+#include "GaitParam_Single.h"
+#include <ctime>
+#include "windows.h"
 
 class StsinteractionAudioProcessor  : public AudioProcessor, public HighResolutionTimer
 {
@@ -59,6 +62,28 @@ public:
 				}
 			}
 	}
+
+	// LOGGING - START RECORD
+	void start_Recording_MPLog();
+	void stop_Recording_MPLog();
+	void writeLine_Recording_MPLog(MovementParameter mpArray[]);
+	bool is_Recording_MPLog = false;
+	String getCurrentTime()
+	{
+		time_t rawtime;
+		struct tm * timeinfo;
+		char buffer[80];
+
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+
+		strftime(buffer, sizeof(buffer), "%d-%m-%Y %H-%M-%S", timeinfo);
+		std::string str(buffer);
+
+		return String(str);
+	}
+	FILE *mpLog;
+	std::string mpLog_FormatSpec = "%s,\n";
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessor)

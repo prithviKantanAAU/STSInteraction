@@ -34,6 +34,10 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 		// MOVEMENT ANALYSIS, FB COMPUTATION, MAPPING CALLBACK
 		movementAnalysis.callback();
 		ipVerify_AssignedSensors();
+
+		// WRITE LINE TO LOG IF RECORDING
+		if (is_Recording_MPLog)
+			writeLine_Recording_MPLog(movementAnalysis.movementParams);
 	}
 
 	// UPDATE EVERY 2 SEC
@@ -52,6 +56,38 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 				);
 		}
 	}
+}
+
+void StsinteractionAudioProcessor::start_Recording_MPLog()
+{
+	String filepath_Rec = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
+	filepath_Rec = filepath_Rec.upToLastOccurrenceOf("\\", true, false);
+	filepath_Rec += "MP Log - " + getCurrentTime();
+	String filepath_Rec_FULL = filepath_Rec + "\\MP Log.csv";
+	CreateDirectory(filepath_Rec.toStdString().c_str(), NULL);
+	mpLog = fopen(filepath_Rec_FULL.toStdString().c_str(), "w");
+	
+	//WRITE FIRST LINE TO LOG - MP NAMES
+	String line = "";
+	for (int i = 0; i < movementAnalysis.numMovementParams; i++)
+		line += movementAnalysis.movementParams[i].name + ",";
+	fprintf(mpLog, mpLog_FormatSpec.c_str(), line);
+
+	is_Recording_MPLog = true;
+}
+
+void StsinteractionAudioProcessor::stop_Recording_MPLog()
+{
+	is_Recording_MPLog = false;
+	fclose(mpLog);
+}
+
+void StsinteractionAudioProcessor::writeLine_Recording_MPLog(MovementParameter mpArray[])
+{
+	String line = "";
+	for (int i = 0; i < movementAnalysis.numMovementParams; i++)
+		line += String(movementAnalysis.movementParams[i].value,2) + ",";
+	fprintf(mpLog, mpLog_FormatSpec.c_str(), line);
 }
 
 const String StsinteractionAudioProcessor::getName() const
