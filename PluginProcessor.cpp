@@ -86,7 +86,7 @@ void StsinteractionAudioProcessor::writeLine_Recording_MPLog(MovementParameter m
 {
 	String line = "";
 	for (int i = 0; i < movementAnalysis.numMovementParams; i++)
-		line += String(movementAnalysis.movementParams[i].value,2) + ",";
+		line += String(movementAnalysis.movementParams[i].value,3) + ",";
 	fprintf(mpLog, mpLog_FormatSpec.c_str(), line);
 }
 

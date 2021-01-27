@@ -102,6 +102,15 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 			ui_mappingMatrix.loadPreset(&processor.movementAnalysis.musicControl.mappingPresets
 				[box->getSelectedId() - 1]);
 		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			if (box == &ui_movementAnalysis.sensor_Axis[i])
+				processor.movementAnalysis.sensor_Axis[i] = box->getSelectedId();
+
+			if (box == &ui_movementAnalysis.sensor_Invert[i])
+				processor.movementAnalysis.sensor_Invert[i] = box->getSelectedId();
+		}
 	}
 }
 

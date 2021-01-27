@@ -141,6 +141,12 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand);
 		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand_LAB);
 
+		for (int i = 0; i < 3; i++)
+		{
+			addAndMakeVisible(ui_movementAnalysis.sensor_Axis[i]);
+			addAndMakeVisible(ui_movementAnalysis.sensor_Invert[i]);
+		}
+
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
 			addAndMakeVisible(ui_movementAnalysis.stsAnim_joint[i]);
@@ -244,7 +250,7 @@ private:
 			ui_movementAnalysis.orientationAlgo.addItem(processor.movementAnalysis.OrientationAlgos[i], i + 1);
 		ui_movementAnalysis.orientationAlgo.setSelectedId(processor.movementAnalysis.orientAlgo_Present);
 		
-		// Simulation Sliders
+		// Simulation Sliders, Sensor Invert, Axis
 		for (int i = 0; i < 3; i++)
 		{
 			ui_movementAnalysis.simulation_OrientAngles[i].onValueChange = [this, i]
@@ -252,6 +258,9 @@ private:
 				processor.movementAnalysis.setSimulationAngle
 				(i, ui_movementAnalysis.simulation_OrientAngles[i].getValue());
 			};
+
+			ui_movementAnalysis.sensor_Axis[i].addListener(this);
+			ui_movementAnalysis.sensor_Invert[i].addListener(this);
 		}
 
 		ui_movementAnalysis.range_Horiz.setMinValue(processor.movementAnalysis.range_horiz[0]);
@@ -562,15 +571,15 @@ private:
 
 		// STS PHASE DISPLAY
 		ui_movementAnalysis.STSPhasePresent.setText(
-			"Present Phase: " + processor.movementAnalysis.STS_Phases[processor.movementAnalysis.STS_Phase]
+			processor.movementAnalysis.STS_Phases[processor.movementAnalysis.STS_Phase]
 			, dontSendNotification
 		);
 
 		// REAL TIME VISUALIZE
 		ui_movementAnalysis.updateSTSAnim(
-			processor.movementAnalysis.orientation_Deg[0],
-			processor.movementAnalysis.orientation_Deg[1],
-			processor.movementAnalysis.orientation_Deg[2]
+			processor.movementAnalysis.movementParams[0].value,
+			processor.movementAnalysis.movementParams[1].value,
+			processor.movementAnalysis.movementParams[2].value
 		);
 
 		// MOVEMENT RANGE SLIDER LABELS

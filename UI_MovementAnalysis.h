@@ -39,6 +39,14 @@ public:
 	Label thresh_AP_preStand_LAB;
 	TextButton record_MovementLog;
 
+	// SENSOR INVERT
+	ComboBox sensor_Axis[3];
+	ComboBox sensor_Invert[3];
+	String sensor_Axis_Options[2] = { "AP", "ML" };
+	String sensor_Invert_Options[2] = { "+", "-" };
+	short sensor_Axis_Options_NUM = 2;
+	short sensor_Invert_Options_NUM = 2;
+
 	// Simulation Sliders
 	Slider simulation_OrientAngles[3];
 	Label  simulation_OrientAngles_LAB[3];
@@ -116,6 +124,22 @@ public:
 		// Record Movement Log
 		record_MovementLog.setColour(record_MovementLog.buttonColourId, Colours::red);
 		record_MovementLog.setButtonText("Record");
+
+		// Sensor Axis
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < sensor_Axis_Options_NUM; j++)
+				sensor_Axis[i].addItem(sensor_Axis_Options[j],j+1);
+			sensor_Axis[i].setSelectedId(1);
+		}
+
+		// Sensor Invert
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < sensor_Invert_Options_NUM; j++)
+				sensor_Invert[i].addItem(sensor_Invert_Options[j], j + 1);
+			sensor_Invert[i].setSelectedId(1);
+		}
 	}
 
 	void toggleVisible(bool on)
@@ -144,6 +168,12 @@ public:
 		thresh_AP_preStand.setVisible(on);
 		record_MovementLog.setVisible(on);
 
+		for (int i = 0; i < 3; i++)
+		{
+			sensor_Axis[i].setVisible(on);
+			sensor_Invert[i].setVisible(on);
+		}
+
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
 			stsAnim_joint[i].setVisible(on);
@@ -159,17 +189,19 @@ public:
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			IMUOnline[i].setBounds(50, 52 + 15 * i, 15, 10);
-			IMUOrientations[i].setBounds(80, 50 + 15 * i, 150, 15);
+			sensor_Axis[i].setBounds(10, 52 + 15 * i, 60, 10);
+			sensor_Invert[i].setBounds(80, 52 + 15 * i, 60, 10);
+			IMUOnline[i].setBounds(150, 52 + 15 * i, 15, 10);
+			IMUOrientations[i].setBounds(180, 50 + 15 * i, 150, 15);
 		}
 
 		for (int j = 0; j < 2; j++)
 		{
-			JointAngles[j].setBounds(250, 57.5 + 15 * j, 150, 15);
-			JointVelocities[j].setBounds(425, 57.5 + 15 * j, 150, 15);
+			JointAngles[j].setBounds(350, 57.5 + 15 * j, 150, 15);
+			JointVelocities[j].setBounds(525, 57.5 + 15 * j, 150, 15);
 		}
-		STSPhasePresent.setBounds(600, 65, 200, 15);
-		record_MovementLog.setBounds(600, 85, 200, 20);
+		STSPhasePresent.setBounds(700, 65, 200, 15);
+		record_MovementLog.setBounds(700, 85, 100, 20);
 		operationMode.setBounds(50, 105, 150, 20);
 		orientationAlgo.setBounds(220, 105, 150, 20);
 
