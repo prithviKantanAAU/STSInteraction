@@ -139,7 +139,7 @@ FVToTrigger(quantInput) = trigger with
 {
   trigger = (posTrig + negTrig);
   posTrig = quantInput : ba.impulsify;
-  negTrig = - 1 * (quantInput) : ba.impulsify : *(quantInput > 0);
+  negTrig = - 1 * (quantInput) : ba.impulsify;
 };
 
 // CONVERT 0-10 VELOCITY VALUE TO MONO GAIN MULTIPLIER
@@ -316,17 +316,17 @@ pianoSim_singleNote(freq,trigger,acc) = monoOut
   monoOut = pulseWave(freq,PIANO_WAVEWIDTH1),pulseWave(freq,
 			PIANO_WAVEWIDTH2),pulseWave(freq,PIANO_WAVEWIDTH3):> fi.lowpass(2,cutoff) * ampEnv;							// WAVESUMMING
   cutoff = (freqEnv + 0.01) * 4000 * freq / 600 * (1 - min(freq,1000)/2000) : limit(20,20000);							// FC
-  freqEnv = (1 + (acc - 5.0)/5.0) * en.arfe(0.001,1.6,0.4 * 1,trigger) : si.smooth(ba.tau2pole(0.0001));	// FREQUENCY ENV
-  ampEnv = pow(en.ar(0.001,4 * 1,trigger),6)  : si.smooth(ba.tau2pole(0.0001));							// AMPLITUDE ENV
+  freqEnv = (1 + (acc - 5.0)/5.0) * en.arfe(0.001,1.6,0.4 * 1,trigger) : si.smooth(ba.tau2pole(0.01));	// FREQUENCY ENV
+  ampEnv = pow(en.ar(0.001,4 * 1,trigger),6)  : si.smooth(ba.tau2pole(0.002));							// AMPLITUDE ENV
 };
 
 voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(2,vowel_H,fric,freqLow,0.04) * env : fi.resonlp(8000,3,1) with
 {
   	fric = 0;
-	freqLow = freq / 2.0;
+	freqLow = freq / 2.0 : si.smooth(ba.tau2pole(0.02));
   	vowel_idx = PARAM_VAL_VOWEL;
-	env = en.ar(0.02, 2, trigger);
-  	vowel_H = vowel_idx : si.smooth(ba.tau2pole(0.001));
+	env = en.ar(0.001, 2, trigger) : 	si.smooth(ba.tau2pole(0.01));
+  	vowel_H = vowel_idx : si.smooth(ba.tau2pole(0.008));
 };
 
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
