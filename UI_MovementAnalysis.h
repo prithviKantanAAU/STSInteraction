@@ -202,8 +202,8 @@ public:
 		}
 		STSPhasePresent.setBounds(700, 65, 200, 15);
 		record_MovementLog.setBounds(700, 85, 100, 20);
-		operationMode.setBounds(50, 105, 150, 20);
-		orientationAlgo.setBounds(220, 105, 150, 20);
+		operationMode.setBounds(10, 105, 150, 20);
+		orientationAlgo.setBounds(180, 105, 150, 20);
 
 		range_Horiz.setBounds(100, 135, 200, 20);
 		range_Vert.setBounds(100, 160, 200, 20);

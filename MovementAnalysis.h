@@ -196,8 +196,8 @@ public:
 						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
 						sensors_OSCReceivers[locationsOnline[i]].mag_Buf,
 						&quaternionFilters[i],
-						(sensor_Axis[locationsOnline[i]] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i],
-						(sensor_Axis[locationsOnline[i]] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
+						(sensor_Axis[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i],
+						(sensor_Axis[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
 						&orientation_Deg_Yaw[i]);
 
 				if (orientAlgo_Present == 2)									// Regular Complementary Filter
@@ -205,8 +205,8 @@ public:
 					compFilters[locationsOnline[i]].getOrientation_Fused(
 						sensors_OSCReceivers[locationsOnline[i]].acc_Buf,
 						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
-						(sensor_Axis[locationsOnline[i]] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
-						(sensor_Axis[locationsOnline[i]] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i]
+						(sensor_Axis[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
+						(sensor_Axis[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i]
 					);
 				}
 			}
@@ -265,14 +265,12 @@ public:
 			conditions[0] = (movementParams[0].value > thresh_Stand_trunk_AP);
 			conditions[1] = (movementParams[1].value > range_horiz[0])
 							&& ((movementParams[1].value < range_horiz[1]));
-			conditions[2] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 1:				// FROM STAND ONSET
 			conditions[0] = (movementParams[1].value > range_horiz[1]);
-			conditions[1] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
@@ -280,22 +278,19 @@ public:
 			conditions[0] = (movementParams[0].value < range_vert[1]);
 			conditions[1] = (movementParams[1].value > range_vert[0])
 							&& ((movementParams[1].value < range_vert[1]));
-			conditions[2] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 3:				// FROM STEADY STANDING
 			conditions[0] = (movementParams[1].value < range_vert[0]);
-			conditions[1] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 4:				// FROM SIT ONSET
 			conditions[0] = (movementParams[1].value > range_horiz[0])
 							&& ((movementParams[1].value < range_horiz[1]));
-			conditions[1] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
@@ -303,8 +298,7 @@ public:
 			conditions[0] = (movementParams[0].value < thresh_Stand_trunk_AP);
 			conditions[1] = (movementParams[1].value > range_horiz[0])
 							&& ((movementParams[1].value < range_horiz[1]));
-			conditions[2] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		}
@@ -333,15 +327,13 @@ public:
 			conditions[0] = (movementParams[0].value < thresh_Stand_trunk_AP);
 			conditions[1] = (movementParams[1].value > range_horiz[0])
 							&& ((movementParams[1].value < range_horiz[1]));
-			conditions[2] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 2:				// FROM SEAT OFF
 			conditions[0] = (movementParams[1].value > range_horiz[0])
 							&& ((movementParams[1].value < range_horiz[1]));
-			conditions[1] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
@@ -354,15 +346,13 @@ public:
 		case 4:				// FROM SIT ONSET
 			conditions[0] = (movementParams[1].value > range_vert[0])
 							&& ((movementParams[1].value < range_vert[1]));
-			conditions[1] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 5:				// FROM SEAT ON
 			conditions[0] = (movementParams[1].value > range_horiz[1]);
-			conditions[1] = (movementParams[2].value > range_vert[0])
-							&& ((movementParams[2].value < range_vert[1]));
+			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;

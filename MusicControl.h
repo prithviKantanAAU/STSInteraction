@@ -256,6 +256,7 @@ public:
 		set_masterGain(mixerSettings.masterGain);
 		for (int i = 0; i < mixerSettings.num_Tracks; i++)
 			set_trackFader(i, mixerSettings.gain_Track[i]);
+		set_COMP_EQ();
 	}
 
 	// WHEN MUSIC PLAYBACK IS DISABLED
@@ -277,7 +278,33 @@ public:
 		dspFaust.setParamValue(faustStrings.getTrackGainAddress(trackIdx).c_str(), faderVal);
 	}
 
-	// // // // // // // // // // // // // M A P P I N G  P R E S E T S // // // // // // // // // // // //
+	void set_COMP_EQ()
+	{
+		std::string address = "";
+		float value = 0;
 
-	
+		for (int trackIndex = 0; trackIndex < mixerSettings.num_Tracks; trackIndex++)
+		{
+			for (int j = 0; j < 4; j++)		//Param ID
+			{
+				address = faustStrings.FetchComp_String(trackIndex, j);
+				value = mixerSettings.fetchCompValue(trackIndex, j);
+				dspFaust.setParamValue(address.c_str(), value);
+			}
+		}
+		
+		// EQ
+		for (int trackIndex = 0; trackIndex < mixerSettings.num_Tracks; trackIndex++)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					std::string address = faustStrings.FetchEQ_String(trackIndex, i, j);
+					value = mixerSettings.fetchEQValue(trackIndex, i, j);
+					dspFaust.setParamValue(address.c_str(), value);
+				}
+			}
+		}
+	}
 };
