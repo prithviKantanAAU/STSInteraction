@@ -81,12 +81,7 @@ PARAM_VAL_VOWEL = SONI_11_Vowel : ba.selectn(4,0);					// VOWEL
 
 // TRACK 1 - MAIN PERCUSSION
 Synth_T1_MainPerc = 
-samplePlayer(PERC_MAIN_SMPL_1,TRG_PERC_MAIN),
-samplePlayer(PERC_MAIN_SMPL_2,TRG_PERC_MAIN),
-samplePlayer(PERC_MAIN_SMPL_3,TRG_PERC_MAIN),
-samplePlayer(PERC_MAIN_SMPL_4,TRG_PERC_MAIN),
-samplePlayer(PERC_MAIN_SMPL_5,TRG_PERC_MAIN),
-samplePlayer(PERC_MAIN_SMPL_6,TRG_PERC_MAIN) : ba.selectn(6,SONI_1_PercTr : ba.selectn(4,0)) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
+pm.djembe(SONI_1_PercTr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_MAIN) + 50,0.7,1,1,TRG_PERC_MAIN) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
 
 // TRACK 2 - MELODY
 F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
@@ -105,8 +100,7 @@ Synth_T3_Chord = chordSum : stereoChannel(3);
 
 // TRACK 4 - SECONDARY PERCUSSION
 Synth_T4_SecPerc = 
-samplePlayer(PERC_SEC_SMPL_1,TRG_PERC_2),
-samplePlayer(PERC_SEC_SMPL_2,TRG_PERC_2) : ba.selectn(2, PARAM_VAL_DYNAMICS > 8.5) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_2,10) : monoChannel(4) : getPanFunction(2);
+pm.marimba(SONI_8_Perc2Tr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_2) + 100,0.7,7000,1,1,TRG_PERC_2) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_2,10) : monoChannel(4) : getPanFunction(2);
 
 // TRACK 5 - BASSLINE
 F0_R = FRQ_BASS : ba.sAndH(TRG_CHORD) : Soni_FreqWarpFactor;
@@ -300,7 +294,7 @@ fmSynth(fundamental,numMod,freqFactor,release,depth,trigger) = (fmSynth + dirtyB
   freqList = par(i,numMod,fundamental * pow(freqFactor,i));														// (1)CARRIER + MOD FREQ LIST
   depthList = par(i,numMod-1,depthCooked);																		// MOD DEPTH LIST
   depthCooked = depth * env * 9;																				// COOKED DEPTH
-  env = sqrt(en.ar(0.001,release * 1, trigger)) : si.smooth(ba.tau2pole(0.001));					// AMP ENVELOPE
+  env = sqrt(en.ar(0.001,release, trigger)) : si.smoo;					// AMP ENVELOPE
 };
 
 pulseWave(freq,widthPercent) = output with
@@ -320,15 +314,13 @@ pianoSim_singleNote(freq,trigger,acc) = monoOut
   ampEnv = pow(en.ar(0.001,4 * 1,trigger),6)  : si.smooth(ba.tau2pole(0.002));							// AMPLITUDE ENV
 };
 
-voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(2,vowel_H,fric,freqLow,0.04) * env : fi.resonlp(8000,3,1) with
+voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(2,vowel_H,0,freq,0.4) * env : fi.resonlp(8000,3,1) with
 {
-  	fric = 0;
-	freqLow = freq / 2.0 : si.smooth(ba.tau2pole(0.02));
+	freqLow = freq / 2.0 : si.smoo;
   	vowel_idx = PARAM_VAL_VOWEL;
-	env = en.ar(0.001, 2, trigger) : 	si.smooth(ba.tau2pole(0.01));
-  	vowel_H = vowel_idx : si.smooth(ba.tau2pole(0.008));
+	env = en.ar(0.001, 2, trigger) : 	si.smoo;
+  	vowel_H = vowel_idx : si.smoo;
 };
-
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
 { 
   freqSelector(n) = freqList : ba.selectn(4,n-1);																			// INDIVIDUAL FREQS
