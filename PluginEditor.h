@@ -343,7 +343,8 @@ private:
 		ui_musicControl.gain_Master.setValue(processor.movementAnalysis.musicControl.mixerSettings.masterGain);
 		ui_musicControl.gain_Master.onValueChange = [this]
 		{
-			processor.movementAnalysis.musicControl.set_masterGain(ui_musicControl.gain_Master.getValue());
+			if (processor.isReady)
+			processor.set_masterGain(ui_musicControl.gain_Master.getValue());
 		};
 
 		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
@@ -357,7 +358,8 @@ private:
 
 			ui_musicControl.gain_Track[i].onValueChange = [this,i]
 			{
-				processor.movementAnalysis.musicControl.set_trackFader
+				if (processor.isReady)
+				processor.set_trackFader
 				(i, ui_musicControl.gain_Track[i].getValue());
 			};
 		}

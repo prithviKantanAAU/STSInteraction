@@ -66,11 +66,15 @@ public:
 		mappingMatrix[row][col] = onOff;
 	}
 
+	double fbVar_FinalVals[20][4] = { 
+		{0,0,0,0}
+	};
+
 	// MAIN CALLBACK FUNCTION IN CLASS
 	void updateFBVariables(MovementParameter mpArray[], int numMP)
 	{
 		double fbVar_Value_Temp = 0;
-		double fbVar_FinalVals[4] = { 0,0,0,0 };
+		double fbVar_Values_Final[4] = { 0,0,0,0 };
 
 		for (int i = 0; i < numFbVariables; i++)
 		{
@@ -94,16 +98,20 @@ public:
 				applyMapFunc(&fbVar_Value_Temp, i);
 
 				// APPLY SPECIAL PROCESSING (E.G. NOTE FREQUENCY COMPUTATION)
-				applySpecialMappingProcessing(&fbVar_Value_Temp, i, fbVar_FinalVals);
+				applySpecialMappingProcessing(&fbVar_Value_Temp, i, fbVar_Values_Final);
 			}
 			else // SET FB VAR TO 0 IF UNMAPPED
 			{
 				feedbackVariables[i].value = feedbackVariables[i].defaultVal;
-				for (int k = 0; k < 4; k++) fbVar_FinalVals[k] = feedbackVariables[i].defaultVal;
+				for (int k = 0; k < 4; k++) fbVar_Values_Final[k] = feedbackVariables[i].defaultVal;
 			}
 
+			fbVar_FinalVals[i][0] = fbVar_Values_Final[0];
+			fbVar_FinalVals[i][1] = fbVar_Values_Final[1];
+			fbVar_FinalVals[i][2] = fbVar_Values_Final[2];
+			fbVar_FinalVals[i][3] = fbVar_Values_Final[3];
 			// MAP TO FAUST
-			mapFBVariable(i, fbVar_FinalVals);
+			// mapFBVariable(i, fbVar_FinalVals);
 		}
 	}
 

@@ -4,6 +4,10 @@
 #include "GaitParam_Single.h"
 #include <ctime>
 #include "windows.h"
+#include "STS_Synth.h"
+
+class dsp;
+class MapUI;
 
 class StsinteractionAudioProcessor  : public AudioProcessor, public HighResolutionTimer
 {
@@ -11,6 +15,9 @@ public:
     StsinteractionAudioProcessor();
     ~StsinteractionAudioProcessor();
 
+	void mapFBVariable(int fbVar_Idx);
+
+	bool isReady = false;
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
@@ -85,6 +92,51 @@ public:
 	FILE *mpLog;
 	std::string mpLog_FormatSpec = "%s,\n";
 
+	void set_masterGain(float faderVal)
+	{
+		movementAnalysis.musicControl.mixerSettings.masterGain = faderVal;
+		fUI->setParamValue(movementAnalysis.musicControl.faustStrings.masterGain.toStdString().c_str(), faderVal);
+	}
+
+	void set_trackFader(short trackIdx, float faderVal)
+	{
+		movementAnalysis.musicControl.mixerSettings.gain_Track[trackIdx] = faderVal;
+		fUI->setParamValue(movementAnalysis.musicControl.faustStrings.getTrackGainAddress(trackIdx).c_str(), faderVal);
+	}
+
+	void set_COMP_EQ()
+	{
+		std::string address = "";
+		float value = 0;
+
+		for (int trackIndex = 0; trackIndex < movementAnalysis.musicControl.mixerSettings.num_Tracks; trackIndex++)
+		{
+			for (int j = 0; j < 4; j++)		//Param ID
+			{
+				address = movementAnalysis.musicControl.faustStrings.FetchComp_String(trackIndex, j);
+				value = movementAnalysis.musicControl.mixerSettings.fetchCompValue(trackIndex, j);
+				fUI->setParamValue(address.c_str(), value);
+			}
+		}
+
+		// EQ
+		for (int trackIndex = 0; trackIndex < movementAnalysis.musicControl.mixerSettings.num_Tracks; trackIndex++)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					std::string address = movementAnalysis.musicControl.faustStrings.FetchEQ_String(trackIndex, i, j);
+					value = movementAnalysis.musicControl.mixerSettings.fetchEQValue(trackIndex, i, j);
+					fUI->setParamValue(address.c_str(), value);
+				}
+			}
+		}
+	}
+
 private:
+	MapUI* fUI;
+	dsp* fDSP;
+	float** outputs;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessor)
 };

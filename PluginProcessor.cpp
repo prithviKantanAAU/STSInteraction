@@ -20,6 +20,18 @@ StsinteractionAudioProcessor::~StsinteractionAudioProcessor()
 {
 }
 
+void StsinteractionAudioProcessor::mapFBVariable(int fbVar_Idx)
+{
+    // FOR EACH SYNTH CONTROL
+    for (int i = 0; i < movementAnalysis.musicControl.feedbackVariables[fbVar_Idx].numSynthControls; i++)
+    {
+        // MAP ARRAY VALUES TO DSPFAUST CONTROLS
+        String address = movementAnalysis.musicControl.faustStrings.getFBVar_FAUSTAddress_Full(fbVar_Idx, i);
+        fUI->setParamValue(address.toStdString().c_str(),
+            movementAnalysis.musicControl.fbVar_FinalVals[fbVar_Idx][i]);
+    }
+}
+
 void StsinteractionAudioProcessor::hiResTimerCallback()
 {
 	pulsesElapsed = (pulsesElapsed + 1) % 1000000;				// INCREMENT AND AVOID OVERFLOW
@@ -33,6 +45,13 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 
 		// MOVEMENT ANALYSIS, FB COMPUTATION, MAPPING CALLBACK
 		movementAnalysis.callback();
+        if (isReady)
+        {
+            for (int i = 0; i < movementAnalysis.musicControl.numFbVariables; i++)
+            {
+                mapFBVariable(i);
+            }
+        }
 		ipVerify_AssignedSensors();
 
 		// WRITE LINE TO LOG IF RECORDING
@@ -154,14 +173,26 @@ void StsinteractionAudioProcessor::changeProgramName (int index, const String& n
 //==============================================================================
 void StsinteractionAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    fDSP = new mydsp();
+    fDSP->init(sampleRate);
+    fUI = new MapUI();
+    fDSP->buildUserInterface(fUI);
+    outputs = new float* [2];
+    for (int channel = 0; channel < 2; ++channel) {
+        outputs[channel] = new float[samplesPerBlock];
+    }
+    isReady = true;
+    set_COMP_EQ();
 }
 
 void StsinteractionAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    delete fDSP;
+    delete fUI;
+    for (int channel = 0; channel < 2; ++channel) {
+        delete[] outputs[channel];
+    }
+    delete[] outputs;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -191,29 +222,15 @@ bool StsinteractionAudioProcessor::isBusesLayoutSupported (const BusesLayout& la
 void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    fDSP->compute(buffer.getNumSamples(), NULL, outputs);
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
+        for (int i = 0; i < buffer.getNumSamples(); i++) {
+            *buffer.getWritePointer(channel, i) = outputs[channel][i];
+        }
     }
 }
 
