@@ -74,7 +74,7 @@ public:
 	{
 		int scaleDeg = (int)(*fbVar * 16.0);
 		*fbVar = MidiMessage::getMidiNoteInHertz(48 + tonics_Offsets[idx_tonic_Present] +
-			scales[idx_scale_Present][scaleDeg]);
+			scales[idx_scale_Present][scaleDeg]) / 2.0;
 	}
 
 	void convert_FbVar_to_ChordDeg_to_Freqs_POLY(double fbVar[])

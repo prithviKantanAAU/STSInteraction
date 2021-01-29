@@ -11,7 +11,8 @@ public:
 
 	~FaustStrings(){}
 	
-	String baseName = "/STS_Synth";
+	//String baseName = "/STS_Synth";
+	String baseName = "";
 
 	String masterGain = baseName + "/Mapping_Tabs/Mixer_And_Master/Master_Gain/Master_Gain";
 

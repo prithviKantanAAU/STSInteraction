@@ -21,7 +21,7 @@ public:
 		movementParams[0].initialize(-30, 90, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 90, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
-		movementParams[3].initialize(-90, 90, "Orientation Trunk ML");
+		movementParams[3].initialize(-45, 45, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 180, "Angle Hip");
 		movementParams[5].initialize(0, 180, "Angle Knee");
 		movementParams[6].initialize(0, 5, "Ang Velocity Knee");

@@ -18,9 +18,9 @@ public:
 		//            short pol, short mapF, short numSynthControls)
 		feedbackVariables[0].initialize("Perc Tr", 0, 5, 0, 0, 1, 4, 1);
 		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 4, 1);
-		feedbackVariables[2].initialize("Mel Tr", 0, 1, 0, 0, 1, 4, 1);
+		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 4, 1);
 		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50, 1, 2, 3, 4);
-		feedbackVariables[4].initialize("Chord Tr", 0, 1, 0, 1, 2, 3, 4);
+		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0, 1, 2, 3, 4);
 		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 6, 0, 1);
 		feedbackVariables[6].initialize("Pan", 0, 1, 0.5, 1, 5, 0, 1);
 		feedbackVariables[7].initialize("Perc2 Tr", 0, 1, 0, 1, 4, 4, 1);
@@ -241,7 +241,8 @@ public:
 		for (int i = 0; i < feedbackVariables[fbVar_Idx].numSynthControls; i++)
 		{
 			// MAP ARRAY VALUES TO DSPFAUST CONTROLS
-			dspFaust.setParamValue(faustStrings.getFBVar_FAUSTAddress_Full(fbVar_Idx, i).c_str(),
+			String address = faustStrings.getFBVar_FAUSTAddress_Full(fbVar_Idx, i);
+			dspFaust.setParamValue(address.toStdString().c_str(),
 			fbVar_finalValues[i]);
 		}
 	}
