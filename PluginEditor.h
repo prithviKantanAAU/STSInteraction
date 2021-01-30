@@ -161,7 +161,6 @@ private:
 	// Add Music Control Controls
 	void addControls_MusicControl()
 	{
-		addAndMakeVisible(ui_musicControl.toggle_DSP_OnOff);
 		addAndMakeVisible(ui_musicControl.gain_Master);
 		addAndMakeVisible(ui_musicControl.gain_Master_LAB);
 		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
@@ -322,24 +321,6 @@ private:
 	// Initialize Music Control Elements
 	void musicControl_initializeControls()
 	{
-		ui_musicControl.toggle_DSP_OnOff.onClick = [this]
-		{
-			if (!processor.movementAnalysis.musicControl.isMusicDSP_On)
-			{
-				processor.movementAnalysis.musicControl.startMusicDSP();
-				ui_musicControl.toggle_DSP_OnOff.setColour(
-					ui_musicControl.toggle_DSP_OnOff.buttonColourId,Colours::red);
-				ui_musicControl.toggle_DSP_OnOff.setButtonText("Stop Music DSP");
-			}
-			else
-			{
-				processor.movementAnalysis.musicControl.stopMusicDSP();
-				ui_musicControl.toggle_DSP_OnOff.setColour(
-					ui_musicControl.toggle_DSP_OnOff.buttonColourId, Colours::blue);
-				ui_musicControl.toggle_DSP_OnOff.setButtonText("Start Music DSP");
-			}
-		};
-
 		ui_musicControl.gain_Master.setValue(processor.movementAnalysis.musicControl.mixerSettings.masterGain);
 		ui_musicControl.gain_Master.onValueChange = [this]
 		{

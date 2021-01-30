@@ -5,7 +5,6 @@
 #include "FaustStrings.h"
 #include "MusicInfoCompute.h"
 #include "MixerSettings.h"
-#include "DspFaust.h"
 #include "MappingPreset.h"
 
 class MusicControl
@@ -16,16 +15,16 @@ public:
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// initialize(String apName, float mini, float maxi, float defaultVal,
 		//            short pol, short mapF, short numSynthControls)
-		feedbackVariables[0].initialize("Perc Tr", 0, 5, 0, 0, 1, 4, 1);
+		feedbackVariables[0].initialize("Perc Tr", 250, 500, 250, 0, 1, 4, 1);
 		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 4, 1);
 		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 4, 1);
 		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50, 1, 2, 3, 4);
 		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0, 1, 2, 3, 4);
 		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 6, 0, 1);
 		feedbackVariables[6].initialize("Pan", 0, 1, 0.5, 1, 5, 0, 1);
-		feedbackVariables[7].initialize("Perc2 Tr", 0, 1, 0, 1, 4, 4, 1);
+		feedbackVariables[7].initialize("Perc2 Tr", 700, 1000, 700, 1, 4, 4, 1);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 2, 0, 1);
-		feedbackVariables[9].initialize("Pitch Warp", 0, 1, 0.5, 1, 2, 0, 1);
+		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 2, 0, 1);
 		feedbackVariables[10].initialize("Vowel", 0, 3, 0, 1, 2, 0, 1);
 	};
 	~MusicControl() 
@@ -33,7 +32,6 @@ public:
 	};
 
 	// FAUST OBJECT
-	DspFaust dspFaust;
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
@@ -106,12 +104,8 @@ public:
 				for (int k = 0; k < 4; k++) fbVar_Values_Final[k] = feedbackVariables[i].defaultVal;
 			}
 
-			fbVar_FinalVals[i][0] = fbVar_Values_Final[0];
-			fbVar_FinalVals[i][1] = fbVar_Values_Final[1];
-			fbVar_FinalVals[i][2] = fbVar_Values_Final[2];
-			fbVar_FinalVals[i][3] = fbVar_Values_Final[3];
-			// MAP TO FAUST
-			// mapFBVariable(i, fbVar_FinalVals);
+			for (int k = 0; k < 4; k++)
+			fbVar_FinalVals[i][k] = fbVar_Values_Final[k];
 		}
 	}
 
@@ -121,7 +115,7 @@ public:
 
 		for (int i = 0; i < numMp; i++)
 		{
-			if (mappingMatrix[i][fbVar_Idx])
+			if (mappingMatrix[i][fbVar_Idx] && feedbackVariables[fbVar_Idx].name != "Placeholder")
 			{
 				isMapped = true;
 				break;
@@ -240,80 +234,6 @@ public:
 				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 
 			musicInfoCompute.convert_FbVar_to_ChordDeg_to_Freqs_POLY(fbVar_finalArray);
-		}
-	}
-
-	void mapFBVariable(int fbVar_Idx, double fbVar_finalValues[])
-	{
-		// FOR EACH SYNTH CONTROL
-		for (int i = 0; i < feedbackVariables[fbVar_Idx].numSynthControls; i++)
-		{
-			// MAP ARRAY VALUES TO DSPFAUST CONTROLS
-			String address = faustStrings.getFBVar_FAUSTAddress_Full(fbVar_Idx, i);
-			dspFaust.setParamValue(address.toStdString().c_str(),
-			fbVar_finalValues[i]);
-		}
-	}
-
-	// WHEN MUSIC PLAYBACK IS ENABLED - SAME AS PREPARE TO PLAY
-	void startMusicDSP()
-	{
-		isMusicDSP_On = true;
-		dspFaust.start();
-
-		// CONFIGURE MIXER FADERS, MUTES, EQ, COMP, MASTER GAIN
-		set_masterGain(mixerSettings.masterGain);
-		for (int i = 0; i < mixerSettings.num_Tracks; i++)
-			set_trackFader(i, mixerSettings.gain_Track[i]);
-		set_COMP_EQ();
-	}
-
-	// WHEN MUSIC PLAYBACK IS DISABLED
-	void stopMusicDSP()
-	{
-		isMusicDSP_On = false;
-		dspFaust.stop();
-	}
-
-	void set_masterGain(float faderVal)
-	{
-		mixerSettings.masterGain = faderVal;
-		dspFaust.setParamValue(faustStrings.masterGain.toStdString().c_str(), faderVal);
-	}
-
-	void set_trackFader(short trackIdx, float faderVal)
-	{
-		mixerSettings.gain_Track[trackIdx] = faderVal;
-		dspFaust.setParamValue(faustStrings.getTrackGainAddress(trackIdx).c_str(), faderVal);
-	}
-
-	void set_COMP_EQ()
-	{
-		std::string address = "";
-		float value = 0;
-
-		for (int trackIndex = 0; trackIndex < mixerSettings.num_Tracks; trackIndex++)
-		{
-			for (int j = 0; j < 4; j++)		//Param ID
-			{
-				address = faustStrings.FetchComp_String(trackIndex, j);
-				value = mixerSettings.fetchCompValue(trackIndex, j);
-				dspFaust.setParamValue(address.c_str(), value);
-			}
-		}
-		
-		// EQ
-		for (int trackIndex = 0; trackIndex < mixerSettings.num_Tracks; trackIndex++)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				for (int j = 0; j < 3; j++)
-				{
-					std::string address = faustStrings.FetchEQ_String(trackIndex, i, j);
-					value = mixerSettings.fetchEQValue(trackIndex, i, j);
-					dspFaust.setParamValue(address.c_str(), value);
-				}
-			}
 		}
 	}
 };

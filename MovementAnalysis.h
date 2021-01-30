@@ -21,7 +21,7 @@ public:
 		movementParams[0].initialize(-30, 90, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 90, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
-		movementParams[3].initialize(-45, 45, "Orientation Trunk ML");
+		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 180, "Angle Hip");
 		movementParams[5].initialize(0, 180, "Angle Knee");
 		movementParams[6].initialize(0, 5, "Ang Velocity Knee");
@@ -164,7 +164,7 @@ public:
 		movementParams[2].storeValue(orientation_Deg[2] * ((sensor_Invert[2] == 1) ? 1 : -1));
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
 		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
-		movementParams[3].storeValue(orientation_Deg_ML[0]);
+		movementParams[3].storeValue(fabs(orientation_Deg_ML[0]));
 		movementParams[4].storeValue(jointAngles_Deg[0]);
 		movementParams[5].storeValue(jointAngles_Deg[1]);
 

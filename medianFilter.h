@@ -7,7 +7,7 @@ class MedianFilter
 public:
 	float filterBuff[100] = { 0 };
 	float filterBuff_BACKUP[100] = { 0 };
-	int filterLength = 30;
+	int filterLength = 3;
 	short writePointer = 0;
 
 	MedianFilter() {};

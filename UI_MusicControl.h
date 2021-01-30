@@ -13,7 +13,6 @@ public:
 	{}
 	
 	// AUDIO PROCESSING
-	TextButton toggle_DSP_OnOff;
 	Slider gain_Master;
 	Label gain_Master_LAB;
 	Slider gain_Track[10];
@@ -36,10 +35,6 @@ public:
 
 	void configure()
 	{
-		// Start Music DSP - Off by Default
-		toggle_DSP_OnOff.setButtonText("Start Music DSP");
-		toggle_DSP_OnOff.setColour(toggle_DSP_OnOff.buttonColourId, Colours::blue);
-
 		// Master Gain
 		gain_Master.setRange(-96, 12);
 		gain_Master.setValue(-6);
@@ -64,7 +59,6 @@ public:
 
 	void toggleVisible(bool on)
 	{
-		toggle_DSP_OnOff.setVisible(on);
 		gain_Master.setVisible(on);
 		gain_Master_LAB.setVisible(on);
 		for (int i = 0; i < 8; i++)
@@ -80,7 +74,6 @@ public:
 
 	void setLayout(int numTracks)
 	{
-		toggle_DSP_OnOff.setBounds(20, 50, 300, 25);
 		gain_Master.setBounds(450, 50, 350, 25);
 		for (int i = 0; i < numTracks; i++)
 		{
