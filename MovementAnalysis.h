@@ -19,7 +19,7 @@ public:
 	MovementAnalysis() 
 	{
 		movementParams[0].initialize(-30, 90, "Orientation Trunk AP");
-		movementParams[1].initialize(-90, 90, "Orientation Thigh AP");
+		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 180, "Angle Hip");

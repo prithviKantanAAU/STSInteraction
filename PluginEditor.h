@@ -69,8 +69,8 @@ private:
 	}
 
 	// INTERFACE PROPERTIES
-	int interface_Width = 900;						// Pixels
-	int interface_Height = 500;						// Pixels
+	int interface_Width = 1300;						// Pixels
+	int interface_Height = 650;						// Pixels
 	int UIRefreshFreq = 30;							// UI Real Time Refresh Frequency (Hz)
 	short presentTab = 0;							// Global tab index
 	int previousTab = 0;							// To detect changes
@@ -193,6 +193,7 @@ private:
 			for (int j = 0; j < 20; j++)	// Rows
 			{
 				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[i][j]);
 			}
 		}
 
@@ -404,6 +405,33 @@ private:
 				{
 					processor.movementAnalysis.musicControl.mappingMatrix[i][j] =
 						ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
+
+					ui_mappingMatrix.mapping_Strength[i][j].setVisible(
+						ui_mappingMatrix.mapping_Matrix[i][j].getToggleState()
+					);
+				};
+
+				ui_mappingMatrix.mapping_Strength[i][j].setRange(-2, 2, 0.5);
+				ui_mappingMatrix.mapping_Strength[i][j].setValue(1);
+				ui_mappingMatrix.mapping_Strength[i][j].setSliderStyle(Slider::SliderStyle::Rotary);
+				ui_mappingMatrix.mapping_Strength[i][j].setColour(
+					ui_mappingMatrix.mapping_Strength[i][j].rotarySliderFillColourId, Colours::yellow);
+				ui_mappingMatrix.mapping_Strength[i][j].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 20, 20);
+
+				ui_mappingMatrix.mapping_Strength[i][j].onValueChange = [this, i, j]
+				{
+					processor.movementAnalysis.musicControl.mappingStrength[i][j] = ui_mappingMatrix.mapping_Strength[i][j].getValue();
+					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == 1.0)
+						ui_mappingMatrix.mapping_Strength[i][j].setColour(
+							ui_mappingMatrix.mapping_Strength[i][j].thumbColourId,Colours::green);
+					else ui_mappingMatrix.mapping_Strength[i][j].setColour(
+						ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::blue);
+					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == -1.0)
+						ui_mappingMatrix.mapping_Strength[i][j].setColour(
+							ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::red);
+					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == 0.0)
+						ui_mappingMatrix.mapping_Strength[i][j].setColour(
+							ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::white);
 				};
 			}
 

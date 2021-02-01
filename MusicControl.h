@@ -12,17 +12,22 @@ class MusicControl
 public:
 	MusicControl()
 	{
+		for (int i = 0; i < 20; i++)
+		{
+			for (int j = 0; j < 20; j++)
+				mappingStrength[i][j] = 1.0;
+		}
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// initialize(String apName, float mini, float maxi, float defaultVal,
 		//            short pol, short mapF, short numSynthControls)
-		feedbackVariables[0].initialize("Perc Tr", 250, 500, 250, 0, 1, 4, 1);
+		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150, 0, 1, 4, 1);
 		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 4, 1);
 		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 4, 1);
 		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50, 1, 2, 3, 4);
 		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0, 1, 2, 3, 4);
 		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 6, 0, 1);
 		feedbackVariables[6].initialize("Pan", 0, 1, 0.5, 1, 5, 0, 1);
-		feedbackVariables[7].initialize("Perc2 Tr", 700, 1000, 700, 1, 4, 4, 1);
+		feedbackVariables[7].initialize("Perc2 Tr", 700, 1200, 700, 1, 4, 4, 1);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 2, 0, 1);
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 2, 0, 1);
 		feedbackVariables[10].initialize("Vowel", 0, 3, 0, 1, 2, 0, 1);
@@ -59,6 +64,7 @@ public:
 
 	// MAPPING MATRIX
 	bool mappingMatrix[20][20] = { false };
+	float mappingStrength[20][20];
 	void updateMappingMatrix(short row, short col, bool onOff)
 	{
 		mappingMatrix[row][col] = onOff;
@@ -73,19 +79,26 @@ public:
 	{
 		double fbVar_Value_Temp = 0;
 		double fbVar_Values_Final[4] = { 0,0,0,0 };
+		int numMP_Mapped = 0;
+		float mappingStrength_AbsSum = 0;
 
 		for (int i = 0; i < numFbVariables; i++)
 		{
 			fbVar_Value_Temp = 0;
-			if (checkIfFbVarMapped(i, numMP))		// ONLY COMPUTE IF SOMETHING IS MAPPED TO FBVAR
+			numMP_Mapped = 0;
+			mappingStrength_AbsSum = 0;
+
+			// ONLY COMPUTE IF SOMETHING IS MAPPED TO FBVAR
+			if (checkIfFbVarMapped(i, numMP, &numMP_Mapped, &mappingStrength_AbsSum))
 			{
+
 				// FIND FRACTION SUM OF ALL MPs MAPPED TO A SINGLE AP (LIMIT TO 1)
 				for (int j = 0; j < numMP; j++)
 				{
 					if (mappingMatrix[j][i])
 					{
 						fbVar_Value_Temp += (mpArray[j].value - mpArray[j].minVal)
-							/ (mpArray[j].maxVal - mpArray[j].minVal);
+							/ (mpArray[j].maxVal - mpArray[j].minVal) * mappingStrength[j][i] / mappingStrength_AbsSum;
 					}
 				}
 
@@ -109,7 +122,7 @@ public:
 		}
 	}
 
-	bool checkIfFbVarMapped(short fbVar_Idx, short numMp)
+	bool checkIfFbVarMapped(short fbVar_Idx, short numMp, int *numMP_Mapped, float *mappingStrength_SUM)
 	{
 		bool isMapped = false;
 
@@ -118,9 +131,11 @@ public:
 			if (mappingMatrix[i][fbVar_Idx] && feedbackVariables[fbVar_Idx].name != "Placeholder")
 			{
 				isMapped = true;
-				break;
+				*numMP_Mapped += 1;
+				*mappingStrength_SUM += fabs(mappingStrength[i][fbVar_Idx]);
 			}
 		}
+		*mappingStrength_SUM = (*numMP_Mapped == 1) ? 1 : *mappingStrength_SUM;
 		return isMapped;
 	}
 

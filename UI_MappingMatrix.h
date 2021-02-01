@@ -26,6 +26,7 @@ class UI_MappingMatrix
 	Label labels_movementParams[20];
 	Label labels_audioParams[20];
 	ToggleButton mapping_Matrix[20][20];
+	Slider mapping_Strength[20][20];
 	ComboBox mapping_Function[20];
 	ComboBox mapping_Polarity[20];
 	ComboBox mapping_QuantLevels[20];
@@ -57,9 +58,6 @@ class UI_MappingMatrix
 
 		preset_Name.setJustification(Justification::centred);
 		preset_Save.setButtonText("Save as Preset");
-
-		/*preset_ListLoad.addItem("No Preset", 1);
-		preset_ListLoad.setSelectedId(1);*/
     }
 
 	void populatePresets(int numPresets, MappingPreset presetArray[])
@@ -85,7 +83,7 @@ class UI_MappingMatrix
 			//String formatSpecifier = String::repeatedString("%s,", num_AP + 1) + "\n";
 			String formatSpecifier = "%s,\n";
 
-			int numLines = num_MP + 3;
+			int numLines = num_MP + 3 + num_MP;
 			String lineString = "";
 			String lineHeader = "";
 
@@ -116,6 +114,12 @@ class UI_MappingMatrix
 					{
 						lineHeader = "Quant Bits";
 						lineString += String(mapping_QuantLevels[a].getSelectedId() - 1) + ",";
+					}
+
+					if (l > num_MP + 2)
+					{
+						lineHeader = "MP Str Row " + String(l - num_MP - 2 - 1 + 1);
+						lineString += String(mapping_Strength[l - num_MP - 2 - 1][a].getValue(),2) + ",";
 					}
 				}
 
@@ -180,6 +184,16 @@ class UI_MappingMatrix
 						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
 					}
 				}
+
+				if (line_header == "MP Str Row " + String(i + 1))
+				{
+					for (int j = 0; j < num_AP; j++)
+					{
+						presetContainer->mappingStrength[i][j] =
+							line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					}
+				}
 			}
 
 			if (line_header == "Map Func Idx")
@@ -220,7 +234,8 @@ class UI_MappingMatrix
 		{
 			for (int j = 0; j < num_MP; j++)
 			{
-				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],dontSendNotification);
+				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],sendNotificationSync);
+				mapping_Strength[j][i].setValue(loadedPreset->mappingStrength[j][i]);
 			}
 			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
 			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);
@@ -244,6 +259,7 @@ class UI_MappingMatrix
 			for (int j = 0; j < 20; j++)	// Rows
 			{
 				mapping_Matrix[i][j].setVisible(on);
+				mapping_Strength[i][j].setVisible(on && mapping_Matrix[i][j].getToggleState());
 			}
 		}
 
@@ -280,6 +296,13 @@ class UI_MappingMatrix
 					matrix_startPointY + gap_interRow * i,
 					25,
 					25
+				);
+
+				mapping_Strength[i][j].setBounds(
+					matrix_startPointX + gap_interCol * j + 30,
+					matrix_startPointY + gap_interRow * i - 7,
+					50,
+					40
 				);
 			}
 		}
@@ -377,14 +400,14 @@ class UI_MappingMatrix
 			width_Lab2 = width_Value_AP - width_Lab1;
 
 			audioParams_Value[i][0].setBounds(
-				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + 8,
+				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + 18,
 				matrix_startPointY + numMP * gap_interRow + 150,
 				width_Lab1,
 				20
 			);
 
 			audioParams_Value[i][1].setBounds(
-				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + width_Lab1 + 8,
+				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + width_Lab1 + 18,
 				matrix_startPointY + numMP * gap_interRow + 150,
 				width_Lab2,
 				20
