@@ -89,7 +89,7 @@ public:
 
 	// DETECTION THRESHOLDS
 	float thresh_Stand_trunk_AP = 10;
-	float range_horiz[2] = { -95, -85 };
+	float range_horiz[2] = { -115, -70 };
 	float range_vert[2] = {-15,15};
 
 	// Resting Values

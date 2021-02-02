@@ -225,11 +225,14 @@ void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, Mid
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    fDSP->compute(buffer.getNumSamples(), NULL, outputs);
+    if (isReady)
+    {
+        fDSP->compute(buffer.getNumSamples(), NULL, outputs);
 
-    for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
-        for (int i = 0; i < buffer.getNumSamples(); i++) {
-            *buffer.getWritePointer(channel, i) = outputs[channel][i];
+        for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
+            for (int i = 0; i < buffer.getNumSamples(); i++) {
+                *buffer.getWritePointer(channel, i) = outputs[channel][i];
+            }
         }
     }
 }

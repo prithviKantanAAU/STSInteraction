@@ -92,6 +92,39 @@ public:
 	FILE *mpLog;
 	std::string mpLog_FormatSpec = "%s,\n";
 
+	bool isDSP_ON = true;
+
+	void startMusicDSP()
+	{
+		fDSP = new mydsp();
+		fDSP->init(getSampleRate());
+		fUI = new MapUI();
+		fDSP->buildUserInterface(fUI);
+		outputs = new float* [2];
+		for (int channel = 0; channel < 2; ++channel) {
+			outputs[channel] = new float[getBlockSize()];
+		}
+		set_COMP_EQ();			
+		isDSP_ON = true;
+		isReady = true;
+		set_masterGain(movementAnalysis.musicControl.mixerSettings.masterGain);
+		for (int i = 0; i < movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
+			set_trackFader(i, movementAnalysis.musicControl.mixerSettings.gain_Track[i]);
+
+	}
+
+	void stopMusicDSP()
+	{
+		isReady = false;
+		isDSP_ON = false;
+		delete fDSP;
+		delete fUI;
+		for (int channel = 0; channel < 2; ++channel) {
+			delete[] outputs[channel];
+		}
+		delete[] outputs;
+	}
+
 	void set_masterGain(float faderVal)
 	{
 		movementAnalysis.musicControl.mixerSettings.masterGain = faderVal;

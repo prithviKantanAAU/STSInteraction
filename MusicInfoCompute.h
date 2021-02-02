@@ -72,9 +72,12 @@ public:
 	// FB Var between 0 and 1
 	void convert_FbVar_to_ScaleDeg_to_Freq_MONO(double *fbVar)
 	{
-		int scaleDeg = (int)(*fbVar * 16.0);
-		*fbVar = MidiMessage::getMidiNoteInHertz(48 + tonics_Offsets[idx_tonic_Present] +
-			scales[idx_scale_Present][scaleDeg]) / 2.0;
+		if (!isnan(*fbVar))
+		{
+			int scaleDeg = (int)(*fbVar * 16.0);
+			*fbVar = MidiMessage::getMidiNoteInHertz(48 + tonics_Offsets[idx_tonic_Present] +
+				scales[idx_scale_Present][min(16, scaleDeg)]) / 2.0;
+		}
 	}
 
 	void convert_FbVar_to_ChordDeg_to_Freqs_POLY(double fbVar[])

@@ -161,6 +161,7 @@ private:
 	// Add Music Control Controls
 	void addControls_MusicControl()
 	{
+		addAndMakeVisible(ui_musicControl.toggle_DSP_OnOff);
 		addAndMakeVisible(ui_musicControl.gain_Master);
 		addAndMakeVisible(ui_musicControl.gain_Master_LAB);
 		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
@@ -285,8 +286,8 @@ private:
 			processor.movementAnalysis.thresh_Stand_trunk_AP = ui_movementAnalysis.thresh_AP_preStand.getValue();
 		};
 
-		ui_movementAnalysis.range_TrunkAP.setMinValue(processor.movementAnalysis.movementParams[0].minVal);
-		ui_movementAnalysis.range_TrunkAP.setMaxValue(processor.movementAnalysis.movementParams[0].maxVal);
+		ui_movementAnalysis.range_TrunkAP.setMinValue(-5);
+		ui_movementAnalysis.range_TrunkAP.setMaxValue(60);
 		ui_movementAnalysis.range_TrunkAP.onValueChange = [this]
 		{
 			processor.movementAnalysis.setMovementLimits(
@@ -322,6 +323,24 @@ private:
 	// Initialize Music Control Elements
 	void musicControl_initializeControls()
 	{
+		ui_musicControl.toggle_DSP_OnOff.onClick = [this]
+		{
+			if (!processor.isDSP_ON)
+			{
+				processor.startMusicDSP();
+				ui_musicControl.toggle_DSP_OnOff.setColour(
+					ui_musicControl.toggle_DSP_OnOff.buttonColourId, Colours::red);
+				ui_musicControl.toggle_DSP_OnOff.setButtonText("Stop Music DSP");
+			}
+			else
+			{
+				processor.stopMusicDSP();
+				ui_musicControl.toggle_DSP_OnOff.setColour(
+					ui_musicControl.toggle_DSP_OnOff.buttonColourId, Colours::blue);
+				ui_musicControl.toggle_DSP_OnOff.setButtonText("Start Music DSP");
+			}
+		};
+
 		ui_musicControl.gain_Master.setValue(processor.movementAnalysis.musicControl.mixerSettings.masterGain);
 		ui_musicControl.gain_Master.onValueChange = [this]
 		{
