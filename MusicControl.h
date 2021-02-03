@@ -19,7 +19,7 @@ public:
 		}
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// initialize(String apName, float mini, float maxi, float defaultVal,
-		//            short pol, short mapF, short numSynthControls)
+		//            short pol, short mapF, short numQuantLevels short numSynthControls)
 		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150, 0, 1, 4, 1);
 		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 4, 1);
 		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 4, 1);
@@ -31,6 +31,8 @@ public:
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 2, 0, 1);
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 2, 0, 1);
 		feedbackVariables[10].initialize("Vowel", 0, 3, 0, 1, 2, 0, 1);
+		feedbackVariables[11].initialize("Gtr Tr", 0, 200, 1, 0, 1, 4, 1);
+		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1);
 	};
 	~MusicControl() 
 	{
@@ -40,7 +42,7 @@ public:
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 11;
+	short numFbVariables = 13;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES
