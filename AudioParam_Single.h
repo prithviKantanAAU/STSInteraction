@@ -14,9 +14,15 @@ public:
 	short mapFunc = 1;
 	short quantLevels_2raisedTo = -1;
 	short numSynthControls = 1;
+	// 1 = Instrument Trigger
+	// 2 = Freq
+	// 3 = Sound Effect
+	// 4 = Timbre Modifier
+	short parameterType = 1;
+	bool isVisible = false;
 
 	void initialize(String apName, float mini, float maxi, float defVal, short pol, short mapF, short numQuantLevels,
-					short nSynthCtrls)
+					short nSynthCtrls, short paramType, bool isVis)
 	{
 		name = apName;
 		minVal = mini;
@@ -26,6 +32,8 @@ public:
 		mapFunc = mapF;
 		quantLevels_2raisedTo = numQuantLevels;
 		numSynthControls = nSynthCtrls;
+		parameterType = paramType;
+		isVisible = isVis;
 	}
 
 	FeedbackVariable()

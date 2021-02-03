@@ -192,6 +192,8 @@ void StsinteractionAudioProcessorEditor::resized()
 		interface_Width,
 		interface_Height,
 		processor.movementAnalysis.numMovementParams,
-		processor.movementAnalysis.musicControl.numFbVariables
+		processor.movementAnalysis.musicControl.numFbVariables,
+		processor.movementAnalysis.movementParams,
+		processor.movementAnalysis.musicControl.feedbackVariables
 	);
 }

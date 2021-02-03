@@ -69,8 +69,8 @@ private:
 	}
 
 	// INTERFACE PROPERTIES
-	int interface_Width = 1300;						// Pixels
-	int interface_Height = 650;						// Pixels
+	int interface_Width = 1100;						// Pixels
+	int interface_Height = 550;						// Pixels
 	int UIRefreshFreq = 30;							// UI Real Time Refresh Frequency (Hz)
 	short presentTab = 0;							// Global tab index
 	int previousTab = 0;							// To detect changes
@@ -403,6 +403,8 @@ private:
 	// Initialize Mapping Matrix Elements
 	void mappingMatrix_initializeControls()
 	{
+		Colour labelColour = Colours::black;
+
 		for (int i = 0; i < processor.movementAnalysis.numMovementParams; i++)
 		{
 			ui_mappingMatrix.labels_movementParams[i].setText(
@@ -419,6 +421,8 @@ private:
 				ui_mappingMatrix.mapping_Matrix[i][j].setToggleState
 				(processor.movementAnalysis.musicControl.mappingMatrix[i][j],
 					dontSendNotification);
+				ui_mappingMatrix.mapping_Matrix[i][j].setColour(
+					ui_mappingMatrix.mapping_Matrix[i][j].tickColourId, Colours::yellow);
 
 				ui_mappingMatrix.mapping_Matrix[i][j].onStateChange = [this, i, j]
 				{
@@ -459,10 +463,28 @@ private:
 
 		for (int k = 0; k < processor.movementAnalysis.musicControl.numFbVariables; k++)
 		{
+			switch (processor.movementAnalysis.musicControl.feedbackVariables[k].parameterType)
+			{
+			case 1:
+				labelColour = Colours::magenta;
+				break;
+			case 2:
+				labelColour = Colours::lightblue;
+				break;
+			case 3:
+				labelColour = Colours::lightgreen;
+				break;
+			case 4:
+				labelColour = Colours::lightgrey;
+				break;
+			}
+
 			ui_mappingMatrix.labels_audioParams[k].setText(
 				processor.movementAnalysis.musicControl.feedbackVariables[k].name
 				, dontSendNotification
 			);
+
+			ui_mappingMatrix.labels_audioParams[k].setColour(ui_mappingMatrix.labels_audioParams[k].textColourId, labelColour);
 
 			if (processor.movementAnalysis.musicControl.feedbackVariables[k].name == "Placeholder")
 				ui_mappingMatrix.labels_audioParams[k].setColour(

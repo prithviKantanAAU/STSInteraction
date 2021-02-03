@@ -18,15 +18,15 @@ class MovementAnalysis
 public:
 	MovementAnalysis() 
 	{
-		movementParams[0].initialize(-30, 90, "Orientation Trunk AP");
-		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
-		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
-		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
-		movementParams[4].initialize(0, 180, "Angle Hip");
-		movementParams[5].initialize(0, 180, "Angle Knee");
-		movementParams[6].initialize(0, 5, "Ang Velocity Knee");
-		movementParams[7].initialize(0, 5, "Ang Velocity Hip");
-		movementParams[8].initialize(0, 5, "STS Phase");
+		movementParams[0].initialize(-30, 90, "Orientation Trunk AP",true);
+		movementParams[1].initialize(-90, 10, "Orientation Thigh AP",true);
+		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
+		movementParams[3].initialize(0, 40, "Orientation Trunk ML",true);
+		movementParams[4].initialize(0, 180, "Angle Hip",true);
+		movementParams[5].initialize(0, 180, "Angle Knee",true);
+		movementParams[6].initialize(0, 5, "Ang Velocity Knee",false);
+		movementParams[7].initialize(0, 5, "Ang Velocity Hip",false);
+		movementParams[8].initialize(0, 5, "STS Phase",true);
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -62,7 +62,7 @@ public:
 	// 6 = Hip Angular Velocity
 	// 7 = Knee Angular Velocity
 
-	short numMovementParams = 10;
+	short numMovementParams = 9;
 
 	// STS Phase Variable
 	// 0 = Steady Sitting

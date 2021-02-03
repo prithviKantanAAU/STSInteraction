@@ -187,12 +187,8 @@ void StsinteractionAudioProcessor::prepareToPlay (double sampleRate, int samples
 
 void StsinteractionAudioProcessor::releaseResources()
 {
-    delete fDSP;
-    delete fUI;
-    for (int channel = 0; channel < 2; ++channel) {
-        delete[] outputs[channel];
-    }
-    delete[] outputs;
+    if (isDSP_ON)
+        stopMusicDSP();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations

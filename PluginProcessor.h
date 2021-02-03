@@ -41,6 +41,7 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 	
+	
 	MovementAnalysis movementAnalysis;
 
 	// CALLBACK RELATED
@@ -115,14 +116,17 @@ public:
 
 	void stopMusicDSP()
 	{
-		isReady = false;
-		isDSP_ON = false;
-		delete fDSP;
-		delete fUI;
-		for (int channel = 0; channel < 2; ++channel) {
-			delete[] outputs[channel];
+		if (isDSP_ON)
+		{
+			isReady = false;
+			isDSP_ON = false;
+			delete fDSP;
+			delete fUI;
+			for (int channel = 0; channel < 2; ++channel) {
+				delete[] outputs[channel];
+			}
+			delete[] outputs;
 		}
-		delete[] outputs;
 	}
 
 	void set_masterGain(float faderVal)

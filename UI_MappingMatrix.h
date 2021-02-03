@@ -268,10 +268,17 @@ class UI_MappingMatrix
 		preset_Name.setVisible(on);
     }
     
-    void setLayout(int interfaceWidth, int interfaceHeight, int numMP, int numAP)
+    void setLayout(int interfaceWidth, int interfaceHeight, int numMP, int numAP,
+	MovementParameter mpArray[], FeedbackVariable fbVars[])
     {
 		num_MP = numMP;
 		num_AP = numAP;
+
+		int num_MP_Visible = 0;
+		int num_AP_Visible = 0;
+
+		for (int i = 0; i < numMP; i++) { if (mpArray[i].isVisible) num_MP_Visible += 1; }
+		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
 
 		int matrix_Width = 0.75 * interfaceWidth;
 		int matrix_Height = 0.5 * interfaceHeight;
@@ -279,80 +286,100 @@ class UI_MappingMatrix
 		int matrix_startPointX = (interfaceWidth - matrix_Width) / 2 + 100;
 		int matrix_startPointY = (interfaceHeight - matrix_Height) / 2 - 70;
 
-		int gap_interRow = matrix_Height / numMP;
-		int gap_interCol = matrix_Width / numAP;
+		int gap_interRow = matrix_Height / num_MP_Visible;
+		int gap_interCol = matrix_Width / num_AP_Visible;
+
+		int num_MP_populated = 0;
+		int num_AP_populated = 0;
 
 		for (int i = 0; i < numMP; i++)
 		{
-			labels_movementParams[i].setBounds(
-				matrix_startPointX - 110, 
-				matrix_startPointY + gap_interRow * i,
-				110,25);
-
-			for (int j = 0; j < numAP; j++)
+			if (mpArray[i].isVisible)
 			{
-				mapping_Matrix[i][j].setBounds(
-					matrix_startPointX + gap_interCol * j,
-					matrix_startPointY + gap_interRow * i,
-					25,
-					25
-				);
+				labels_movementParams[i].setBounds(
+					matrix_startPointX - 110,
+					matrix_startPointY + gap_interRow * num_MP_populated,
+					110, 25);
 
-				mapping_Strength[i][j].setBounds(
-					matrix_startPointX + gap_interCol * j + 30,
-					matrix_startPointY + gap_interRow * i - 7,
-					50,
-					40
-				);
+				for (int j = 0; j < numAP; j++)
+				{
+					if (fbVars[j].isVisible)
+					{
+						mapping_Matrix[i][j].setBounds(
+							matrix_startPointX + gap_interCol * num_AP_populated,
+							matrix_startPointY + gap_interRow * num_MP_populated,
+							25,
+							25
+						);
+
+						mapping_Strength[i][j].setBounds(
+							matrix_startPointX + gap_interCol * num_AP_populated + 20,
+							matrix_startPointY + gap_interRow * num_MP_populated - 7,
+							50,
+							40
+						);
+
+						num_AP_populated += 1;
+						num_AP_populated %= num_AP_Visible;
+					}
+				}
+				num_MP_populated = (num_MP_populated + 1) % num_MP_Visible;
 			}
 		}
 
+		num_AP_populated = 0;
+
 		for (int k = 0; k < numAP; k++)
 		{
-			mapping_Function[k].setBounds(
-				matrix_startPointX + gap_interCol * k - gap_interCol * 0.3,
-				matrix_startPointY + numMP * gap_interRow + 20,
-				gap_interCol * 0.95,
-				25
-			);
+			if (fbVars[k].isVisible)
+			{
+				mapping_Function[k].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 20,
+					gap_interCol * 0.95,
+					25
+				);
 
-			mapping_Polarity[k].setBounds(
-				matrix_startPointX + gap_interCol * k - gap_interCol * 0.3,
-				matrix_startPointY + numMP * gap_interRow + 60,
-				gap_interCol * 0.95,
-				25
-			);
+				mapping_Polarity[k].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 60,
+					gap_interCol * 0.95,
+					25
+				);
 
-			mapping_QuantLevels[k].setBounds(
-				matrix_startPointX + gap_interCol * k - gap_interCol * 0.3,
-				matrix_startPointY + numMP * gap_interRow + 100,
-				gap_interCol * 0.95,
-				25
-			);
+				mapping_QuantLevels[k].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 100,
+					gap_interCol * 0.95,
+					25
+				);
 
-			labels_audioParams[k].setBounds(
-				matrix_startPointX + gap_interCol * k - gap_interCol * 0.3,
-				matrix_startPointY + numMP * gap_interRow + 125,
-				gap_interCol * 0.95,
-				25
-			);
+				labels_audioParams[k].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 125,
+					gap_interCol * 0.95,
+					25
+				);
+
+				num_AP_populated += 1;
+			}
 		}
 
 		preset_Save.setBounds(
 			matrix_startPointX - 110 - width_Value,
-			matrix_startPointY + numMP * gap_interRow + 20,
+			matrix_startPointY + num_MP_Visible * gap_interRow + 20,
 			160,25
 		);
 
 		preset_Name.setBounds(
 			matrix_startPointX - 110 - width_Value,
-			matrix_startPointY + numMP * gap_interRow + 60,
+			matrix_startPointY + num_MP_Visible * gap_interRow + 60,
 			160, 25
 		);
 
 		preset_ListLoad.setBounds(
 			matrix_startPointX - 110 - width_Value,
-			matrix_startPointY + numMP * gap_interRow + 100,
+			matrix_startPointY + num_MP_Visible * gap_interRow + 100,
 			160, 25
 		);
     }
@@ -360,14 +387,22 @@ class UI_MappingMatrix
 	void updateValueVisualizers(int interfaceWidth, int interfaceHeight
 		, int numMP, int numAP, MovementParameter mpArray[], FeedbackVariable fbVars[])
 	{
+		int num_MP_Visible = 0;
+		int num_AP_Visible = 0;
+		int num_MP_populated = 0;
+		int num_AP_populated = 0;
+
+		for (int i = 0; i < numMP; i++) { if (mpArray[i].isVisible) num_MP_Visible += 1; }
+		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
+
 		int matrix_Width = 0.75 * interfaceWidth;
 		int matrix_Height = 0.5 * interfaceHeight;
 
 		int matrix_startPointX = (interfaceWidth - matrix_Width) / 2 + 100;
 		int matrix_startPointY = (interfaceHeight - matrix_Height) / 2 - 70;
 
-		int gap_interRow = matrix_Height / numMP;
-		int gap_interCol = matrix_Width / numAP;
+		int gap_interRow = matrix_Height / num_MP_Visible;
+		int gap_interCol = matrix_Width / num_AP_Visible;
 
 		float width_Lab1 = 0;
 		float width_Lab2 = 0;
@@ -376,42 +411,52 @@ class UI_MappingMatrix
 
 		for (int i = 0; i < numMP; i++)
 		{
-			width_Lab1 = (mpArray[i].value - mpArray[i].minVal) / (mpArray[i].maxVal - mpArray[i].minVal) * width_Value;
-			width_Lab2 = width_Value - width_Lab1;
+			if (mpArray[i].isVisible)
+			{
+				width_Lab1 = (mpArray[i].value - mpArray[i].minVal) / (mpArray[i].maxVal - mpArray[i].minVal) * width_Value;
+				width_Lab2 = width_Value - width_Lab1;
 
-			movementParams_Value[i][0].setBounds(
-				mp_startPointX,
-				matrix_startPointY + gap_interRow * i,
-				width_Lab1,
-				20
-			);
+				movementParams_Value[i][0].setBounds(
+					mp_startPointX,
+					matrix_startPointY + gap_interRow * num_MP_populated,
+					width_Lab1,
+					20
+				);
 
-			movementParams_Value[i][1].setBounds(
-				mp_startPointX + width_Lab1,
-				matrix_startPointY + gap_interRow * i,
-				width_Lab2,
-				20
-			);
+				movementParams_Value[i][1].setBounds(
+					mp_startPointX + width_Lab1,
+					matrix_startPointY + gap_interRow * num_MP_populated,
+					width_Lab2,
+					20
+				);
+
+				num_MP_populated = (num_MP_populated + 1) % num_MP_Visible;
+			}
 		}
 
 		for (int i = 0; i < numAP; i++)
 		{
-			width_Lab1 = (fbVars[i].value - fbVars[i].minVal) / (fbVars[i].maxVal - fbVars[i].minVal) * width_Value_AP;
-			width_Lab2 = width_Value_AP - width_Lab1;
+			if (fbVars[i].isVisible)
+			{
+				width_Lab1 = (fbVars[i].value - fbVars[i].minVal) / (fbVars[i].maxVal - fbVars[i].minVal) * width_Value_AP;
+				width_Lab2 = width_Value_AP - width_Lab1;
 
-			audioParams_Value[i][0].setBounds(
-				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + 18,
-				matrix_startPointY + numMP * gap_interRow + 150,
-				width_Lab1,
-				20
-			);
+				audioParams_Value[i][0].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 10,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 150,
+					width_Lab1,
+					20
+				);
 
-			audioParams_Value[i][1].setBounds(
-				matrix_startPointX + gap_interCol * i - gap_interCol * 0.3 + width_Lab1 + 18,
-				matrix_startPointY + numMP * gap_interRow + 150,
-				width_Lab2,
-				20
-			);
+				audioParams_Value[i][1].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + width_Lab1 + 10,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 150,
+					width_Lab2,
+					20
+				);
+
+				num_AP_populated = (num_AP_populated + 1) % num_AP_Visible;
+			}
 		}
 	}
 };
