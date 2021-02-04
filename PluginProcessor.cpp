@@ -229,6 +229,8 @@ void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, Mid
             for (int i = 0; i < buffer.getNumSamples(); i++) {
                 *buffer.getWritePointer(channel, i) = outputs[channel][i];
             }
+
+            musicLevel_dB = fmax(-60,Decibels::gainToDecibels(buffer.getMagnitude(0,0,buffer.getNumSamples())));
         }
     }
 }

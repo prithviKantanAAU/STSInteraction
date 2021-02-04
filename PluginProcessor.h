@@ -94,6 +94,7 @@ public:
 	std::string mpLog_FormatSpec = "%s,\n";
 
 	bool isDSP_ON = true;
+	float musicLevel_dB = 0;
 
 	void startMusicDSP()
 	{

@@ -18,6 +18,8 @@ public:
 	Label gain_Master_LAB;
 	Slider gain_Track[10];
 	Label gain_Track_LAB[10];
+	Label levelMeter[2];
+	float levelMeter_Width = 150;
 
 	// MUSIC
 	ComboBox tonic;
@@ -60,6 +62,10 @@ public:
 			gain_Track_LAB[i].attachToComponent(&gain_Track[i], true);
 		}
 
+		// Level Meter
+		levelMeter[0].setColour(levelMeter[0].backgroundColourId, Colours::yellow);
+		levelMeter[1].setColour(levelMeter[1].backgroundColourId, Colours::blue);
+
 	}
 
 	void toggleVisible(bool on)
@@ -76,6 +82,8 @@ public:
 		scale.setVisible(on);
 		for (int i = 0; i < 8; i++)		chord_Degree[i].setVisible(on);
 		chord_Type.setVisible(on);
+		levelMeter[0].setVisible(on);
+		levelMeter[1].setVisible(on);
 	}
 
 	void setLayout(int numTracks)

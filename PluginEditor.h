@@ -174,6 +174,8 @@ private:
 		for (int i = 0; i < 8; i++)
 			addAndMakeVisible(ui_musicControl.chord_Degree[i]);
 		addAndMakeVisible(ui_musicControl.chord_Type);
+		addAndMakeVisible(ui_musicControl.levelMeter[0]);
+		addAndMakeVisible(ui_musicControl.levelMeter[1]);
 	}
 
 	// Add Mapping Matrix Controls
@@ -645,7 +647,26 @@ private:
 	// Update Music Control Tab Elements
 	void musicControls_updateLabels()
 	{
+		float level_label1_width = (processor.musicLevel_dB - (-60)) / 60.0 * ui_musicControl.levelMeter_Width;
+		float level_label2_width = ui_musicControl.levelMeter_Width - level_label1_width;
 
+		ui_musicControl.levelMeter[0].setColour(
+			ui_musicControl.levelMeter[0].backgroundColourId,
+			(processor.musicLevel_dB > -2) ? Colours::red : Colours::yellow);
+
+		ui_musicControl.levelMeter[0].setBounds(
+			850,
+			50,
+			level_label1_width,
+			25
+		);
+
+		ui_musicControl.levelMeter[1].setBounds(
+			850 + level_label1_width,
+			50,
+			level_label2_width,
+			25
+		);
 	}
 
 	// Update Mapping Matrix Tab Elements
