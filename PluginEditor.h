@@ -289,7 +289,7 @@ private:
 		};
 
 		ui_movementAnalysis.range_TrunkAP.setMinValue(-5);
-		ui_movementAnalysis.range_TrunkAP.setMaxValue(60);
+		ui_movementAnalysis.range_TrunkAP.setMaxValue(40);
 		ui_movementAnalysis.range_TrunkAP.onValueChange = [this]
 		{
 			processor.movementAnalysis.setMovementLimits(
@@ -529,13 +529,7 @@ private:
 		{
 			ui_mappingMatrix.saveAsPreset();
 			ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets);
-			for (int i = 0; i < ui_mappingMatrix.num_Presets; i++)
-			{
-				if (processor.movementAnalysis.musicControl.mappingPresets[i].name ==
-					ui_mappingMatrix.preset_Name.getText())
-					ui_mappingMatrix.preset_ListLoad.setSelectedId(i + 1);
-				ui_mappingMatrix.preset_Name.setText("");
-			}
+			ui_mappingMatrix.preset_Name.setText("");
 		};
 	}
 
