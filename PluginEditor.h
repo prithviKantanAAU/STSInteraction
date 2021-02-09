@@ -114,6 +114,8 @@ private:
 		{
 			addAndMakeVisible(ui_movementAnalysis.IMUOnline[i]);
 			addAndMakeVisible(ui_movementAnalysis.IMUOrientations[i]);
+			addAndMakeVisible(ui_movementAnalysis.range_segmentAngles[i]);
+			addAndMakeVisible(ui_movementAnalysis.range_segmentAngles_LAB[i]);
 		}
 
 		for (int j = 0; j < 2; j++)
@@ -136,8 +138,6 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.range_Horiz_LAB);
 		addAndMakeVisible(ui_movementAnalysis.range_Vert);
 		addAndMakeVisible(ui_movementAnalysis.range_Vert_LAB);
-		addAndMakeVisible(ui_movementAnalysis.range_TrunkAP);
-		addAndMakeVisible(ui_movementAnalysis.range_TrunkAP_LAB);
 		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand);
 		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand_LAB);
 
@@ -176,6 +176,8 @@ private:
 		addAndMakeVisible(ui_musicControl.chord_Type);
 		addAndMakeVisible(ui_musicControl.levelMeter[0]);
 		addAndMakeVisible(ui_musicControl.levelMeter[1]);
+		addAndMakeVisible(ui_musicControl.triOsc_BPM);
+		addAndMakeVisible(ui_musicControl.triOsc_BPM_LAB);
 	}
 
 	// Add Mapping Matrix Controls
@@ -264,6 +266,22 @@ private:
 
 			ui_movementAnalysis.sensor_Axis[i].addListener(this);
 			ui_movementAnalysis.sensor_Invert[i].addListener(this);
+
+			ui_movementAnalysis.range_segmentAngles[i].setMinValue(processor.movementAnalysis.movementParams[i].minVal);
+			ui_movementAnalysis.range_segmentAngles[i].setMaxValue(processor.movementAnalysis.movementParams[i].maxVal);
+
+			ui_movementAnalysis.range_segmentAngles[i].onValueChange = [this,i]
+			{
+				processor.movementAnalysis.movementParams[i].minVal = ui_movementAnalysis.range_segmentAngles[i].getMinValue();
+				processor.movementAnalysis.movementParams[i].maxVal = ui_movementAnalysis.range_segmentAngles[i].getMaxValue();
+
+				processor.movementAnalysis.resetLimits_Hip_Knee();
+
+				ui_movementAnalysis.simulation_OrientAngles[i].setRange(
+					processor.movementAnalysis.movementParams[i].minVal,
+					processor.movementAnalysis.movementParams[i].maxVal
+				);
+			};
 		}
 
 		ui_movementAnalysis.range_Horiz.setMinValue(processor.movementAnalysis.range_horiz[0]);
@@ -286,21 +304,6 @@ private:
 		ui_movementAnalysis.thresh_AP_preStand.onValueChange = [this]
 		{
 			processor.movementAnalysis.thresh_Stand_trunk_AP = ui_movementAnalysis.thresh_AP_preStand.getValue();
-		};
-
-		ui_movementAnalysis.range_TrunkAP.setMinValue(-5);
-		ui_movementAnalysis.range_TrunkAP.setMaxValue(40);
-		ui_movementAnalysis.range_TrunkAP.onValueChange = [this]
-		{
-			processor.movementAnalysis.setMovementLimits(
-				ui_movementAnalysis.range_TrunkAP.getMinValue(),
-				ui_movementAnalysis.range_TrunkAP.getMaxValue()
-			);
-
-			ui_movementAnalysis.simulation_OrientAngles[0].setRange(
-				ui_movementAnalysis.range_TrunkAP.getMinValue(),
-				ui_movementAnalysis.range_TrunkAP.getMaxValue()
-			);
 		};
 
 		ui_movementAnalysis.record_MovementLog.onClick = [this]
@@ -400,6 +403,11 @@ private:
 			ui_musicControl.chord_Degree[i].setSelectedId
 			(processor.movementAnalysis.musicControl.musicInfoCompute.chord_degSequence[i]);
 		}
+
+		ui_musicControl.triOsc_BPM.onValueChange = [this]
+		{
+			processor.movementAnalysis.triOsc_Freq = ui_musicControl.triOsc_BPM.getValue() / 60.0;
+		};
 	}
 
 	// Initialize Mapping Matrix Elements
@@ -628,13 +636,6 @@ private:
 			processor.movementAnalysis.movementParams[0].value,
 			processor.movementAnalysis.movementParams[1].value,
 			processor.movementAnalysis.movementParams[2].value
-		);
-
-		// MOVEMENT RANGE SLIDER LABELS
-		ui_movementAnalysis.range_TrunkAP_LAB.setText(
-			String(processor.movementAnalysis.movementParams[0].minVal, 2) + " to " 
-			+ String(processor.movementAnalysis.movementParams[0].maxVal, 2)
-			, dontSendNotification
 		);
 	}
 

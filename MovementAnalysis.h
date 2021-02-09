@@ -18,7 +18,7 @@ class MovementAnalysis
 public:
 	MovementAnalysis() 
 	{
-		movementParams[0].initialize(-30, 90, "Orientation Trunk AP",true);
+		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",true);
 		movementParams[1].initialize(-90, 10, "Orientation Thigh AP",true);
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML",true);
@@ -27,6 +27,7 @@ public:
 		movementParams[6].initialize(0, 5, "Ang Velocity Knee",false);
 		movementParams[7].initialize(0, 5, "Ang Velocity Hip",false);
 		movementParams[8].initialize(0, 5, "STS Phase",true);
+		movementParams[9].initialize(0, 1, "Tri Osc",true);
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -36,7 +37,7 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
-
+	short numMovementParams = 10;
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
@@ -62,7 +63,7 @@ public:
 	// 6 = Hip Angular Velocity
 	// 7 = Knee Angular Velocity
 
-	short numMovementParams = 9;
+	
 
 	// STS Phase Variable
 	// 0 = Steady Sitting
@@ -118,6 +119,18 @@ public:
 	// Joint Bend Angular Velocities
 	float jointAngularVel_DegPerSec[2] = { 0.0 };
 
+	// Triangle Oscillator
+	double triOsc_Freq = 1;
+	long ticksElapsed = 0;
+	void triOsc_Update()
+	{
+		double triOsc_Period = 1 / triOsc_Freq;
+		long t = ticksElapsed;
+		int D = (int)(triOsc_Period / 0.01);
+		double funcVal = abs((t + D - 1) % ((D - 1) * 2) - (D - 1)) / (float)D;
+		movementParams[9].storeValue(funcVal);
+	}
+
 	// SETUP OSC UDP RECEIVERS - PORT, LISTENER, SAMPLE RATE
 	void setupReceivers()
 	{
@@ -141,9 +154,11 @@ public:
 	// Timed Callback
 	void callback()
 	{
+		ticksElapsed++;
 		computeAngles();
 		updateSTSPhase();
 		musicControl.updateFBVariables(movementParams, numMovementParams);
+		triOsc_Update();
 	}
 
 	// Calculate IMU Orientations and Joint Angles
@@ -375,12 +390,19 @@ public:
 		}
 	}
 
-	void setMovementLimits(float minVal, float maxVal)
+	void resetLimits_Hip_Knee()
 	{
-		movementParams[0].minVal = minVal;
-		movementParams[0].maxVal = maxVal;
+		//// 4 = HIP // 5 = KNEE
+		//float trunk_min = movementParams[0].minVal;
+		//float trunk_max = movementParams[0].maxVal;
 
-		movementParams[4].minVal = 90 - maxVal;
-		movementParams[4].maxVal = 180 - minVal;
-	}
+		//float thigh_min = movementParams[1].minVal;
+		//float thigh_max = movementParams[1].maxVal;
+
+		//float thigh_min = movementParams[2].minVal;
+		//float thigh_max = movementParams[2].maxVal;
+
+		//movementParams[4].minVal = 0;
+		//movementParams[4].maxVal = 180 - trunk_min + thigh_max;
+	};
 };

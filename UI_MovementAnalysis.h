@@ -31,13 +31,13 @@ public:
 	ComboBox orientationAlgo;
 	Slider range_Vert;
 	Label range_Vert_LAB;
-	Slider range_TrunkAP;
-	Label range_TrunkAP_LAB;
 	Slider range_Horiz;
 	Label range_Horiz_LAB;
 	Slider thresh_AP_preStand;
 	Label thresh_AP_preStand_LAB;
 	TextButton record_MovementLog;
+	Slider range_segmentAngles[3];
+	Label range_segmentAngles_LAB[3];
 
 	// SENSOR INVERT
 	ComboBox sensor_Axis[3];
@@ -82,6 +82,14 @@ public:
 				false,
 				30, 20
 			);
+
+			// Segment Range Setters
+			range_segmentAngles[i].setRange(-90, 90);
+			range_segmentAngles_LAB[i].attachToComponent(&range_segmentAngles[i], true);
+			range_segmentAngles[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			range_segmentAngles[i].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox,false,30, 20);
+			range_segmentAngles[i].setColour(range_segmentAngles[i].trackColourId, Colours::yellow);
+			range_segmentAngles[i].setColour(range_segmentAngles[i].backgroundColourId, Colours::blue);
 		}
 
 		// Horizontal Classification Range
@@ -103,15 +111,6 @@ public:
 		range_Vert_LAB.attachToComponent(&range_Vert, true);
 		range_Vert_LAB.setText("Vert Range", dontSendNotification);
 		range_Vert.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
-
-		// Trunk AP Limits
-		range_TrunkAP.setRange(-90, 90);
-		range_TrunkAP.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
-		range_TrunkAP.setNumDecimalPlacesToDisplay(0);
-		range_TrunkAP.setColour(range_TrunkAP.trackColourId, Colours::yellow);
-		range_TrunkAP.setColour(range_TrunkAP.backgroundColourId, Colours::blue);
-		range_TrunkAP_LAB.attachToComponent(&range_TrunkAP, true);
-		range_TrunkAP.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
 
 		// Onset AP Threshold
 		thresh_AP_preStand.setRange(0,40);
@@ -148,6 +147,7 @@ public:
 		{
 			IMUOnline[i].setVisible(on);
 			IMUOrientations[i].setVisible(on);
+			range_segmentAngles[i].setVisible(on);
 		}
 
 		for (int j = 0; j < 2; j++)
@@ -164,7 +164,6 @@ public:
 
 		range_Horiz.setVisible(on);
 		range_Vert.setVisible(on);
-		range_TrunkAP.setVisible(on);
 		thresh_AP_preStand.setVisible(on);
 		record_MovementLog.setVisible(on);
 
@@ -193,22 +192,22 @@ public:
 			sensor_Invert[i].setBounds(80, 52 + 15 * i, 60, 10);
 			IMUOnline[i].setBounds(150, 52 + 15 * i, 15, 10);
 			IMUOrientations[i].setBounds(180, 50 + 15 * i, 150, 15);
+			range_segmentAngles[i].setBounds(350, 52 + 15*i, 180, 15);
 		}
 
 		for (int j = 0; j < 2; j++)
 		{
-			JointAngles[j].setBounds(350, 57.5 + 15 * j, 150, 15);
-			JointVelocities[j].setBounds(525, 57.5 + 15 * j, 150, 15);
+			JointAngles[j].setBounds(550, 57.5 + 15 * j, 150, 15);
+			JointVelocities[j].setBounds(725, 57.5 + 15 * j, 150, 15);
 		}
-		STSPhasePresent.setBounds(700, 65, 200, 15);
-		record_MovementLog.setBounds(700, 85, 100, 20);
+		STSPhasePresent.setBounds(900, 65, 200, 15);
+		record_MovementLog.setBounds(350, 105, 180, 20);
 		operationMode.setBounds(10, 105, 150, 20);
 		orientationAlgo.setBounds(180, 105, 150, 20);
 
 		range_Horiz.setBounds(100, 135, 200, 20);
 		range_Vert.setBounds(100, 160, 200, 20);
 		thresh_AP_preStand.setBounds(100, 185, 200, 20);
-		range_TrunkAP.setBounds(100, 210, 200, 20);
 	}
 
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //

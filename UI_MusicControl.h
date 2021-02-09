@@ -20,6 +20,8 @@ public:
 	Label gain_Track_LAB[10];
 	Label levelMeter[2];
 	float levelMeter_Width = 150;
+	Slider triOsc_BPM;
+	Label triOsc_BPM_LAB;
 
 	// MUSIC
 	ComboBox tonic;
@@ -66,6 +68,14 @@ public:
 		levelMeter[0].setColour(levelMeter[0].backgroundColourId, Colours::yellow);
 		levelMeter[1].setColour(levelMeter[1].backgroundColourId, Colours::blue);
 
+		// Tri Osc BPM
+		triOsc_BPM.setRange(40, 100);
+		triOsc_BPM.setTextBoxStyle(Slider::NoTextBox,true,20,20);
+		triOsc_BPM.setValue(60);
+		triOsc_BPM.setColour(triOsc_BPM.trackColourId, Colours::yellow);
+		triOsc_BPM.setColour(triOsc_BPM.backgroundColourId, Colours::blue);
+		triOsc_BPM_LAB.setText("Osc BPM", dontSendNotification);
+		triOsc_BPM_LAB.attachToComponent(&triOsc_BPM, true);
 	}
 
 	void toggleVisible(bool on)
@@ -84,6 +94,7 @@ public:
 		chord_Type.setVisible(on);
 		levelMeter[0].setVisible(on);
 		levelMeter[1].setVisible(on);
+		triOsc_BPM.setVisible(on);
 	}
 
 	void setLayout(int numTracks)
@@ -101,5 +112,7 @@ public:
 
 		for (int i = 0; i < 8; i++)
 			chord_Degree[i].setBounds(350 + 60 * i, 130, 50, 25);
+
+		triOsc_BPM.setBounds(450, 160, 350, 25);
 	}
 };
