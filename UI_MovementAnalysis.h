@@ -20,34 +20,66 @@ public:
 	// Initialize in PluginEditor.h
 	// Add SetVisible to ToggleVisible() here
 	// Set position in SetLayout() here
+
+	// STRINGS CONTAINING TEXT INFO
 	String IMULocations[3] = { "Trunk","Thigh","Shank" };
 	String JointNames[2] = {"Hip","Knee"};
-	Label IMUOnline[3];							// 0 = TRUNK // 1 = THIGH // 2 = SHANK
-	Label IMUOrientations[3];					// 0 = TRUNK // 1 = THIGH // 2 = SHANK
-	Label JointAngles[2];						// 0 = HIP	 // 1 = KNEE
-	Label JointVelocities[2];					// 0 = HIP	 // 1 = KNEE
-	Label STSPhasePresent;
+	String IMU_Mount_Side_Options[2] = { "Front", "Side" };
+	String IMU_Polarity_Options[2] = { "+", "-" };
+	short IMU_Mount_Side_Options_NUM = 2;
+	short IMU_Polarity_Options_NUM = 2;
+
+	// IMU STATUS, AXIS SETTING, POLARITY, RANGES AND ANGLE DISPLAY
+
+	// POSITION AND BOUNDS
+	int IMU_Config_StartY = 50;
+	int IMU_Config_Column_StartPos[10] =
+	{ 50, 150, 250, 280, 380, 430, 610, 670, 720, 890};
+	int IMU_Config_Column_Width[10] =
+	{ 90, 90, 20, 90, 45, 175, 45, 45, 175, 45};
+	int IMU_Config_Row_Height = 20;
+	int IMU_Config_Row_Offset = 35;
+	int IMU_Config_Indicator_Side = 5;
+
+	Label IMU_Online_Indicator[3];				// 1
+	ComboBox IMU_Mount_Side[3];					// 2
+	ComboBox IMU_Polarity[3];					// 3
+	Label IMU_Location[3];						// 4
+	
+	Label AP;
+	Slider IMU_range_segmentAngles_AP[3];		// 6
+	Label IMU_segmentAngles_AP_Indicator[3];
+	Label IMU_segmentRanges_AP_Bounds[3][2];	// 5, 7
+	
+	Label ML;
+	Slider IMU_range_segmentAngles_ML[3];		// 9
+	Label IMU_segmentAngles_ML_Indicator[3];
+	Label IMU_segmentRanges_ML_Bounds[3][2];	// 8, 10
+
+	void update_Indicators_SensorOrientation(MovementParameter mpArray[])
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			// ADJUST INDICATOR POSITION
+
+			for (int j = 0; j < 2; j++)
+			{
+				// ADJUST BOUNDS TEXT
+			}
+		}
+	}
+
+	// RECORD LOG, OPERATION MODE AND ORIENTATION CALCULATION ALGORITHM
+	TextButton record_MovementLog;
 	ComboBox operationMode;
 	ComboBox orientationAlgo;
-	Slider range_Vert;
-	Label range_Vert_LAB;
-	Slider range_Horiz;
-	Label range_Horiz_LAB;
-	Slider thresh_AP_preStand;
-	Label thresh_AP_preStand_LAB;
-	TextButton record_MovementLog;
-	Slider range_segmentAngles[3];
-	Label range_segmentAngles_LAB[3];
 
-	// SENSOR INVERT
-	ComboBox sensor_Axis[3];
-	ComboBox sensor_Invert[3];
-	String sensor_Axis_Options[2] = { "AP", "ML" };
-	String sensor_Invert_Options[2] = { "+", "-" };
-	short sensor_Axis_Options_NUM = 2;
-	short sensor_Invert_Options_NUM = 2;
+	// HIGH LEVEL PARAMETERS
+	Label JointAngles[2];						// 0 = HIP	 // 1 = KNEE
+	Label JointVelocities[2];					// 0 = HIP	 // 1 = KNEE
+	Label STS_Phase_Disp;						
 
-	// Simulation Sliders
+	// STS SIMULATION
 	Slider simulation_OrientAngles[3];
 	Label  simulation_OrientAngles_LAB[3];
 	int simulation_OrientAngles_Ranges[3][2] =
@@ -59,6 +91,7 @@ public:
 
 	void configure()
 	{
+		// STS ANIMATION COLOURS
 		for (int i = 0; i < 4; i++)
 			stsAnim_joint[i].setColour(stsAnim_joint[i].backgroundColourId, Colours::yellow);
 		for (int j = 0; j < 20; j++)
@@ -68,8 +101,53 @@ public:
 			stsAnim_shank[j].setColour(stsAnim_shank[j].backgroundColourId, Colours::blue);
 		}
 
+		// HEADERS
+		ML.setText("ML", dontSendNotification);
+		AP.setText("AP", dontSendNotification);
+
+		// IMU CONFIG CONTROLS INITIALIZATION
 		for (int i = 0; i < 3; i++)
 		{
+			// 0 - MOUNTING SIDE
+			for (int j = 0; j < IMU_Mount_Side_Options_NUM; j++)
+				IMU_Mount_Side[i].addItem(IMU_Mount_Side_Options[j], j + 1);
+			IMU_Mount_Side[i].setSelectedId(1);
+
+			// 1 - IMU POLARITY
+			for (int k = 0; k < IMU_Polarity_Options_NUM; k++)
+				IMU_Polarity[i].addItem(IMU_Polarity_Options[k], k + 1);
+			IMU_Polarity[i].setSelectedId(1);
+
+			// 2 - IMU STATUS INDICATOR - NO CONFIG NEEDED
+
+			// 3 - IMU LOCATION LABELS
+			IMU_Location[i].setText(IMULocations[i], dontSendNotification);
+
+			// 4 - AP Lower Bound - No Config Needed
+
+			// 5 - AP Range Setter
+			IMU_range_segmentAngles_AP[i].setRange(-90, 90);
+			IMU_segmentAngles_AP_Indicator[i].attachToComponent(&IMU_range_segmentAngles_AP[i], true);
+			IMU_range_segmentAngles_AP[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			IMU_range_segmentAngles_AP[i].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+			IMU_range_segmentAngles_AP[i].setColour(IMU_range_segmentAngles_AP[i].trackColourId, Colours::yellow);
+			IMU_range_segmentAngles_AP[i].setColour(IMU_range_segmentAngles_AP[i].backgroundColourId, Colours::blue);
+
+			// 6 - AP Upper Bound - No Config Needed
+
+			// 7 - ML Lower Bound - No Config Needed
+
+			// 8 - ML Range Setter
+			IMU_range_segmentAngles_ML[i].setRange(-90, 90);
+			IMU_segmentAngles_ML_Indicator[i].attachToComponent(&IMU_range_segmentAngles_ML[i], true);
+			IMU_range_segmentAngles_ML[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			IMU_range_segmentAngles_ML[i].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+			IMU_range_segmentAngles_ML[i].setColour(IMU_range_segmentAngles_ML[i].trackColourId, Colours::yellow);
+			IMU_range_segmentAngles_ML[i].setColour(IMU_range_segmentAngles_ML[i].backgroundColourId, Colours::blue);
+
+			// 9 - ML Upper Bound - No Config Needed
+
+			// IMU Config - Slider Simulation Config
 			simulation_OrientAngles[i].setRange(simulation_OrientAngles_Ranges[i][0], 
 				simulation_OrientAngles_Ranges[i][1]);
 			if (i != 1) simulation_OrientAngles[i].setValue(0);
@@ -82,98 +160,44 @@ public:
 				false,
 				30, 20
 			);
-
-			// Segment Range Setters
-			range_segmentAngles[i].setRange(-90, 90);
-			range_segmentAngles_LAB[i].attachToComponent(&range_segmentAngles[i], true);
-			range_segmentAngles[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
-			range_segmentAngles[i].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox,false,30, 20);
-			range_segmentAngles[i].setColour(range_segmentAngles[i].trackColourId, Colours::yellow);
-			range_segmentAngles[i].setColour(range_segmentAngles[i].backgroundColourId, Colours::blue);
 		}
-
-		// Horizontal Classification Range
-		range_Horiz.setRange(-130, -50);
-		range_Horiz.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
-		range_Horiz.setNumDecimalPlacesToDisplay(0);
-		range_Horiz.setColour(range_Horiz.trackColourId, Colours::yellow);
-		range_Horiz.setColour(range_Horiz.backgroundColourId, Colours::blue);
-		range_Horiz_LAB.attachToComponent(&range_Horiz, true);
-		range_Horiz_LAB.setText("Horiz Range", dontSendNotification);
-		range_Horiz.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox,false,30, 20);
-
-		// Vertical Classification Range
-		range_Vert.setRange(-30, 30);
-		range_Vert.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
-		range_Vert.setNumDecimalPlacesToDisplay(0);
-		range_Vert.setColour(range_Vert.trackColourId, Colours::yellow);
-		range_Vert.setColour(range_Vert.backgroundColourId, Colours::blue);
-		range_Vert_LAB.attachToComponent(&range_Vert, true);
-		range_Vert_LAB.setText("Vert Range", dontSendNotification);
-		range_Vert.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
-
-		// Onset AP Threshold
-		thresh_AP_preStand.setRange(0,40);
-		thresh_AP_preStand.setNumDecimalPlacesToDisplay(0);
-		thresh_AP_preStand.setColour(thresh_AP_preStand.trackColourId, Colours::yellow);
-		thresh_AP_preStand.setColour(thresh_AP_preStand.backgroundColourId, Colours::blue);
-		thresh_AP_preStand_LAB.attachToComponent(&thresh_AP_preStand, true);
-		thresh_AP_preStand_LAB.setText("Onset AP Thresh",dontSendNotification);
 
 		// Record Movement Log
 		record_MovementLog.setColour(record_MovementLog.buttonColourId, Colours::red);
 		record_MovementLog.setButtonText("Record");
 
-		// Sensor Axis
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < sensor_Axis_Options_NUM; j++)
-				sensor_Axis[i].addItem(sensor_Axis_Options[j],j+1);
-			sensor_Axis[i].setSelectedId(1);
-		}
-
-		// Sensor Invert
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < sensor_Invert_Options_NUM; j++)
-				sensor_Invert[i].addItem(sensor_Invert_Options[j], j + 1);
-			sensor_Invert[i].setSelectedId(1);
-		}
+		JointAngles[0].attachToComponent(&stsAnim_joint[1], true);	
 	}
 
 	void toggleVisible(bool on)
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			IMUOnline[i].setVisible(on);
-			IMUOrientations[i].setVisible(on);
-			range_segmentAngles[i].setVisible(on);
+			IMU_Mount_Side[i].setVisible(on);					// 0
+			IMU_Polarity[i].setVisible(on);						// 1
+			IMU_Online_Indicator[i].setVisible(on);				// 2
+			IMU_Location[i].setVisible(on);						// 3
+			IMU_segmentRanges_AP_Bounds[i][0].setVisible(on);	// 4
+			IMU_range_segmentAngles_AP[i].setVisible(on);		// 5
+			IMU_segmentRanges_AP_Bounds[i][1].setVisible(on);	// 6
+			IMU_segmentRanges_ML_Bounds[i][0].setVisible(on);	// 7
+			IMU_range_segmentAngles_ML[i].setVisible(on);		// 8
+			IMU_segmentRanges_ML_Bounds[i][1].setVisible(on);	// 9
+			simulation_OrientAngles[i].setVisible(on);			// X
 		}
 
+		// MISCELLANEOUS
+		orientationAlgo.setVisible(on);
+		operationMode.setVisible(on);	
+		record_MovementLog.setVisible(on);
+
+		// STS VISUALIZER
+		STS_Phase_Disp.setVisible(on);
 		for (int j = 0; j < 2; j++)
 		{
 			JointAngles[j].setVisible(on);
 			JointVelocities[j].setVisible(on);
 		}
-		STSPhasePresent.setVisible(on);
-		orientationAlgo.setVisible(on);
-		operationMode.setVisible(on);
-
-		for (int i = 0; i < 3; i++)
-			simulation_OrientAngles[i].setVisible(on);
-
-		range_Horiz.setVisible(on);
-		range_Vert.setVisible(on);
-		thresh_AP_preStand.setVisible(on);
-		record_MovementLog.setVisible(on);
-
-		for (int i = 0; i < 3; i++)
-		{
-			sensor_Axis[i].setVisible(on);
-			sensor_Invert[i].setVisible(on);
-		}
-
-		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
 			stsAnim_joint[i].setVisible(on);
 		for (int j = 0; j < 20; j++)
@@ -186,28 +210,85 @@ public:
 
 	void setLayout()
 	{
+		for (int i = 0; i < 10; i++) IMU_Config_Column_StartPos[i] -= 40;
+
 		for (int i = 0; i < 3; i++)
 		{
-			sensor_Axis[i].setBounds(10, 52 + 15 * i, 60, 10);
-			sensor_Invert[i].setBounds(80, 52 + 15 * i, 60, 10);
-			IMUOnline[i].setBounds(150, 52 + 15 * i, 15, 10);
-			IMUOrientations[i].setBounds(180, 50 + 15 * i, 150, 15);
-			range_segmentAngles[i].setBounds(350, 52 + 15*i, 180, 15);
+			IMU_Mount_Side[i].setBounds(
+				IMU_Config_Column_StartPos[0],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[0],
+				IMU_Config_Row_Height
+			);
+
+			IMU_Polarity[i].setBounds(
+				IMU_Config_Column_StartPos[1],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[1],
+				IMU_Config_Row_Height
+			);
+
+			IMU_Online_Indicator[i].setBounds(
+				IMU_Config_Column_StartPos[2],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[2],
+				IMU_Config_Row_Height
+			);
+
+			IMU_Location[i].setBounds(
+				IMU_Config_Column_StartPos[3],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[3],
+				IMU_Config_Row_Height
+			);
+			
+			IMU_segmentRanges_AP_Bounds[i][0].setBounds(
+				IMU_Config_Column_StartPos[4],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[4],
+				IMU_Config_Row_Height
+			);
+			
+			IMU_range_segmentAngles_AP[i].setBounds(
+				IMU_Config_Column_StartPos[5],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[5],
+				IMU_Config_Row_Height
+			);
+
+			IMU_segmentRanges_AP_Bounds[i][1].setBounds(
+				IMU_Config_Column_StartPos[6],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[6],
+				IMU_Config_Row_Height
+			);
+			
+			IMU_segmentRanges_ML_Bounds[i][0].setBounds(
+				IMU_Config_Column_StartPos[7],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[7],
+				IMU_Config_Row_Height
+			);
+			
+			IMU_range_segmentAngles_ML[i].setBounds(
+				IMU_Config_Column_StartPos[8],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[8],
+				IMU_Config_Row_Height
+			);
+
+			IMU_segmentRanges_ML_Bounds[i][1].setBounds(
+				IMU_Config_Column_StartPos[9],
+				IMU_Config_StartY + IMU_Config_Row_Offset * i,
+				IMU_Config_Column_Width[9],
+				IMU_Config_Row_Height
+			);
 		}
 
-		for (int j = 0; j < 2; j++)
-		{
-			JointAngles[j].setBounds(550, 57.5 + 15 * j, 150, 15);
-			JointVelocities[j].setBounds(725, 57.5 + 15 * j, 150, 15);
-		}
-		STSPhasePresent.setBounds(900, 65, 200, 15);
-		record_MovementLog.setBounds(350, 105, 180, 20);
-		operationMode.setBounds(10, 105, 150, 20);
-		orientationAlgo.setBounds(180, 105, 150, 20);
-
-		range_Horiz.setBounds(100, 135, 200, 20);
-		range_Vert.setBounds(100, 160, 200, 20);
-		thresh_AP_preStand.setBounds(100, 185, 200, 20);
+		// MISCELLANEOUS
+		operationMode.setBounds(10, 160, 200, 20);
+		orientationAlgo.setBounds(10, 190, 200, 20);
+		record_MovementLog.setBounds(10, 220, 200, 20);
 	}
 
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
@@ -224,8 +305,8 @@ public:
 	int stsAnim_widths_segments[3] = { 5, 1, 5 };
 	int stsAnim_heights_segments[3] = { 2, 5, 2 };
 
-	int stsAnim_topCorner_X = 100;
-	int stsAnim_topCorner_Y = 340;
+	int stsAnim_topCorner_X = 50;
+	int stsAnim_topCorner_Y = 380;
 
 	int stsAnim_Offset_Joint_X[4] = { 0 };
 	int stsAnim_Offset_Joint_Y[4] = { 0 };
@@ -266,6 +347,13 @@ public:
 			stsAnim_height_joint
 		);
 
+		STS_Phase_Disp.setBounds(
+			stsAnim_topCorner_X + offset_Head_X + offset_hipRotation_X + 20,
+			stsAnim_topCorner_Y + offset_Head_Y + 2,
+			200,
+			15
+		);
+
 		// TRUNK
 		for (int i = 0; i < 20; i++)
 		{
@@ -284,6 +372,13 @@ public:
 			stsAnim_topCorner_Y + offset_Hip_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0],
 			stsAnim_width_joint,
 			stsAnim_height_joint
+		);
+
+		JointVelocities[0].setBounds(
+			stsAnim_topCorner_X + offset_hipRotation_X - 45,
+			stsAnim_topCorner_Y + offset_Hip_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 17,
+			100,
+			15
 		);
 
 		// THIGH
@@ -307,6 +402,20 @@ public:
 			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0],
 			stsAnim_width_joint,
 			stsAnim_height_joint
+		);
+
+		JointAngles[1].setBounds(
+			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1] + 20,
+			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 2,
+			100,
+			15
+		);
+
+		JointVelocities[1].setBounds(
+			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1] + 20,
+			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 18,
+			100,
+			15
 		);
 
 		// SHANK

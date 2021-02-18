@@ -105,11 +105,11 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 
 		for (int i = 0; i < 3; i++)
 		{
-			if (box == &ui_movementAnalysis.sensor_Axis[i])
-				processor.movementAnalysis.sensor_Axis[i] = box->getSelectedId();
+			if (box == &ui_movementAnalysis.IMU_Mount_Side[i])
+				processor.movementAnalysis.IMU_Mount_Side[i] = box->getSelectedId();
 
-			if (box == &ui_movementAnalysis.sensor_Invert[i])
-				processor.movementAnalysis.sensor_Invert[i] = box->getSelectedId();
+			if (box == &ui_movementAnalysis.IMU_Polarity[i])
+				processor.movementAnalysis.IMU_Polarity[i] = box->getSelectedId();
 		}
 	}
 }

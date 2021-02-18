@@ -69,7 +69,8 @@ public:
 		levelMeter[1].setColour(levelMeter[1].backgroundColourId, Colours::blue);
 
 		// Tri Osc BPM
-		triOsc_BPM.setRange(40, 100);
+		triOsc_BPM.setRange(10, 100);
+		triOsc_BPM.setSkewFactor(0.3);
 		triOsc_BPM.setTextBoxStyle(Slider::NoTextBox,true,20,20);
 		triOsc_BPM.setValue(60);
 		triOsc_BPM.setColour(triOsc_BPM.trackColourId, Colours::yellow);

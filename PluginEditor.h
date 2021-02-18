@@ -112,10 +112,21 @@ private:
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			addAndMakeVisible(ui_movementAnalysis.IMUOnline[i]);
-			addAndMakeVisible(ui_movementAnalysis.IMUOrientations[i]);
-			addAndMakeVisible(ui_movementAnalysis.range_segmentAngles[i]);
-			addAndMakeVisible(ui_movementAnalysis.range_segmentAngles_LAB[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_Mount_Side[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_Polarity[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_Online_Indicator[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_Location[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_segmentRanges_AP_Bounds[i][0]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_range_segmentAngles_AP[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_segmentAngles_AP_Indicator[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_segmentRanges_AP_Bounds[i][1]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_segmentRanges_ML_Bounds[i][0]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_range_segmentAngles_ML[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_segmentAngles_ML_Indicator[i]);
+			addAndMakeVisible(ui_movementAnalysis.IMU_segmentRanges_ML_Bounds[i][1]);
+
+			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles[i]);
+			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
 		}
 
 		for (int j = 0; j < 2; j++)
@@ -123,33 +134,15 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
 			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
 		}
-		addAndMakeVisible(ui_movementAnalysis.STSPhasePresent);
+		addAndMakeVisible(ui_movementAnalysis.STS_Phase_Disp);
 		addAndMakeVisible(ui_movementAnalysis.record_MovementLog);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
 		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
 
-		for (int i = 0; i < 3; i++)
-		{
-			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles[i]);
-			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
-		}
-
-		addAndMakeVisible(ui_movementAnalysis.range_Horiz);
-		addAndMakeVisible(ui_movementAnalysis.range_Horiz_LAB);
-		addAndMakeVisible(ui_movementAnalysis.range_Vert);
-		addAndMakeVisible(ui_movementAnalysis.range_Vert_LAB);
-		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand);
-		addAndMakeVisible(ui_movementAnalysis.thresh_AP_preStand_LAB);
-
-		for (int i = 0; i < 3; i++)
-		{
-			addAndMakeVisible(ui_movementAnalysis.sensor_Axis[i]);
-			addAndMakeVisible(ui_movementAnalysis.sensor_Invert[i]);
-		}
-
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
 			addAndMakeVisible(ui_movementAnalysis.stsAnim_joint[i]);
+
 		for (int j = 0; j < 20; j++)
 		{
 			addAndMakeVisible(ui_movementAnalysis.stsAnim_trunk[j]);
@@ -264,16 +257,16 @@ private:
 				(i, ui_movementAnalysis.simulation_OrientAngles[i].getValue());
 			};
 
-			ui_movementAnalysis.sensor_Axis[i].addListener(this);
-			ui_movementAnalysis.sensor_Invert[i].addListener(this);
+			ui_movementAnalysis.IMU_Mount_Side[i].addListener(this);
+			ui_movementAnalysis.IMU_Polarity[i].addListener(this);
 
-			ui_movementAnalysis.range_segmentAngles[i].setMinValue(processor.movementAnalysis.movementParams[i].minVal);
-			ui_movementAnalysis.range_segmentAngles[i].setMaxValue(processor.movementAnalysis.movementParams[i].maxVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMinValue(processor.movementAnalysis.movementParams[i].minVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMaxValue(processor.movementAnalysis.movementParams[i].maxVal);
 
-			ui_movementAnalysis.range_segmentAngles[i].onValueChange = [this,i]
+			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].onValueChange = [this,i]
 			{
-				processor.movementAnalysis.movementParams[i].minVal = ui_movementAnalysis.range_segmentAngles[i].getMinValue();
-				processor.movementAnalysis.movementParams[i].maxVal = ui_movementAnalysis.range_segmentAngles[i].getMaxValue();
+				processor.movementAnalysis.movementParams[i].minVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMinValue();
+				processor.movementAnalysis.movementParams[i].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMaxValue();
 
 				processor.movementAnalysis.resetLimits_Hip_Knee();
 
@@ -283,28 +276,6 @@ private:
 				);
 			};
 		}
-
-		ui_movementAnalysis.range_Horiz.setMinValue(processor.movementAnalysis.range_horiz[0]);
-		ui_movementAnalysis.range_Horiz.setMaxValue(processor.movementAnalysis.range_horiz[1]);
-		ui_movementAnalysis.range_Horiz.onValueChange = [this]
-		{
-			processor.movementAnalysis.range_horiz[0] = ui_movementAnalysis.range_Horiz.getMinValue();
-			processor.movementAnalysis.range_horiz[1] = ui_movementAnalysis.range_Horiz.getMaxValue();
-		};
-
-		ui_movementAnalysis.range_Vert.setMinValue(processor.movementAnalysis.range_vert[0]);
-		ui_movementAnalysis.range_Vert.setMaxValue(processor.movementAnalysis.range_vert[1]);
-		ui_movementAnalysis.range_Vert.onValueChange = [this]
-		{
-			processor.movementAnalysis.range_vert[0] = ui_movementAnalysis.range_Vert.getMinValue();
-			processor.movementAnalysis.range_vert[1] = ui_movementAnalysis.range_Vert.getMaxValue();
-		};
-
-		ui_movementAnalysis.thresh_AP_preStand.setValue(processor.movementAnalysis.thresh_Stand_trunk_AP);
-		ui_movementAnalysis.thresh_AP_preStand.onValueChange = [this]
-		{
-			processor.movementAnalysis.thresh_Stand_trunk_AP = ui_movementAnalysis.thresh_AP_preStand.getValue();
-		};
 
 		ui_movementAnalysis.record_MovementLog.onClick = [this]
 		{
@@ -599,34 +570,27 @@ private:
 		{
 			// SET COLOUR OF ONLINE INDICATOR
 			colour_onlineIndicator = processor.movementAnalysis.sensorInfo.isOnline[i] ? Colours::green : Colours::red;
-			ui_movementAnalysis.IMUOnline[i].setColour(ui_movementAnalysis.IMUOnline[i].backgroundColourId, colour_onlineIndicator);
-
-			// ORIENTATION ANGLE DISPLAYS
-			ui_movementAnalysis.IMUOrientations[i].setText(
-				ui_movementAnalysis.IMULocations[i] + " Orientation: "
-				+ String(processor.movementAnalysis.orientation_Deg[i], 2),
-				dontSendNotification
-			);
+			ui_movementAnalysis.IMU_Online_Indicator[i].setColour(ui_movementAnalysis.IMU_Online_Indicator[i].backgroundColourId, colour_onlineIndicator);
 		}
+
+		ui_movementAnalysis.update_Indicators_SensorOrientation(processor.movementAnalysis.movementParams);
 
 		// JOINT ANGLE DISPLAYS
 		for (int j = 0; j < 2; j++)
 		{
 			ui_movementAnalysis.JointAngles[j].setText(
-				ui_movementAnalysis.JointNames[j] + " Angle: "
-				+ String(processor.movementAnalysis.jointAngles_Deg[j], 2)
+				String(processor.movementAnalysis.jointAngles_Deg[j], 2)
 				, dontSendNotification
 			);
 
 			ui_movementAnalysis.JointVelocities[j].setText(
-				ui_movementAnalysis.JointNames[j] + " Ang Vel: "
-				+ String(processor.movementAnalysis.jointAngularVel_DegPerSec[j], 2)
+				String(processor.movementAnalysis.jointAngularVel_DegPerSec[j], 2)
 				, dontSendNotification
 			);
 		}
 
 		// STS PHASE DISPLAY
-		ui_movementAnalysis.STSPhasePresent.setText(
+		ui_movementAnalysis.STS_Phase_Disp.setText(
 			processor.movementAnalysis.STS_Phases[processor.movementAnalysis.STS_Phase]
 			, dontSendNotification
 		);

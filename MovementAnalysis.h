@@ -90,8 +90,8 @@ public:
 
 	// DETECTION THRESHOLDS
 	float thresh_Stand_trunk_AP = 10;
-	float range_horiz[2] = { -115, -70 };
-	float range_vert[2] = {-15,15};
+	float range_horiz[2] = { -130, -50 };
+	float range_vert[2] = {-30,30};
 
 	// Resting Values
 	float restAngle_Deg_Hip = 90;
@@ -109,8 +109,8 @@ public:
 	float orientation_Deg_Yaw[3] = { 0.0, 0, 0.0 };				// Yaw
 	
 	// IMU Axis and Invert
-	short sensor_Axis[3] = {1,1,1};
-	short sensor_Invert[3] = { 1,1,1 };
+	short IMU_Mount_Side[3] = {1,1,1};
+	short IMU_Polarity[3] = { 1,1,1 };
 
 	// Joint Bend Angles
 	float jointAngles_Deg[2] = { 0.0 };
@@ -174,9 +174,9 @@ public:
 			break;
 		}
 		// COMPUTE JOINT ANGLES	
-		movementParams[0].storeValue(orientation_Deg[0] * ((sensor_Invert[0] == 1) ? 1 : -1));
-		movementParams[1].storeValue(orientation_Deg[1] * ((sensor_Invert[1] == 1) ? 1 : -1));
-		movementParams[2].storeValue(orientation_Deg[2] * ((sensor_Invert[2] == 1) ? 1 : -1));
+		movementParams[0].storeValue(orientation_Deg[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
+		movementParams[1].storeValue(orientation_Deg[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
+		movementParams[2].storeValue(orientation_Deg[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
 		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
 		movementParams[3].storeValue(fabs(orientation_Deg_ML[0]));
@@ -211,8 +211,8 @@ public:
 						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
 						sensors_OSCReceivers[locationsOnline[i]].mag_Buf,
 						&quaternionFilters[i],
-						(sensor_Axis[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i],
-						(sensor_Axis[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
+						(IMU_Mount_Side[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i],
+						(IMU_Mount_Side[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
 						&orientation_Deg_Yaw[i]);
 
 				if (orientAlgo_Present == 2)									// Regular Complementary Filter
@@ -220,8 +220,8 @@ public:
 					compFilters[locationsOnline[i]].getOrientation_Fused(
 						sensors_OSCReceivers[locationsOnline[i]].acc_Buf,
 						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
-						(sensor_Axis[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
-						(sensor_Axis[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i]
+						(IMU_Mount_Side[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
+						(IMU_Mount_Side[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i]
 					);
 				}
 			}
