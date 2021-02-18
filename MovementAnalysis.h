@@ -18,16 +18,19 @@ class MovementAnalysis
 public:
 	MovementAnalysis() 
 	{
-		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",true);
-		movementParams[1].initialize(-90, 10, "Orientation Thigh AP",true);
+		movementParams[0].initialize(-5, 40, "Orientation Trunk AP");
+		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
-		movementParams[3].initialize(0, 40, "Orientation Trunk ML",true);
-		movementParams[4].initialize(0, 180, "Angle Hip",true);
-		movementParams[5].initialize(0, 180, "Angle Knee",true);
-		movementParams[6].initialize(0, 5, "Ang Velocity Knee",false);
-		movementParams[7].initialize(0, 5, "Ang Velocity Hip",false);
-		movementParams[8].initialize(0, 5, "STS Phase",true);
-		movementParams[9].initialize(0, 1, "Tri Osc",true);
+		movementParams[3].initialize(-40, 40, "Orientation Trunk ML");
+		movementParams[4].initialize(-60, 60, "Orientation Thigh ML",false);
+		movementParams[5].initialize(-80, 80, "Orientation Shank ML",false);
+
+		movementParams[6].initialize(0, 180, "Angle Hip");
+		movementParams[7].initialize(0, 180, "Angle Knee");
+		movementParams[8].initialize(0, 5, "Ang Velocity Knee",false);
+		movementParams[9].initialize(0, 5, "Ang Velocity Hip",false);
+		movementParams[10].initialize(0, 5, "STS Phase");
+		movementParams[11].initialize(0, 1, "Tri Osc");
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -37,7 +40,7 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
-	short numMovementParams = 10;
+	short numMovementParams = 12;
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
@@ -45,7 +48,7 @@ public:
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
 	ComplementaryFilter compFilters[3];
 	BiQuad angularVel_Smooth[2];						// 1 = Hip	 // 2 = Knee
-	MovementParameter movementParams[10];
+	MovementParameter movementParams[20];
 
 	short numOrientationAlgos = 2;
 	short orientAlgo_Present = 1;
@@ -53,25 +56,6 @@ public:
 	short numOperationModes = 2;
 	short operationMode_Present = 1;
 	String OperationModes[5] = { "Slider Simulation","Sensor" };
-
-	// 0 = Trunk AP Orientation
-	// 1 = Thigh AP Orientation
-	// 2 = Shank AP Orientation
-	// 3 = Trunk ML Orientation
-	// 4 = Hip Angle
-	// 5 = Knee Angle
-	// 6 = Hip Angular Velocity
-	// 7 = Knee Angular Velocity
-
-	
-
-	// STS Phase Variable
-	// 0 = Steady Sitting
-	// 1 = Stand Onset
-	// 2 = Seat Off
-	// 3 = Steady Standing
-	// 4 = Sit Onset
-	// 5 = Seat On
 
 	String STS_Phases[6] =
 	{
@@ -128,7 +112,7 @@ public:
 		long t = ticksElapsed;
 		int D = (int)(triOsc_Period / 0.01);
 		double funcVal = abs((t + D - 1) % ((D - 1) * 2) - (D - 1)) / (float)D;
-		movementParams[9].storeValue(funcVal);
+		store_MP_Value("Tri Osc",funcVal);
 	}
 
 	// SETUP OSC UDP RECEIVERS - PORT, LISTENER, SAMPLE RATE
@@ -161,6 +145,19 @@ public:
 		triOsc_Update();
 	}
 
+	// Store Value By Name
+	void store_MP_Value(String mpName, double value)
+	{
+		for (int i = 0; i < numMovementParams; i++)
+		{
+			if (movementParams[i].name == mpName)
+			{
+				movementParams[i].storeValue(value);
+				break;
+			}
+		}
+	}
+
 	// Calculate IMU Orientations and Joint Angles
 	void computeAngles()
 	{
@@ -173,28 +170,36 @@ public:
 			computeIMUOrientations();
 			break;
 		}
+		
+		// STORE ML AND AP ORIENTATIONS
+		store_MP_Value("Orientation Trunk AP", orientation_Deg[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Thigh AP", orientation_Deg[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Shank AP", orientation_Deg[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
+
+		store_MP_Value("Orientation Trunk ML", orientation_Deg_ML[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Thigh ML", orientation_Deg_ML[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Shank ML", orientation_Deg_ML[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
+		
 		// COMPUTE JOINT ANGLES	
-		movementParams[0].storeValue(orientation_Deg[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
-		movementParams[1].storeValue(orientation_Deg[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
-		movementParams[2].storeValue(orientation_Deg[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
 		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
-		movementParams[3].storeValue(fabs(orientation_Deg_ML[0]));
-		movementParams[4].storeValue(jointAngles_Deg[0]);
-		movementParams[5].storeValue(jointAngles_Deg[1]);
+		
+		store_MP_Value("Angle Hip", jointAngles_Deg[0]);
+		store_MP_Value("Angle Knee", jointAngles_Deg[1]);
 
 		// COMPUTE JOINT ANGULAR VELOCITY
 		jointAngularVel_DegPerSec[0] = fabs(angularVel_Smooth[0].doBiQuad(jointAngles_Deg[0] - jointAngles_Deg_Z1[0], 0.0));
 		jointAngularVel_DegPerSec[1] = fabs(angularVel_Smooth[1].doBiQuad(jointAngles_Deg[1] - jointAngles_Deg_Z1[1], 0.0));
 		jointAngles_Deg_Z1[0] = jointAngles_Deg[0];
 		jointAngles_Deg_Z1[1] = jointAngles_Deg[1];
-		movementParams[6].storeValue(jointAngularVel_DegPerSec[0]);
-		movementParams[7].storeValue(jointAngularVel_DegPerSec[1]);
+
+		store_MP_Value("Ang Velocity Hip", jointAngularVel_DegPerSec[0]);
+		store_MP_Value("Ang Velocity Knee", jointAngularVel_DegPerSec[1]);
 	}
 
 	void computeIMUOrientations()
 	{
-		// FIGURE OUT INDEX OF EACH IMU LOCATION
+		// FIGURE OUT INDEX OF EACH IMU LOCATION - TRUNK THIGH SHANK SENSOR INDEX
 		for (int i = 0; i < 3; i++) locationsOnline[i] = -1;
 		sensorInfo.check_areSensorsOnline(locationsOnline);
 		
@@ -255,6 +260,10 @@ public:
 		*yaw -= 8.5;
 		*pitch *= RAD_TO_DEG;
 		*pitch -= 90;
+
+		*roll = isnan(*roll) ? 0 : *roll;
+		*pitch = isnan(*pitch) ? 0 : *pitch;
+		*yaw = isnan(*yaw) ? 0 : *yaw;
 	}
 
 	// Calculate STS Phase from
@@ -263,7 +272,7 @@ public:
 		// COMPUTE STS PHASE BASED ON ANGLES AND PREVIOUS PHASE
 		if(!updateSTSPhase_CheckTransition_POS());
 		updateSTSPhase_CheckTransition_NEG();
-		movementParams[8].storeValue(STS_Phase);
+		store_MP_Value("STS Phase",STS_Phase);
 
 		// SHUFFLE PHASE
 		STS_Phase_isChanged = (STS_Phase != STS_Phase_z1) ? true : false;
@@ -389,20 +398,4 @@ public:
 			//movementParams[sliderIdx].storeValue(val);
 		}
 	}
-
-	void resetLimits_Hip_Knee()
-	{
-		//// 4 = HIP // 5 = KNEE
-		//float trunk_min = movementParams[0].minVal;
-		//float trunk_max = movementParams[0].maxVal;
-
-		//float thigh_min = movementParams[1].minVal;
-		//float thigh_max = movementParams[1].maxVal;
-
-		//float thigh_min = movementParams[2].minVal;
-		//float thigh_max = movementParams[2].maxVal;
-
-		//movementParams[4].minVal = 0;
-		//movementParams[4].maxVal = 180 - trunk_min + thigh_max;
-	};
 };

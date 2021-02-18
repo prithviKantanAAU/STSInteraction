@@ -32,11 +32,11 @@ public:
 	// IMU STATUS, AXIS SETTING, POLARITY, RANGES AND ANGLE DISPLAY
 
 	// POSITION AND BOUNDS
-	int IMU_Config_StartY = 50;
+	int IMU_Config_StartY = 70;
 	int IMU_Config_Column_StartPos[10] =
 	{ 50, 150, 250, 280, 380, 430, 610, 670, 720, 890};
 	int IMU_Config_Column_Width[10] =
-	{ 90, 90, 20, 90, 45, 175, 45, 45, 175, 45};
+	{ 90, 90, 20, 90, 45, 175, 45, 55, 175, 45};
 	int IMU_Config_Row_Height = 20;
 	int IMU_Config_Row_Offset = 35;
 	int IMU_Config_Indicator_Side = 5;
@@ -58,14 +58,38 @@ public:
 
 	void update_Indicators_SensorOrientation(MovementParameter mpArray[])
 	{
+		int indicatorWidth = 5;
+		int indicatorHeight = 8;
+
+		double indicator_offset_Px = 0;
+
 		for (int i = 0; i < 3; i++)
 		{
-			// ADJUST INDICATOR POSITION
+			indicator_offset_Px = (mpArray[i].value - (-90)) / 180.0 * IMU_Config_Column_Width[5];
+			// ADJUST INDICATOR POSITION - AP
+			IMU_segmentAngles_AP_Indicator[i].setBounds(
+				IMU_Config_Column_StartPos[5] + indicator_offset_Px,
+				IMU_Config_StartY + IMU_Config_Row_Offset * i - 10,
+				indicatorWidth,
+				indicatorHeight
+			);
+			
+			indicator_offset_Px = (mpArray[i + 3].value - (-90)) / 180.0 * IMU_Config_Column_Width[8];
+			// ADJUST INDICATOR POSITION - ML
+			IMU_segmentAngles_ML_Indicator[i].setBounds(
+				IMU_Config_Column_StartPos[8] + indicator_offset_Px,
+				IMU_Config_StartY + IMU_Config_Row_Offset * i - 10,
+				indicatorWidth,
+				indicatorHeight
+			);
 
-			for (int j = 0; j < 2; j++)
-			{
-				// ADJUST BOUNDS TEXT
-			}
+			// ADJUST BOUNDS TEXT
+			IMU_segmentRanges_AP_Bounds[i][0].setText(String(mpArray[i].minVal, 2), dontSendNotification);
+			IMU_segmentRanges_AP_Bounds[i][1].setText(String(mpArray[i].maxVal, 2), dontSendNotification);
+
+			IMU_segmentRanges_ML_Bounds[i][0].setText(String(mpArray[i+3].minVal, 2), dontSendNotification);
+			IMU_segmentRanges_ML_Bounds[i][1].setText(String(mpArray[i+3].maxVal, 2), dontSendNotification);
+			
 		}
 	}
 
@@ -103,7 +127,9 @@ public:
 
 		// HEADERS
 		ML.setText("ML", dontSendNotification);
+		ML.setJustificationType(Justification::centred);
 		AP.setText("AP", dontSendNotification);
+		AP.setJustificationType(Justification::centred);
 
 		// IMU CONFIG CONTROLS INITIALIZATION
 		for (int i = 0; i < 3; i++)
@@ -134,6 +160,10 @@ public:
 			IMU_range_segmentAngles_AP[i].setColour(IMU_range_segmentAngles_AP[i].backgroundColourId, Colours::blue);
 
 			// 6 - AP Upper Bound - No Config Needed
+
+			// INDICATORS
+			IMU_segmentAngles_AP_Indicator[i].setColour(IMU_segmentAngles_AP_Indicator[i].backgroundColourId, Colours::yellow);
+			IMU_segmentAngles_ML_Indicator[i].setColour(IMU_segmentAngles_ML_Indicator[i].backgroundColourId, Colours::yellow);
 
 			// 7 - ML Lower Bound - No Config Needed
 
@@ -187,6 +217,8 @@ public:
 		}
 
 		// MISCELLANEOUS
+		ML.setVisible(on);
+		AP.setVisible(on);
 		orientationAlgo.setVisible(on);
 		operationMode.setVisible(on);	
 		record_MovementLog.setVisible(on);
@@ -249,6 +281,13 @@ public:
 				IMU_Config_Row_Height
 			);
 			
+			AP.setBounds(
+				IMU_Config_Column_StartPos[5],
+				IMU_Config_StartY - 35,
+				IMU_Config_Column_Width[5],
+				IMU_Config_Row_Height
+			);
+
 			IMU_range_segmentAngles_AP[i].setBounds(
 				IMU_Config_Column_StartPos[5],
 				IMU_Config_StartY + IMU_Config_Row_Offset * i,
@@ -269,6 +308,13 @@ public:
 				IMU_Config_Column_Width[7],
 				IMU_Config_Row_Height
 			);
+
+			ML.setBounds(
+				IMU_Config_Column_StartPos[8],
+				IMU_Config_StartY - 35,
+				IMU_Config_Column_Width[8],
+				IMU_Config_Row_Height
+			);
 			
 			IMU_range_segmentAngles_ML[i].setBounds(
 				IMU_Config_Column_StartPos[8],
@@ -286,9 +332,9 @@ public:
 		}
 
 		// MISCELLANEOUS
-		operationMode.setBounds(10, 160, 200, 20);
-		orientationAlgo.setBounds(10, 190, 200, 20);
-		record_MovementLog.setBounds(10, 220, 200, 20);
+		operationMode.setBounds(10, 175, 200, 20);
+		orientationAlgo.setBounds(10, 205, 200, 20);
+		record_MovementLog.setBounds(10, 235, 200, 20);
 	}
 
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //

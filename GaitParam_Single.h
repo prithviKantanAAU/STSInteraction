@@ -11,7 +11,7 @@ public:
 	double maxVal = 1;
 	bool isVisible = false;
 
-	void initialize(float mini, float maxi, String mpName, bool isVis)
+	void initialize(float mini, float maxi, String mpName, bool isVis = true)
 	{
 		name = mpName;
 		minVal = mini;
@@ -21,6 +21,7 @@ public:
 
 	void storeValue(double newVal)
 	{
+		if (!isnan(newVal))
 		value = jlimit(minVal, maxVal, newVal);
 	}
 

@@ -134,6 +134,8 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
 			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
 		}
+		addAndMakeVisible(ui_movementAnalysis.ML);
+		addAndMakeVisible(ui_movementAnalysis.AP);
 		addAndMakeVisible(ui_movementAnalysis.STS_Phase_Disp);
 		addAndMakeVisible(ui_movementAnalysis.record_MovementLog);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
@@ -268,12 +270,19 @@ private:
 				processor.movementAnalysis.movementParams[i].minVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMinValue();
 				processor.movementAnalysis.movementParams[i].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMaxValue();
 
-				processor.movementAnalysis.resetLimits_Hip_Knee();
-
 				ui_movementAnalysis.simulation_OrientAngles[i].setRange(
 					processor.movementAnalysis.movementParams[i].minVal,
 					processor.movementAnalysis.movementParams[i].maxVal
 				);
+			};
+
+			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].setMinValue(processor.movementAnalysis.movementParams[i+3].minVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].setMaxValue(processor.movementAnalysis.movementParams[i+3].maxVal);
+
+			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].onValueChange = [this, i]
+			{
+				processor.movementAnalysis.movementParams[i + 3].minVal = ui_movementAnalysis.IMU_range_segmentAngles_ML[i].getMinValue();
+				processor.movementAnalysis.movementParams[i + 3].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_ML[i].getMaxValue();
 			};
 		}
 
@@ -566,10 +575,11 @@ private:
 	void movementAnalysis_updateLabels()
 	{
 		Colour colour_onlineIndicator;
+		int rowIndex = 0;
 		for (int i = 0; i < 3; i++)
 		{
+			colour_onlineIndicator = processor.movementAnalysis.locationsOnline[i] != -1 ? Colours::green : Colours::red;
 			// SET COLOUR OF ONLINE INDICATOR
-			colour_onlineIndicator = processor.movementAnalysis.sensorInfo.isOnline[i] ? Colours::green : Colours::red;
 			ui_movementAnalysis.IMU_Online_Indicator[i].setColour(ui_movementAnalysis.IMU_Online_Indicator[i].backgroundColourId, colour_onlineIndicator);
 		}
 
