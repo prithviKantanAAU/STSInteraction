@@ -27,6 +27,7 @@ class UI_MappingMatrix
 	Label labels_audioParams[20];
 	ToggleButton mapping_Matrix[20][20];
 	Slider mapping_Strength[20][20];
+	Slider mp_minThresh[20];
 	ComboBox mapping_Function[20];
 	ComboBox mapping_Polarity[20];
 	ComboBox mapping_QuantLevels[20];
@@ -54,6 +55,12 @@ class UI_MappingMatrix
 			audioParams_Value[i][1].setColour(audioParams_Value[i][1].backgroundColourId, Colours::blue);
 			labels_movementParams[i].setJustificationType(Justification::centred);
 			labels_audioParams[i].setJustificationType(Justification::centred);
+
+			mp_minThresh[i].setRange(0, 1);
+			mp_minThresh[i].setValue(0);
+			mp_minThresh[i].setColour(mp_minThresh[i].trackColourId, Colours::yellow);
+			mp_minThresh[i].setColour(mp_minThresh[i].backgroundColourId, Colours::blue);
+			mp_minThresh[i].setTextBoxStyle(Slider::NoTextBox,false,10,10);
 		}
 
 		preset_Name.setJustification(Justification::centred);
@@ -260,6 +267,7 @@ class UI_MappingMatrix
 			{
 				mapping_Matrix[i][j].setVisible(on);
 				mapping_Strength[i][j].setVisible(on && mapping_Matrix[i][j].getToggleState());
+				mp_minThresh[i].setVisible(on);
 			}
 		}
 
@@ -285,6 +293,7 @@ class UI_MappingMatrix
 
 		int matrix_startPointX = (interfaceWidth - matrix_Width) / 2 + 100;
 		int matrix_startPointY = (interfaceHeight - matrix_Height) / 2 - 70;
+		float mp_startPointX = matrix_startPointX - 110 - width_Value;
 
 		int gap_interRow = matrix_Height / num_MP_Visible;
 		int gap_interCol = matrix_Width / num_AP_Visible;
@@ -300,6 +309,13 @@ class UI_MappingMatrix
 					matrix_startPointX - 110,
 					matrix_startPointY + gap_interRow * num_MP_populated,
 					110, 25);
+
+				mp_minThresh[i].setBounds(
+					mp_startPointX - 3,
+					matrix_startPointY + gap_interRow * num_MP_populated + 20,
+					width_Value + 7,
+					10
+				);
 
 				for (int j = 0; j < numAP; j++)
 				{

@@ -11,6 +11,8 @@ public:
 	double maxVal = 1;
 	bool isVisible = false;
 
+	double thresh_min_NORM = 0;
+
 	void initialize(float mini, float maxi, String mpName, bool isVis = true)
 	{
 		name = mpName;

@@ -84,6 +84,7 @@ public:
 		double fbVar_Values_Final[4] = { 0,0,0,0 };
 		int numMP_Mapped = 0;
 		float mappingStrength_AbsSum = 0;
+		float mapVal_Indiv = 0;
 
 		for (int i = 0; i < numFbVariables; i++)
 		{
@@ -100,8 +101,11 @@ public:
 				{
 					if (mappingMatrix[j][i])
 					{
-						fbVar_Value_Temp += (mpArray[j].value - mpArray[j].minVal)
-							/ (mpArray[j].maxVal - mpArray[j].minVal) * mappingStrength[j][i] / mappingStrength_AbsSum;
+						mapVal_Indiv = (mpArray[j].value - mpArray[j].minVal)
+							/ (mpArray[j].maxVal - mpArray[j].minVal);
+						if (mapVal_Indiv < mpArray[j].thresh_min_NORM) mapVal_Indiv = 0;
+						fbVar_Value_Temp += mapVal_Indiv * mappingStrength[j][i] / mappingStrength_AbsSum;
+
 					}
 				}
 

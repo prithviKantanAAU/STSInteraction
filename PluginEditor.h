@@ -194,6 +194,7 @@ private:
 			{
 				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
 				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[i][j]);
+				addAndMakeVisible(ui_mappingMatrix.mp_minThresh[i]);
 			}
 		}
 
@@ -405,6 +406,11 @@ private:
 				ui_mappingMatrix.labels_movementParams[i].setColour(
 					ui_mappingMatrix.labels_movementParams[i].textColourId, Colours::red
 				);
+
+			ui_mappingMatrix.mp_minThresh[i].onValueChange = [this, i]
+			{
+				processor.movementAnalysis.movementParams[i].thresh_min_NORM = ui_mappingMatrix.mp_minThresh[i].getValue();
+			};
 
 			for (int j = 0; j < processor.movementAnalysis.musicControl.numFbVariables; j++)
 			{

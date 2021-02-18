@@ -21,9 +21,9 @@ public:
 		movementParams[0].initialize(-5, 40, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
-		movementParams[3].initialize(-40, 40, "Orientation Trunk ML");
-		movementParams[4].initialize(-60, 60, "Orientation Thigh ML",false);
-		movementParams[5].initialize(-80, 80, "Orientation Shank ML",false);
+		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
+		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
+		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
 		movementParams[6].initialize(0, 180, "Angle Hip");
 		movementParams[7].initialize(0, 180, "Angle Knee");
@@ -176,9 +176,9 @@ public:
 		store_MP_Value("Orientation Thigh AP", orientation_Deg[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
 		store_MP_Value("Orientation Shank AP", orientation_Deg[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
 
-		store_MP_Value("Orientation Trunk ML", orientation_Deg_ML[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
-		store_MP_Value("Orientation Thigh ML", orientation_Deg_ML[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
-		store_MP_Value("Orientation Shank ML", orientation_Deg_ML[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Trunk ML", fabs(orientation_Deg_ML[0]));
+		store_MP_Value("Orientation Thigh ML", fabs(orientation_Deg_ML[1]));
+		store_MP_Value("Orientation Shank ML", fabs(orientation_Deg_ML[2]));
 		
 		// COMPUTE JOINT ANGLES	
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));

@@ -74,7 +74,7 @@ public:
 				indicatorHeight
 			);
 			
-			indicator_offset_Px = (mpArray[i + 3].value - (-90)) / 180.0 * IMU_Config_Column_Width[8];
+			indicator_offset_Px = (mpArray[i + 3].value) / 90.0 * IMU_Config_Column_Width[8];
 			// ADJUST INDICATOR POSITION - ML
 			IMU_segmentAngles_ML_Indicator[i].setBounds(
 				IMU_Config_Column_StartPos[8] + indicator_offset_Px,
@@ -168,7 +168,7 @@ public:
 			// 7 - ML Lower Bound - No Config Needed
 
 			// 8 - ML Range Setter
-			IMU_range_segmentAngles_ML[i].setRange(-90, 90);
+			IMU_range_segmentAngles_ML[i].setRange(0, 90);
 			IMU_segmentAngles_ML_Indicator[i].attachToComponent(&IMU_range_segmentAngles_ML[i], true);
 			IMU_range_segmentAngles_ML[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
 			IMU_range_segmentAngles_ML[i].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
