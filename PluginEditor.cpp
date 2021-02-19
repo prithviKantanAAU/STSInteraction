@@ -150,25 +150,25 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 	{
 	case 0:												// Sensors Tab
 		ui_sensorCon.toggleVisible(true);
-		ui_movementAnalysis.toggleVisible(false);
+		ui_movementAnalysis.toggleVisible(false, processor.movementAnalysis.dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
 		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 1:												// Movement Tab
 		ui_sensorCon.toggleVisible(false);
-		ui_movementAnalysis.toggleVisible(true);
+		ui_movementAnalysis.toggleVisible(true, processor.movementAnalysis.dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
 		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 2:												// Music Tab
 		ui_sensorCon.toggleVisible(false);
-		ui_movementAnalysis.toggleVisible(false);
+		ui_movementAnalysis.toggleVisible(false, processor.movementAnalysis.dataInput_Mode);
 		ui_musicControl.toggleVisible(true);
 		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 3:												// Mapping Matrix
 		ui_sensorCon.toggleVisible(false);
-		ui_movementAnalysis.toggleVisible(false);
+		ui_movementAnalysis.toggleVisible(false, processor.movementAnalysis.dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
 		ui_mappingMatrix.toggleVisible(true);
 		break;
@@ -180,6 +180,78 @@ void StsinteractionAudioProcessorEditor::paint (Graphics& g)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
     g.setColour (Colours::white);
     g.setFont (15.0f);
+}
+
+void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors()
+{
+	ui_movementAnalysis.mpLog_File_Load_Unload.onClick = [this]
+	{
+		String filePath = "";
+		String extension = "MP Log.csv";
+		FileChooser logChooser("Please select a valid log file:",
+			File::getSpecialLocation(File::userHomeDirectory), extension);
+
+		switch (processor.movementAnalysis.dataInput_Mode)
+		{
+		case 0:
+			if (logChooser.browseForFileToOpen())
+			{
+				File logFile(logChooser.getResult());
+				filePath = logFile.getFullPathName();
+				if (processor.movementAnalysis.open_mpLogFile_forStream(filePath))
+				{
+					processor.movementAnalysis.dataInput_Mode = 1;
+					ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(true);
+					ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
+					ui_movementAnalysis.mpLog_File_Progress.setVisible(true);
+					ui_movementAnalysis.mpLog_File_Load_Unload.setButtonText("Unload");
+				}
+			}
+			
+			break;
+
+		case 1:
+			// UNLOAD
+			processor.movementAnalysis.dataInput_Mode = 0;
+			ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(false);
+			ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
+			ui_movementAnalysis.mpLog_File_Progress.setVisible(false);
+			ui_movementAnalysis.mpLog_File_Load_Unload.setButtonText("Load Log");
+			break;
+		case 2:
+			// UNLOAD
+			processor.movementAnalysis.dataInput_Mode = 0;
+			ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(false);
+			ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
+			ui_movementAnalysis.mpLog_File_Progress.setVisible(false);
+			ui_movementAnalysis.mpLog_File_Load_Unload.setButtonText("Load Log");
+			break;
+		}
+	};
+
+	ui_movementAnalysis.mpLog_File_Play_Pause.onClick = [this]
+	{
+		switch (processor.movementAnalysis.dataInput_Mode)
+		{
+		case 1:
+			// START PLAYBACK
+			processor.movementAnalysis.dataInput_Mode = 2;
+			ui_movementAnalysis.mpLog_File_Stop.setVisible(true);
+			ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Pause");
+			break;
+		case 2:
+			// PAUSE PLAYBACK
+			processor.movementAnalysis.dataInput_Mode = 1;
+			ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Loop Play Data");
+			break;
+		}
+	};
+
+	ui_movementAnalysis.mpLog_File_Stop.onClick = [this]
+	{
+		processor.movementAnalysis.dataInput_Mode = 1;
+		ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Loop Play Data");
+	};
 }
 
 void StsinteractionAudioProcessorEditor::resized()

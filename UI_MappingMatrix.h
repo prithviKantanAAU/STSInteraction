@@ -432,6 +432,10 @@ class UI_MappingMatrix
 				width_Lab1 = (mpArray[i].value - mpArray[i].minVal) / (mpArray[i].maxVal - mpArray[i].minVal) * width_Value;
 				width_Lab2 = width_Value - width_Lab1;
 
+				Colour colour_mpVal;
+				colour_mpVal = (mpArray[i].value > mpArray[i].thresh_min_NORM) ? Colours::yellow : Colours::orange;
+				movementParams_Value[i][0].setColour(movementParams_Value[i][0].backgroundColourId, colour_mpVal);
+
 				movementParams_Value[i][0].setBounds(
 					mp_startPointX,
 					matrix_startPointY + gap_interRow * num_MP_populated,

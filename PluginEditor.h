@@ -67,6 +67,7 @@ private:
 			}
 		}
 	}
+	void mpLogStream_Configure_Button_Behaviors();
 
 	// INTERFACE PROPERTIES
 	int interface_Width = 1100;						// Pixels
@@ -124,6 +125,13 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.IMU_range_segmentAngles_ML[i]);
 			addAndMakeVisible(ui_movementAnalysis.IMU_segmentAngles_ML_Indicator[i]);
 			addAndMakeVisible(ui_movementAnalysis.IMU_segmentRanges_ML_Bounds[i][1]);
+
+			// MP LOG STREAMING
+			addAndMakeVisible(ui_movementAnalysis.dataInput_Mode_Status);
+			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Load_Unload);
+			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Play_Pause);
+			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Stop);
+			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Progress);
 
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles[i]);
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
@@ -251,6 +259,9 @@ private:
 			ui_movementAnalysis.orientationAlgo.addItem(processor.movementAnalysis.OrientationAlgos[i], i + 1);
 		ui_movementAnalysis.orientationAlgo.setSelectedId(processor.movementAnalysis.orientAlgo_Present);
 		
+		// MP Log Playback
+		mpLogStream_Configure_Button_Behaviors();
+
 		// Simulation Sliders, Sensor Invert, Axis
 		for (int i = 0; i < 3; i++)
 		{
@@ -604,6 +615,12 @@ private:
 				, dontSendNotification
 			);
 		}
+
+		// DATA INPUT MODE
+		ui_movementAnalysis.dataInput_Mode_Status.setText(
+			processor.movementAnalysis.dataInput_Mode_Names[processor.movementAnalysis.dataInput_Mode]
+			, dontSendNotification
+		);
 
 		// STS PHASE DISPLAY
 		ui_movementAnalysis.STS_Phase_Disp.setText(

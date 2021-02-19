@@ -28,9 +28,10 @@ public:
 		movementParams[6].initialize(0, 180, "Angle Hip");
 		movementParams[7].initialize(0, 180, "Angle Knee");
 		movementParams[8].initialize(0, 5, "Ang Velocity Knee",false);
-		movementParams[9].initialize(0, 5, "Ang Velocity Hip",false);
+		movementParams[9].initialize(0, 5, "Ang Velocity Hip");
 		movementParams[10].initialize(0, 5, "STS Phase");
 		movementParams[11].initialize(0, 1, "Tri Osc");
+		movementParams[12].initialize(0, 200, "Trunk Jerk - Ang");
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -40,7 +41,7 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
-	short numMovementParams = 12;
+	short numMovementParams = 13;
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
@@ -56,6 +57,21 @@ public:
 	short numOperationModes = 2;
 	short operationMode_Present = 1;
 	String OperationModes[5] = { "Slider Simulation","Sensor" };
+	
+	short dataInput_Mode = 0;
+	String dataInput_Mode_Names[5] =
+	{
+		"Sensor Stream || No Log Loaded",
+		"Sensor Stream || Log Loaded",
+		"Sensor Ignored || Log Stream"
+	};
+
+	// MP Streaming Helper Variables
+	File mpFile_Streaming;
+	int mpFile_Streaming_Lines_Total = 0;
+	int mpFile_Streaming_Columns_Total = 0;
+	int mpFile_Streaming_Line_Current = 0;
+	int mpFile_Streaming_map_Col_to_MP[20];
 
 	String STS_Phases[6] =
 	{
@@ -103,6 +119,11 @@ public:
 	// Joint Bend Angular Velocities
 	float jointAngularVel_DegPerSec[2] = { 0.0 };
 
+	// Jerk - Delay Registers
+	double forJerk_Acc_z1[3];
+	double forJerk_Gyr_z1[3];
+	double forJerk_Gyr_z2[3];
+
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
 	long ticksElapsed = 0;
@@ -139,10 +160,16 @@ public:
 	void callback()
 	{
 		ticksElapsed++;
-		computeAngles();
-		updateSTSPhase();
+		if (dataInput_Mode != 2)
+		{
+			computeAngles();
+			updateSTSPhase();
+			if (locationsOnline[0] != -1) computeJerkParams();
+			triOsc_Update();
+		}
+
+		else stream_mpLogFile();
 		musicControl.updateFBVariables(movementParams, numMovementParams);
-		triOsc_Update();
 	}
 
 	// Store Value By Name
@@ -264,6 +291,35 @@ public:
 		*roll = isnan(*roll) ? 0 : *roll;
 		*pitch = isnan(*pitch) ? 0 : *pitch;
 		*yaw = isnan(*yaw) ? 0 : *yaw;
+	}
+
+	void computeJerkParams()
+	{
+		// ANGULAR TRUNK JERK
+		float gyrX = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[0];
+		float gyrY = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[1];
+		float gyrZ = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[2];
+
+		float angAcc_X = gyrX - forJerk_Gyr_z1[0];
+		float angAcc_Y = gyrY - forJerk_Gyr_z1[1];
+		float angAcc_Z = gyrZ - forJerk_Gyr_z1[2];
+
+		float angAcc_X_z1 = forJerk_Gyr_z1[0] - forJerk_Gyr_z2[0];
+		float angAcc_Y_z1 = forJerk_Gyr_z1[1] - forJerk_Gyr_z2[1];
+		float angAcc_Z_z1 = forJerk_Gyr_z1[2] - forJerk_Gyr_z2[2];
+
+		float angJerk_X = fabs(angAcc_X - angAcc_X_z1);
+		float angJerk_Y = fabs(angAcc_Y - angAcc_Y_z1);
+		float angJerk_Z = fabs(angAcc_Z - angAcc_Z_z1);
+
+		float scalarJerk_ANG = sqrt(angJerk_X * angJerk_X + angJerk_Y * angJerk_Y + angJerk_Z * angJerk_Z);
+		store_MP_Value("Trunk Jerk - Ang", scalarJerk_ANG);
+		
+		for (int i = 0; i < 3; i++)											// SHUFFLE DELAYS
+		{
+			forJerk_Gyr_z2[i] = forJerk_Gyr_z1[i];
+			forJerk_Gyr_z1[i] = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[i];
+		}
 	}
 
 	// Calculate STS Phase from
@@ -397,5 +453,15 @@ public:
 			orientation_Deg[sliderIdx] = val;
 			//movementParams[sliderIdx].storeValue(val);
 		}
+	}
+
+	bool open_mpLogFile_forStream(String path)
+	{
+		return true;
+	}
+
+	void stream_mpLogFile()
+	{
+
 	}
 };

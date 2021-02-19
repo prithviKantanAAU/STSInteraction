@@ -91,6 +91,7 @@ public:
 		return String(str);
 	}
 	FILE *mpLog;
+	FILE *imuRaw_Log[3];
 	std::string mpLog_FormatSpec = "%s,\n";
 
 	bool isDSP_ON = true;

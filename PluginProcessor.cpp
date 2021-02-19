@@ -79,12 +79,26 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 
 void StsinteractionAudioProcessor::start_Recording_MPLog()
 {
+    // File for Movement Parameters
 	String filepath_Rec = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
 	filepath_Rec = filepath_Rec.upToLastOccurrenceOf("\\", true, false);
 	filepath_Rec += "MP Log - " + getCurrentTime();
 	String filepath_Rec_FULL = filepath_Rec + "\\MP Log.csv";
 	CreateDirectory(filepath_Rec.toStdString().c_str(), NULL);
 	mpLog = fopen(filepath_Rec_FULL.toStdString().c_str(), "w");
+
+    // RAW LOGS FOR ALL SENSORS
+    short bodyPartIndex = 0;
+    String sensorFileNameRaw;
+    for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
+    {
+        if (movementAnalysis.sensorInfo.isOnline[i])
+        {
+            bodyPartIndex = movementAnalysis.sensorInfo.bodyLocation[i];
+            sensorFileNameRaw = filepath_Rec + "\\Raw IMU Data - " + String(bodyPartIndex) + ".csv";
+            imuRaw_Log[i] = fopen(sensorFileNameRaw.toStdString().c_str(), "w");
+        }
+    }
 	
 	//WRITE FIRST LINE TO LOG - MP NAMES
 	String line = "";
@@ -98,15 +112,40 @@ void StsinteractionAudioProcessor::start_Recording_MPLog()
 void StsinteractionAudioProcessor::stop_Recording_MPLog()
 {
 	is_Recording_MPLog = false;
-	fclose(mpLog);
+	
+    fclose(mpLog);
+    for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
+    {
+        if (movementAnalysis.sensorInfo.isOnline[i])
+            fclose(imuRaw_Log[i]);
+    }
 }
 
 void StsinteractionAudioProcessor::writeLine_Recording_MPLog(MovementParameter mpArray[])
 {
 	String line = "";
 	for (int i = 0; i < movementAnalysis.numMovementParams; i++)
-		line += String(movementAnalysis.movementParams[i].value,3) + ",";
+		line += String(movementAnalysis.movementParams[i].value,5) + ",";
 	fprintf(mpLog, mpLog_FormatSpec.c_str(), line);
+
+    for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
+    {
+        line = "";
+        
+        if (movementAnalysis.sensorInfo.isOnline[i])
+        {
+            line += String(movementAnalysis.sensors_OSCReceivers[i].acc[0]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].acc[1]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].acc[2]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr[0]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr[1]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr[2]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].mag[0]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].mag[1]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].mag[2]);
+            fprintf(imuRaw_Log[i], mpLog_FormatSpec.c_str(), line);
+        }
+    }
 }
 
 const String StsinteractionAudioProcessor::getName() const

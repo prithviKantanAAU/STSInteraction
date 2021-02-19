@@ -4,7 +4,7 @@
 class UI_MovementAnalysis
 {
 public:
-	UI_MovementAnalysis()
+	UI_MovementAnalysis() : mpLog_File_Progress(mpLog_File_Progress_VAL)
 	{
 		configure();
 	}
@@ -55,6 +55,14 @@ public:
 	Slider IMU_range_segmentAngles_ML[3];		// 9
 	Label IMU_segmentAngles_ML_Indicator[3];
 	Label IMU_segmentRanges_ML_Bounds[3][2];	// 8, 10
+
+	// MP LOG STREAMING CONTROLS
+	Label dataInput_Mode_Status;
+	TextButton mpLog_File_Load_Unload;
+	TextButton mpLog_File_Play_Pause;
+	TextButton mpLog_File_Stop;
+	ProgressBar mpLog_File_Progress;
+	double mpLog_File_Progress_VAL = 0;
 
 	void update_Indicators_SensorOrientation(MovementParameter mpArray[])
 	{
@@ -192,6 +200,17 @@ public:
 			);
 		}
 
+		// MP Log Streaming
+		mpLog_File_Load_Unload.setButtonText("Load Log");
+		mpLog_File_Load_Unload.setColour(mpLog_File_Load_Unload.buttonColourId, Colours::blue);
+		mpLog_File_Play_Pause.setButtonText("Loop Play Data");
+		mpLog_File_Play_Pause.setColour(mpLog_File_Play_Pause.buttonColourId, Colours::green);
+		mpLog_File_Stop.setButtonText("Stop");
+		mpLog_File_Stop.setColour(mpLog_File_Stop.buttonColourId, Colours::red);
+		mpLog_File_Progress.setColour(mpLog_File_Progress.foregroundColourId, Colours::yellow);
+		mpLog_File_Progress.setColour(mpLog_File_Progress.backgroundColourId, Colours::blue);
+		mpLog_File_Progress.setPercentageDisplay(false);
+
 		// Record Movement Log
 		record_MovementLog.setColour(record_MovementLog.buttonColourId, Colours::red);
 		record_MovementLog.setButtonText("Record");
@@ -199,7 +218,7 @@ public:
 		JointAngles[0].attachToComponent(&stsAnim_joint[1], true);	
 	}
 
-	void toggleVisible(bool on)
+	void toggleVisible(bool on, short dataInputMode)
 	{
 		for (int i = 0; i < 3; i++)
 		{
@@ -215,6 +234,13 @@ public:
 			IMU_segmentRanges_ML_Bounds[i][1].setVisible(on);	// 9
 			simulation_OrientAngles[i].setVisible(on);			// X
 		}
+
+		// MP LOG STREAMING
+		dataInput_Mode_Status.setVisible(on);
+		mpLog_File_Load_Unload.setVisible(on);
+		mpLog_File_Play_Pause.setVisible(on && (dataInputMode > 0));
+		mpLog_File_Stop.setVisible(on && (dataInputMode == 2));
+		mpLog_File_Progress.setVisible(on && (dataInputMode > 0));
 
 		// MISCELLANEOUS
 		ML.setVisible(on);
@@ -244,6 +270,7 @@ public:
 	{
 		for (int i = 0; i < 10; i++) IMU_Config_Column_StartPos[i] -= 40;
 
+		// IMU CONFIG CONTROLS
 		for (int i = 0; i < 3; i++)
 		{
 			IMU_Mount_Side[i].setBounds(
@@ -273,14 +300,14 @@ public:
 				IMU_Config_Column_Width[3],
 				IMU_Config_Row_Height
 			);
-			
+
 			IMU_segmentRanges_AP_Bounds[i][0].setBounds(
 				IMU_Config_Column_StartPos[4],
 				IMU_Config_StartY + IMU_Config_Row_Offset * i,
 				IMU_Config_Column_Width[4],
 				IMU_Config_Row_Height
 			);
-			
+
 			AP.setBounds(
 				IMU_Config_Column_StartPos[5],
 				IMU_Config_StartY - 35,
@@ -301,7 +328,7 @@ public:
 				IMU_Config_Column_Width[6],
 				IMU_Config_Row_Height
 			);
-			
+
 			IMU_segmentRanges_ML_Bounds[i][0].setBounds(
 				IMU_Config_Column_StartPos[7],
 				IMU_Config_StartY + IMU_Config_Row_Offset * i,
@@ -315,7 +342,7 @@ public:
 				IMU_Config_Column_Width[8],
 				IMU_Config_Row_Height
 			);
-			
+
 			IMU_range_segmentAngles_ML[i].setBounds(
 				IMU_Config_Column_StartPos[8],
 				IMU_Config_StartY + IMU_Config_Row_Offset * i,
@@ -330,6 +357,42 @@ public:
 				IMU_Config_Row_Height
 			);
 		}
+
+		//// MP STREAMING
+		dataInput_Mode_Status.setBounds(
+			IMU_Config_Column_StartPos[4],
+			175,
+			IMU_Config_Column_StartPos[5] + IMU_Config_Column_Width[5] - IMU_Config_Column_StartPos[4],
+			20
+		);
+		
+		mpLog_File_Load_Unload.setBounds(
+			IMU_Config_Column_StartPos[6],
+			175,
+			IMU_Config_Column_StartPos[7] + IMU_Config_Column_Width[7] - IMU_Config_Column_StartPos[6] - 20,
+			20
+		);
+
+		mpLog_File_Play_Pause.setBounds(
+			IMU_Config_Column_StartPos[4],
+			205,
+			IMU_Config_Column_StartPos[5] + IMU_Config_Column_Width[5] - IMU_Config_Column_StartPos[4],
+			20
+		);
+
+		mpLog_File_Stop.setBounds(
+			IMU_Config_Column_StartPos[6],
+			205,
+			IMU_Config_Column_StartPos[7] + IMU_Config_Column_Width[7] - IMU_Config_Column_StartPos[6] - 20,
+			20
+		);
+		
+		mpLog_File_Progress.setBounds(
+			IMU_Config_Column_StartPos[8],
+			175,
+			IMU_Config_Column_StartPos[9] + IMU_Config_Column_Width[9] - IMU_Config_Column_StartPos[8] - 20,
+			20
+		);
 
 		// MISCELLANEOUS
 		operationMode.setBounds(10, 175, 200, 20);
