@@ -433,7 +433,9 @@ class UI_MappingMatrix
 				width_Lab2 = width_Value - width_Lab1;
 
 				Colour colour_mpVal;
-				colour_mpVal = (mpArray[i].value > mpArray[i].thresh_min_NORM) ? Colours::yellow : Colours::orange;
+				bool colorCondition = mpArray[i].value > (mpArray[i].minVal
+					+ mpArray[i].thresh_min_NORM * (mpArray[i].maxVal - mpArray[i].minVal));
+				colour_mpVal = colorCondition ? Colours::yellow : Colours::orange;
 				movementParams_Value[i][0].setColour(movementParams_Value[i][0].backgroundColourId, colour_mpVal);
 
 				movementParams_Value[i][0].setBounds(

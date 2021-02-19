@@ -606,12 +606,12 @@ private:
 		for (int j = 0; j < 2; j++)
 		{
 			ui_movementAnalysis.JointAngles[j].setText(
-				String(processor.movementAnalysis.jointAngles_Deg[j], 2)
+				String(processor.movementAnalysis.movementParams[6 + j].value, 2)
 				, dontSendNotification
 			);
 
 			ui_movementAnalysis.JointVelocities[j].setText(
-				String(processor.movementAnalysis.jointAngularVel_DegPerSec[j], 2)
+				String(processor.movementAnalysis.movementParams[9 - j].value, 2)
 				, dontSendNotification
 			);
 		}
@@ -621,10 +621,13 @@ private:
 			processor.movementAnalysis.dataInput_Mode_Names[processor.movementAnalysis.dataInput_Mode]
 			, dontSendNotification
 		);
+		
+		// LOG PROGRESS
+		ui_movementAnalysis.mpLog_File_Progress_VAL = processor.movementAnalysis.mpFile_Streaming_Progress;
 
 		// STS PHASE DISPLAY
 		ui_movementAnalysis.STS_Phase_Disp.setText(
-			processor.movementAnalysis.STS_Phases[processor.movementAnalysis.STS_Phase]
+			processor.movementAnalysis.STS_Phases[(int)processor.movementAnalysis.movementParams[10].value]
 			, dontSendNotification
 		);
 

@@ -250,6 +250,8 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 	ui_movementAnalysis.mpLog_File_Stop.onClick = [this]
 	{
 		processor.movementAnalysis.dataInput_Mode = 1;
+		processor.movementAnalysis.mpFile_Streaming_Line_Current = 0;
+		processor.movementAnalysis.mpFile_Streaming_Progress = 0;
 		ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Loop Play Data");
 	};
 }

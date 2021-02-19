@@ -16,7 +16,7 @@
 class MovementAnalysis
 {
 public:
-	MovementAnalysis() 
+	MovementAnalysis()
 	{
 		movementParams[0].initialize(-5, 40, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
@@ -68,10 +68,15 @@ public:
 
 	// MP Streaming Helper Variables
 	File mpFile_Streaming;
-	int mpFile_Streaming_Lines_Total = 0;
+	String mpFile_LogData_RAW[200000];
+
+	long mpFile_Streaming_Lines_Total = 0;
 	int mpFile_Streaming_Columns_Total = 0;
-	int mpFile_Streaming_Line_Current = 0;
+	long mpFile_Streaming_Line_Current = 0;
 	int mpFile_Streaming_map_Col_to_MP[20];
+	double mpFile_Streaming_Progress = 0;
+	String columnNames_Log[20];
+	int columnIdx_Log = 0;
 
 	String STS_Phases[6] =
 	{
@@ -165,10 +170,10 @@ public:
 			computeAngles();
 			updateSTSPhase();
 			if (locationsOnline[0] != -1) computeJerkParams();
-			triOsc_Update();
 		}
 
 		else stream_mpLogFile();
+		triOsc_Update();
 		musicControl.updateFBVariables(movementParams, numMovementParams);
 	}
 
@@ -457,11 +462,58 @@ public:
 
 	bool open_mpLogFile_forStream(String path)
 	{
+		mpFile_Streaming = File(path);
+
+		juce::FileInputStream mpStream(mpFile_Streaming);
+
+		if (!mpStream.openedOk())
+			return false;									// failed to open
+
+		// Map Log Columns To MP Array Members
+		String line = mpStream.readNextLine();
+		String lineRem = line;
+
+		int mpFile_Streaming_Bytes_Total = mpStream.getTotalLength();
+		while (lineRem != "")
+		{
+			columnNames_Log[columnIdx_Log] = lineRem.upToFirstOccurrenceOf(",", false, true);
+			lineRem = lineRem.fromFirstOccurrenceOf(",", false, true);
+			columnIdx_Log++;
+		}
+		
+		columnIdx_Log--;
+		for (int i = 0; i < columnIdx_Log; i++)
+		{
+			for (int j = 0; j < numMovementParams; j++)
+			{
+				if (movementParams[j].name == columnNames_Log[i])
+					mpFile_Streaming_map_Col_to_MP[i] = j;
+			}
+		}
+
+		while (!mpStream.isExhausted())
+		{
+			mpFile_LogData_RAW[mpFile_Streaming_Lines_Total] = mpStream.readNextLine();
+			mpFile_Streaming_Lines_Total++;
+		}
+
 		return true;
 	}
 
 	void stream_mpLogFile()
 	{
+		double log_lineData[20];
+		String line = mpFile_LogData_RAW[mpFile_Streaming_Line_Current];
+		for (int i = 0; i < columnIdx_Log - 1; i++)
+		{
+			log_lineData[i] = line.upToFirstOccurrenceOf(",", false, true).getDoubleValue();
+			line = line.fromFirstOccurrenceOf(",", false, true);
+		}
 
+		for (int i = 0; i < columnIdx_Log - 1; i++)
+			store_MP_Value(columnNames_Log[i], log_lineData[i]);
+
+		mpFile_Streaming_Progress = mpFile_Streaming_Line_Current / (double)mpFile_Streaming_Lines_Total;
+		mpFile_Streaming_Line_Current = (mpFile_Streaming_Line_Current + 1) % mpFile_Streaming_Lines_Total;
 	}
 };
