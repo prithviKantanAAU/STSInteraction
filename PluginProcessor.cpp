@@ -276,6 +276,7 @@ void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, Mid
 
                 *buffer.getWritePointer(channel, i) = outputs[channel][i] + outputVoice; // SUM DATA
             }
+            audio_preLoaded.trigger_z1 = movementAnalysis.voice_isTrigger;
 
             // GET DB LEVEL FOR METERING
             musicLevel_dB = fmax(-60,Decibels::gainToDecibels(buffer.getMagnitude(0,0,buffer.getNumSamples())));

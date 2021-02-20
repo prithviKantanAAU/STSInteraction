@@ -62,7 +62,7 @@ class AudioFiles_PreLoaded
             {
                 // FETCH PRESENT OUTPUT SAMPLE
                 readIndex_voiceCues = bufferSize * bufferNum_Present + smplIdx;
-                output = voiceCues[fileIdx][readIndex_voiceCues];
+                output = jlimit(-1.0,1.0,(double)voiceCues[fileIdx][readIndex_voiceCues]);
 
                 
                 if (channel == 1)
@@ -72,13 +72,12 @@ class AudioFiles_PreLoaded
                     bufferNum_Present++;
 
                     // STOP PLAYBACK IF FILE EXHAUSTED
-                    if (readIndex_voiceCues == sampleLength_voiceCues - 1)
+                    if (readIndex_voiceCues >= sampleLength_voiceCues - 1)
                     {
                         bufferNum_Present = 0;
                         isPlaying = false;
                     }
                 }
-                trigger_z1 = trigger;
             }
 
             return output;
