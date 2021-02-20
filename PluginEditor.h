@@ -181,6 +181,20 @@ private:
 		addAndMakeVisible(ui_musicControl.levelMeter[1]);
 		addAndMakeVisible(ui_musicControl.triOsc_BPM);
 		addAndMakeVisible(ui_musicControl.triOsc_BPM_LAB);
+
+		addAndMakeVisible(ui_musicControl.voiceCue_Enable);
+		addAndMakeVisible(ui_musicControl.voiceCue_Enable_Lab);
+		addAndMakeVisible(ui_musicControl.voiceCue_Level);
+		addAndMakeVisible(ui_musicControl.voiceCue_Level_Lab);
+		addAndMakeVisible(ui_musicControl.voiceCue_CountLength);
+		addAndMakeVisible(ui_musicControl.voiceCue_CountLength_Lab);
+		for (int i = 0; i < 3; i++) addAndMakeVisible(ui_musicControl.voiceCue_ColHeaders[i]);
+		for (int i = 0; i < 8; i++)
+		{
+			addAndMakeVisible(ui_musicControl.voiceCue_intervalEnable[i]);
+			addAndMakeVisible(ui_musicControl.voiceCue_isPosCrossing[i]);
+			addAndMakeVisible(ui_musicControl.voiceCue_OscTrig_Location[i]);
+		}
 	}
 
 	// Add Mapping Matrix Controls
@@ -400,6 +414,29 @@ private:
 		{
 			processor.movementAnalysis.triOsc_Freq = ui_musicControl.triOsc_BPM.getValue() / 60.0;
 		};
+
+		ui_musicControl.voiceCue_Enable.onStateChange = [this]
+		{
+			processor.movementAnalysis.voiceCue.isEnabled = ui_musicControl.voiceCue_Enable.getToggleState();
+		};
+
+		ui_musicControl.voiceCue_Level.onValueChange = [this]
+		{
+			processor.movementAnalysis.voiceCue.voiceGain_dB = ui_musicControl.voiceCue_Level.getValue();
+		};
+
+		ui_musicControl.voiceCue_CountLength.onValueChange = [this]
+		{
+			processor.movementAnalysis.voiceCue.count_Length = ui_musicControl.voiceCue_CountLength.getValue();
+		};
+
+		for (int i = 0; i < 8; i++)
+		{
+			ui_musicControl.voiceCue_intervalEnable[i].onStateChange = [this]
+			{
+
+			}
+		}
 	}
 
 	// Initialize Mapping Matrix Elements

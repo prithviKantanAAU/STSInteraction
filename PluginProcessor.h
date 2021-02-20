@@ -5,6 +5,7 @@
 #include <ctime>
 #include "windows.h"
 #include "STS_Synth.h"
+#include "AudioFiles_PreLoaded.h"
 
 class dsp;
 class MapUI;
@@ -41,7 +42,7 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 	
-	
+	AudioFiles_PreLoaded audio_preLoaded;
 	MovementAnalysis movementAnalysis;
 
 	// CALLBACK RELATED

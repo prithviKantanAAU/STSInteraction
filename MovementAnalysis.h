@@ -7,6 +7,7 @@
 #include "quaternionFilters.h"
 #include "GaitParam_Single.h"
 #include "BiQuad.h"
+#include "VoiceCue_Settings.h"
 
 #define M_PI           3.14159265358979323846  /* pi */
 #define RAD_TO_DEG		180 / M_PI
@@ -50,6 +51,8 @@ public:
 	ComplementaryFilter compFilters[3];
 	BiQuad angularVel_Smooth[2];						// 1 = Hip	 // 2 = Knee
 	MovementParameter movementParams[20];
+	VoiceCues voiceCue;
+	bool voice_isTrigger = false;
 
 	short numOrientationAlgos = 2;
 	short orientAlgo_Present = 1;
@@ -132,12 +135,14 @@ public:
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
 	long ticksElapsed = 0;
+
 	void triOsc_Update()
 	{
 		double triOsc_Period = 1 / triOsc_Freq;
 		long t = ticksElapsed;
 		int D = (int)(triOsc_Period / 0.01);
 		double funcVal = abs((t + D - 1) % ((D - 1) * 2) - (D - 1)) / (float)D;
+		voice_isTrigger = voiceCue.getVoiceTriggerSignal(funcVal);
 		store_MP_Value("Tri Osc",funcVal);
 	}
 
