@@ -16,6 +16,12 @@ class AudioFiles_PreLoaded
 
         AudioFiles_PreLoaded()
         {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 48000; j++)
+                    voiceCues[i][j] = 0;
+            }
+
             AudioFormatManager formatManager;
             formatManager.registerBasicFormats();
 
@@ -60,10 +66,13 @@ class AudioFiles_PreLoaded
             
             else
             {
+                // HANDLE SWIFT FILE CHANGE
+                if (trigger && !trigger_z1)
+                    bufferNum_Present = 0;
+
                 // FETCH PRESENT OUTPUT SAMPLE
                 readIndex_voiceCues = bufferSize * bufferNum_Present + smplIdx;
-                output = jlimit(-1.0,1.0,(double)voiceCues[fileIdx][readIndex_voiceCues]);
-
+                output = jlimit(-1.0,1.0,(double)voiceCues[fileIdx][readIndex_voiceCues + 1024]);
                 
                 if (channel == 1)
                 {

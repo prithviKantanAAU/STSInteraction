@@ -189,7 +189,7 @@ private:
 		addAndMakeVisible(ui_musicControl.voiceCue_CountLength);
 		addAndMakeVisible(ui_musicControl.voiceCue_CountLength_Lab);
 		for (int i = 0; i < 3; i++) addAndMakeVisible(ui_musicControl.voiceCue_ColHeaders[i]);
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			addAndMakeVisible(ui_musicControl.voiceCue_intervalEnable[i]);
 			addAndMakeVisible(ui_musicControl.voiceCue_isPosCrossing[i]);

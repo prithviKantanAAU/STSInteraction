@@ -25,7 +25,7 @@ public:
 	float masterGain = -6;
 	float gain_Track[10] =
 	{
-		16.4,-1.1,-0.5,14.9,6.56,-3.9,0,0,0,0
+		17.2, 1.7, 1.2, 18.3, 11.5, 21.7,0,0,0,0
 	};
 
 	float comp_Track[10][4] =

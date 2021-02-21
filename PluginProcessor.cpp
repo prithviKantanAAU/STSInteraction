@@ -260,23 +260,26 @@ void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, Mid
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     float outputVoice = 0.0;
+    bool triggerVoice = false;
 
     if (isReady)
     {
         fDSP->compute(buffer.getNumSamples(), NULL, outputs);                           // GET MUSIC FROM FAUST
+        triggerVoice = movementAnalysis.voice_isTrigger;
 
         for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
             for (int i = 0; i < buffer.getNumSamples(); i++) {
                 
                 outputVoice = audio_preLoaded.playVoiceSample(                          // GET VOICE AUDIO DATA
-                    movementAnalysis.voice_isTrigger, 
+                    triggerVoice, 
                     movementAnalysis.voiceCue.count_Present,
                     channel, i, buffer.getNumSamples())
                     * Decibels::decibelsToGain(movementAnalysis.voiceCue.voiceGain_dB);
 
                 *buffer.getWritePointer(channel, i) = outputs[channel][i] + outputVoice; // SUM DATA
             }
-            audio_preLoaded.trigger_z1 = movementAnalysis.voice_isTrigger;
+
+            audio_preLoaded.trigger_z1 = triggerVoice;
 
             // GET DB LEVEL FOR METERING
             musicLevel_dB = fmax(-60,Decibels::gainToDecibels(buffer.getMagnitude(0,0,buffer.getNumSamples())));
