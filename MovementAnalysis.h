@@ -21,7 +21,7 @@ public:
 	{
 		movementParams[0].initialize(-5, 40, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
-		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
+		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
@@ -135,6 +135,18 @@ public:
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
 	long ticksElapsed = 0;
+	bool voice_trig_SusArray[4] = { false,false,false,false };
+	bool shuffleArray_voiceTrig(bool newVal)
+	{
+		for (int i = 1; i < 4; i++)
+			voice_trig_SusArray[i] = voice_trig_SusArray[i - 1];
+		voice_trig_SusArray[0] = newVal;
+		for (int i = 0; i < 4; i++)
+		{
+			if (voice_trig_SusArray[i] == true)		return true;
+		}
+		return false;
+	}
 
 	void triOsc_Update()
 	{
@@ -142,7 +154,7 @@ public:
 		long t = ticksElapsed;
 		int D = (int)(triOsc_Period / 0.01);
 		double funcVal = abs((t + D - 1) % ((D - 1) * 2) - (D - 1)) / (float)D;
-		voice_isTrigger = voiceCue.getVoiceTriggerSignal(funcVal);
+		voice_isTrigger = shuffleArray_voiceTrig(voiceCue.getVoiceTriggerSignal(funcVal));
 		store_MP_Value("Tri Osc",funcVal);
 	}
 
@@ -477,6 +489,8 @@ public:
 		// Map Log Columns To MP Array Members
 		String line = mpStream.readNextLine();
 		String lineRem = line;
+		columnIdx_Log = 0;
+		mpFile_Streaming_Lines_Total = 0;
 
 		int mpFile_Streaming_Bytes_Total = mpStream.getTotalLength();
 		while (lineRem != "")
@@ -486,7 +500,7 @@ public:
 			columnIdx_Log++;
 		}
 		
-		columnIdx_Log--;
+		
 		for (int i = 0; i < columnIdx_Log; i++)
 		{
 			for (int j = 0; j < numMovementParams; j++)
