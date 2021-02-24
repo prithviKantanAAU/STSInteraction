@@ -40,6 +40,8 @@ public:
 	ToggleButton voiceCue_intervalEnable[8];
 	ToggleButton voiceCue_isPosCrossing[8];
 	Slider voiceCue_OscTrig_Location[8];
+	Slider voiceCue_FineTimeAdjust;
+	Label voiceCue_FineTimeAdjust_Lab;
 
 
 	//MEMBER ELEMENTS
@@ -123,6 +125,14 @@ public:
 			voiceCue_OscTrig_Location[i].setColour(voiceCue_OscTrig_Location[i].backgroundColourId, Colours::blue);
 			voiceCue_OscTrig_Location[i].setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
 		}
+
+		voiceCue_FineTimeAdjust.setRange(-0.125, 0.125);
+		voiceCue_FineTimeAdjust.setValue(0);
+		voiceCue_FineTimeAdjust.setColour(voiceCue_FineTimeAdjust.trackColourId, Colours::yellow);
+		voiceCue_FineTimeAdjust.setColour(voiceCue_FineTimeAdjust.backgroundColourId, Colours::blue);
+		voiceCue_FineTimeAdjust.setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
+		voiceCue_FineTimeAdjust_Lab.setText("Timing Fine", dontSendNotification);
+		voiceCue_FineTimeAdjust_Lab.attachToComponent(&voiceCue_FineTimeAdjust, true);
 	}
 
 	void toggleVisible(bool on)
@@ -157,6 +167,7 @@ public:
 			voiceCue_isPosCrossing[i].setVisible(on);
 			voiceCue_OscTrig_Location[i].setVisible(on);
 		}
+		voiceCue_FineTimeAdjust.setVisible(on);
 	}
 
 	void setLayout(int numTracks)
@@ -175,19 +186,20 @@ public:
 		for (int i = 0; i < 8; i++)
 			chord_Degree[i].setBounds(350 + 60 * i, 130, 50, 25);
 
-		triOsc_BPM.setBounds(450, 160, 350, 25);
+		triOsc_BPM.setBounds(450, 160, 390, 25);
 
 		// Voice Cue
 		voiceCue_Enable.setBounds(450, 190, 250, 25);
-		voiceCue_Level.setBounds(450, 220, 250, 25);
+		voiceCue_Level.setBounds(450, 220, 150, 25);
 		voiceCue_CountLength.setBounds(450, 250, 250, 25);
 		for (int i = 0; i < 3; i++) voiceCue_ColHeaders[i].setBounds(430 + i * 100, 285, 120, 15);
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			voiceCue_intervalEnable[i].setBounds(440, 315 + 27*i, 50, 25);
 			voiceCue_isPosCrossing[i].setBounds(536, 315 + 27 * i, 50, 25);
 			voiceCue_OscTrig_Location[i].setBounds(590, 315 + 27 * i, 250, 25);
 		}
+		voiceCue_FineTimeAdjust.setBounds(590, 190, 250, 25);
 
 	}
 };

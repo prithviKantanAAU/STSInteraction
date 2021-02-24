@@ -15,11 +15,12 @@ class VoiceCues
     bool isEnabled = false;
     int count_Length = 4;
     int count_Present = 0;
-    bool interval_IsEnabled[8] = {false, false, false, false, false, false, false, false};
-    bool isPosCrossing[8] = {true, true, true, true, true, true, true, true};
-    float interval_crossThresh[8] = {0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5};
+    bool interval_IsEnabled[8] = {true, true, false, false, false, false, false, false};
+    bool isPosCrossing[8] = {true, false, true, true, true, true, true, true};
+    float interval_crossThresh[8] = {0.25,0.75,0.5,0.5,0.5,0.5,0.5,0.5};
     float oscSig_z1 = 0;
-    float voiceGain_dB = 0;
+    float voiceGain_dB = -6;
+    float fineOffset = 0;
     
     bool getVoiceTriggerSignal(float oscSig)
     {
@@ -34,12 +35,14 @@ class VoiceCues
                 {
                     if (isPosCrossing[i])
                     {
-                        validCrossingCondition[i] = (oscSig >= interval_crossThresh[i]) && (oscSig_z1 < interval_crossThresh[i]);
+                        validCrossingCondition[i] = (oscSig >= interval_crossThresh[i] + fineOffset) 
+                                                 && (oscSig_z1 < interval_crossThresh[i] + fineOffset);
                     }
 
                     else
                     {
-                        validCrossingCondition[i] = (oscSig < interval_crossThresh[i]) && (oscSig_z1 >= interval_crossThresh[i]);
+                        validCrossingCondition[i] = (oscSig < interval_crossThresh[i] - fineOffset) 
+                                                 && (oscSig_z1 >= interval_crossThresh[i] - fineOffset);
                     }
                 }
             }

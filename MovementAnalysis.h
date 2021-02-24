@@ -187,10 +187,11 @@ public:
 			computeAngles();
 			updateSTSPhase();
 			if (locationsOnline[0] != -1) computeJerkParams();
+			triOsc_Update();
 		}
 
 		else stream_mpLogFile();
-		triOsc_Update();
+		//   triOsc_Update();
 		musicControl.updateFBVariables(movementParams, numMovementParams);
 	}
 
@@ -203,6 +204,17 @@ public:
 			{
 				movementParams[i].storeValue(value);
 				break;
+			}
+		}
+	}
+
+	double fetch_MP_Value(String mpName)
+	{
+		for (int i = 0; i < numMovementParams; i++)
+		{
+			if (movementParams[i].name == mpName)
+			{
+				return movementParams[i].value;
 			}
 		}
 	}
@@ -532,6 +544,7 @@ public:
 		for (int i = 0; i < columnIdx_Log - 1; i++)
 			store_MP_Value(columnNames_Log[i], log_lineData[i]);
 
+		voice_isTrigger = shuffleArray_voiceTrig(voiceCue.getVoiceTriggerSignal(fetch_MP_Value("Tri Osc")));
 		mpFile_Streaming_Progress = mpFile_Streaming_Line_Current / (double)mpFile_Streaming_Lines_Total;
 		mpFile_Streaming_Line_Current = (mpFile_Streaming_Line_Current + 1) % mpFile_Streaming_Lines_Total;
 	}

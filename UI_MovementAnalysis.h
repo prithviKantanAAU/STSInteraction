@@ -63,6 +63,8 @@ public:
 	TextButton mpLog_File_Stop;
 	ProgressBar mpLog_File_Progress;
 	double mpLog_File_Progress_VAL = 0;
+	TextButton mpLog_File_FWD;
+	TextButton mpLog_File_RWD;
 
 	void update_Indicators_SensorOrientation(MovementParameter mpArray[])
 	{
@@ -125,7 +127,7 @@ public:
 	{
 		// STS ANIMATION COLOURS
 		for (int i = 0; i < 4; i++)
-			stsAnim_joint[i].setColour(stsAnim_joint[i].backgroundColourId, Colours::yellow);
+			stsAnim_joint[i].setColour(stsAnim_joint[i].backgroundColourId, Colours::blue);
 		for (int j = 0; j < 20; j++)
 		{
 			stsAnim_trunk[j].setColour(stsAnim_trunk[j].backgroundColourId, Colours::blue);
@@ -210,6 +212,10 @@ public:
 		mpLog_File_Progress.setColour(mpLog_File_Progress.foregroundColourId, Colours::yellow);
 		mpLog_File_Progress.setColour(mpLog_File_Progress.backgroundColourId, Colours::blue);
 		mpLog_File_Progress.setPercentageDisplay(false);
+		mpLog_File_FWD.setColour(mpLog_File_FWD.buttonColourId, Colours::blue);
+		mpLog_File_FWD.setButtonText("FWD");
+		mpLog_File_RWD.setColour(mpLog_File_RWD.buttonColourId, Colours::blue);
+		mpLog_File_RWD.setButtonText("RWD");
 
 		// Record Movement Log
 		record_MovementLog.setColour(record_MovementLog.buttonColourId, Colours::red);
@@ -241,6 +247,8 @@ public:
 		mpLog_File_Play_Pause.setVisible(on && (dataInputMode > 0));
 		mpLog_File_Stop.setVisible(on && (dataInputMode == 2));
 		mpLog_File_Progress.setVisible(on && (dataInputMode > 0));
+		mpLog_File_FWD.setVisible(on && (dataInputMode == 2));
+		mpLog_File_RWD.setVisible(on && (dataInputMode == 2));
 
 		// MISCELLANEOUS
 		ML.setVisible(on);
@@ -394,6 +402,20 @@ public:
 			20
 		);
 
+		mpLog_File_RWD.setBounds(
+			IMU_Config_Column_StartPos[8],
+			205,
+			60,
+			20
+		);
+
+		mpLog_File_FWD.setBounds(
+			IMU_Config_Column_StartPos[8] + 130,
+			205,
+			60,
+			20
+		);
+
 		// MISCELLANEOUS
 		operationMode.setBounds(10, 175, 200, 20);
 		orientationAlgo.setBounds(10, 205, 200, 20);
@@ -426,25 +448,38 @@ public:
 	int stsAnim_Offset_Shank_X[20] = { 0 };
 	int stsAnim_Offset_Shank_Y[20] = { 0 };
 
-	void updateSTSAnim(float angle_Trunk, float angle_Thigh, float angle_Shank)
+	void updateSTSAnim(MovementParameter mpArray[])
 	{
+		float angle_Trunk_AP = mpArray[0].value;
+		float angle_Thigh_AP = mpArray[1].value;
+		float angle_Shank_AP = mpArray[2].value;
+		float angle_Trunk_ML = mpArray[3].value;
+		float angle_Thigh_ML = mpArray[4].value;
+		float angle_Shank_ML = mpArray[5].value;
+
+		float mlFrac_Trunk = angle_Trunk_ML / mpArray[3].maxVal;
+		float mlFrac_Thigh = angle_Thigh_ML / mpArray[4].maxVal;
+		float mlFrac_Shank = angle_Shank_ML / mpArray[5].maxVal;
+
+		float jerkFrac = fmin(((mpArray[12].value / mpArray[12].maxVal) - mpArray[12].thresh_min_NORM) * 10, 1.0);
+
 		// Foot X Offset
 		int offsetAmplitude_Max_Foot_X = 20 * stsAnim_widths_segments[2];
-		int offset_Foot_X = offsetAmplitude_Max_Foot_X * angle_Shank / 90.0 * -1;		// -1 to reverse direction
+		int offset_Foot_X = offsetAmplitude_Max_Foot_X * angle_Shank_AP / 90.0 * -1;		// -1 to reverse direction
 		// Knee Constant
 		//
 		// Hip Y Offset
 		int offsetAmplitude_Max_Hip_Y = 20 * stsAnim_heights_segments[1];
-		int offset_Hip_Y = offsetAmplitude_Max_Hip_Y * (angle_Thigh + 90) / 90.0 * -1; // -1 to reverse direction
+		int offset_Hip_Y = offsetAmplitude_Max_Hip_Y * (angle_Thigh_AP + 90) / 90.0 * -1; // -1 to reverse direction
 		// Head X Offset
 		int offsetAmplitude_Max_Head_X = 20 * stsAnim_widths_segments[0];
-		int offset_Head_X = offsetAmplitude_Max_Head_X * (angle_Trunk) / 90.0;
+		int offset_Head_X = offsetAmplitude_Max_Head_X * (angle_Trunk_AP) / 90.0;
 		// Head Y Offset
 		int offset_Head_Y = offset_Hip_Y;
 
 		// Hip Rotation Radius
 		int radius_hipRotation = stsAnim_width_joint + 20 * stsAnim_widths_segments[1];
-		float offset_hipRotation_X = abs(radius_hipRotation * cos(angle_Thigh * M_PI / 180.0));
+		float offset_hipRotation_X = abs(radius_hipRotation * cos(angle_Thigh_AP * M_PI / 180.0));
 
 		// SET BOUNDS
 
@@ -455,6 +490,9 @@ public:
 			stsAnim_width_joint,
 			stsAnim_height_joint
 		);
+
+		stsAnim_joint[0].setColour(stsAnim_joint[0].backgroundColourId, 
+			Colour::fromFloatRGBA(jerkFrac,0,1-jerkFrac,1));
 
 		STS_Phase_Disp.setBounds(
 			stsAnim_topCorner_X + offset_Head_X + offset_hipRotation_X + 20,
@@ -473,6 +511,8 @@ public:
 				stsAnim_widths_segments[0],
 				stsAnim_heights_segments[0]
 			);
+
+			stsAnim_trunk[i].setColour(stsAnim_trunk[i].backgroundColourId,Colour::fromFloatRGBA(mlFrac_Trunk, 0.7, mlFrac_Trunk, 1));
 		}
 
 		// HIP
@@ -482,6 +522,9 @@ public:
 			stsAnim_width_joint,
 			stsAnim_height_joint
 		);
+
+		stsAnim_joint[1].setColour(stsAnim_joint[1].backgroundColourId,
+			Colour::fromFloatRGBA(jerkFrac, 0, 1 - jerkFrac, 1));
 
 		JointVelocities[0].setBounds(
 			stsAnim_topCorner_X + offset_hipRotation_X - 45,
@@ -503,6 +546,8 @@ public:
 				stsAnim_widths_segments[1],
 				stsAnim_heights_segments[1]
 			);
+
+			stsAnim_thigh[i].setColour(stsAnim_thigh[i].backgroundColourId, Colour::fromFloatRGBA(mlFrac_Thigh, 0.7, mlFrac_Thigh, 1));
 		}
 
 		// KNEE
@@ -539,6 +584,8 @@ public:
 				stsAnim_widths_segments[2],
 				stsAnim_heights_segments[2]
 			);
+
+			stsAnim_shank[i].setColour(stsAnim_shank[i].backgroundColourId, Colour::fromFloatRGBA(mlFrac_Shank, 0.7, mlFrac_Shank, 1));
 		}
 
 		// FOOT

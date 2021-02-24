@@ -215,6 +215,8 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 			processor.movementAnalysis.dataInput_Mode = 0;
 			ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
+			ui_movementAnalysis.mpLog_File_FWD.setVisible(false);
+			ui_movementAnalysis.mpLog_File_RWD.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Progress.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Load_Unload.setButtonText("Load Log");
 			break;
@@ -223,6 +225,8 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 			processor.movementAnalysis.dataInput_Mode = 0;
 			ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
+			ui_movementAnalysis.mpLog_File_FWD.setVisible(false);
+			ui_movementAnalysis.mpLog_File_RWD.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Progress.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Load_Unload.setButtonText("Load Log");
 			break;
@@ -237,6 +241,8 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 			// START PLAYBACK
 			processor.movementAnalysis.dataInput_Mode = 2;
 			ui_movementAnalysis.mpLog_File_Stop.setVisible(true);
+			ui_movementAnalysis.mpLog_File_FWD.setVisible(true);
+			ui_movementAnalysis.mpLog_File_RWD.setVisible(true);
 			ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Pause");
 			break;
 		case 2:
@@ -251,9 +257,12 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 	{
 		processor.movementAnalysis.dataInput_Mode = 1;
 		processor.movementAnalysis.mpFile_Streaming_Line_Current = 0;
+		ui_movementAnalysis.mpLog_File_FWD.setVisible(false);
+		ui_movementAnalysis.mpLog_File_RWD.setVisible(false);
 		processor.movementAnalysis.mpFile_Streaming_Progress = 0;
 		ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Loop Play Data");
 	};
+
 }
 
 void StsinteractionAudioProcessorEditor::resized()

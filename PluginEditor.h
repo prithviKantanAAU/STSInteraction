@@ -132,6 +132,8 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Play_Pause);
 			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Stop);
 			addAndMakeVisible(ui_movementAnalysis.mpLog_File_Progress);
+			addAndMakeVisible(ui_movementAnalysis.mpLog_File_FWD);
+			addAndMakeVisible(ui_movementAnalysis.mpLog_File_RWD);
 
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles[i]);
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
@@ -195,6 +197,8 @@ private:
 			addAndMakeVisible(ui_musicControl.voiceCue_isPosCrossing[i]);
 			addAndMakeVisible(ui_musicControl.voiceCue_OscTrig_Location[i]);
 		}
+		addAndMakeVisible(ui_musicControl.voiceCue_FineTimeAdjust);
+		addAndMakeVisible(ui_musicControl.voiceCue_FineTimeAdjust_Lab);
 	}
 
 	// Add Mapping Matrix Controls
@@ -453,6 +457,11 @@ private:
 				processor.movementAnalysis.voiceCue.interval_crossThresh[i] = ui_musicControl.voiceCue_OscTrig_Location[i].getValue();
 			};
 		}
+
+		ui_musicControl.voiceCue_FineTimeAdjust.onValueChange = [this]
+		{
+			processor.movementAnalysis.voiceCue.fineOffset = ui_musicControl.voiceCue_FineTimeAdjust.getValue();
+		};
 	}
 
 	// Initialize Mapping Matrix Elements
@@ -678,6 +687,17 @@ private:
 		// LOG PROGRESS
 		ui_movementAnalysis.mpLog_File_Progress_VAL = processor.movementAnalysis.mpFile_Streaming_Progress;
 
+		// HANDLE FWD BUTTON PRESS
+		if (ui_movementAnalysis.mpLog_File_FWD.isDown())
+			processor.movementAnalysis.mpFile_Streaming_Line_Current =
+			(processor.movementAnalysis.mpFile_Streaming_Line_Current + 20)
+			% processor.movementAnalysis.mpFile_Streaming_Lines_Total;
+
+		// HANDLE RWD BUTTON PRESS
+		if (ui_movementAnalysis.mpLog_File_RWD.isDown())
+			processor.movementAnalysis.mpFile_Streaming_Line_Current =
+			max(0,(processor.movementAnalysis.mpFile_Streaming_Line_Current - 20));
+
 		// STS PHASE DISPLAY
 		ui_movementAnalysis.STS_Phase_Disp.setText(
 			processor.movementAnalysis.STS_Phases[(int)processor.movementAnalysis.movementParams[10].value]
@@ -685,11 +705,7 @@ private:
 		);
 
 		// REAL TIME VISUALIZE
-		ui_movementAnalysis.updateSTSAnim(
-			processor.movementAnalysis.movementParams[0].value,
-			processor.movementAnalysis.movementParams[1].value,
-			processor.movementAnalysis.movementParams[2].value
-		);
+		ui_movementAnalysis.updateSTSAnim(processor.movementAnalysis.movementParams);
 	}
 
 	// Update Music Control Tab Elements
