@@ -451,8 +451,8 @@ public:
 	void updateSTSAnim(MovementParameter mpArray[])
 	{
 		float angle_Trunk_AP = mpArray[0].value;
-		float angle_Thigh_AP = mpArray[1].value;
-		float angle_Shank_AP = mpArray[2].value;
+		float angle_Thigh_AP = mpArray[1].value * sqrt (abs((mpArray[1].value + 0.001)/ mpArray[1].minVal));
+		float angle_Shank_AP = mpArray[2].value * 0.55;
 		float angle_Trunk_ML = mpArray[3].value;
 		float angle_Thigh_ML = mpArray[4].value;
 		float angle_Shank_ML = mpArray[5].value;
@@ -480,6 +480,10 @@ public:
 		// Hip Rotation Radius
 		int radius_hipRotation = stsAnim_width_joint + 20 * stsAnim_widths_segments[1];
 		float offset_hipRotation_X = abs(radius_hipRotation * cos(angle_Thigh_AP * M_PI / 180.0));
+
+		// Knee Rotation Radius
+		int radius_kneeRotation = stsAnim_height_joint + 20 * stsAnim_heights_segments[2];
+		float offset_kneeRotation_Y = -abs(radius_kneeRotation * sin(angle_Shank_AP * M_PI / 180.0));
 
 		// SET BOUNDS
 
@@ -575,12 +579,14 @@ public:
 		// SHANK
 		for (int i = 0; i < 20; i++)
 		{
+			float vertOffset_ROTATION = offset_kneeRotation_Y * (i) / 20.0;
+
 			stsAnim_shank[i].setBounds(
 				stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1]
 				+ stsAnim_width_joint / 2.0 - stsAnim_widths_segments[0] / 2.0
 				+ (i) / 20.0 * offset_Foot_X,
 				stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0]
-				+ stsAnim_height_joint + i * stsAnim_heights_segments[2],
+				+ stsAnim_height_joint + i * stsAnim_heights_segments[2] + vertOffset_ROTATION,
 				stsAnim_widths_segments[2],
 				stsAnim_heights_segments[2]
 			);
@@ -592,7 +598,7 @@ public:
 		stsAnim_joint[3].setBounds(
 			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1] + offset_Foot_X,
 			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 
-			stsAnim_height_joint + 20 * stsAnim_heights_segments[2],
+			stsAnim_height_joint + 20 * stsAnim_heights_segments[2] + offset_kneeRotation_Y,
 			stsAnim_width_joint,
 			stsAnim_height_joint
 		);

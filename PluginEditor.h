@@ -31,13 +31,15 @@ private:
 
 	void simulation_HandleKeyPresses()
 	{
-		bool isKeyDown[4] = { false, false, false, false};
+		bool isKeyDown[6] = { false, false, false, false};
 		isKeyDown[0] = TrunkThigh_PlusMinus_RLUD[0].isKeyCurrentlyDown(KeyPress::rightKey);
 		isKeyDown[1] = TrunkThigh_PlusMinus_RLUD[1].isKeyCurrentlyDown(KeyPress::leftKey);
 		isKeyDown[2] = TrunkThigh_PlusMinus_RLUD[2].isKeyCurrentlyDown(KeyPress::upKey);
 		isKeyDown[3] = TrunkThigh_PlusMinus_RLUD[3].isKeyCurrentlyDown(KeyPress::downKey);
+		isKeyDown[4] = TrunkThigh_PlusMinus_RLUD[4].isKeyCurrentlyDown(KeyPress::pageUpKey);
+		isKeyDown[5] = TrunkThigh_PlusMinus_RLUD[5].isKeyCurrentlyDown(KeyPress::pageDownKey);
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 6; i++)
 		{
 			if (isKeyDown[i])
 			{
@@ -63,6 +65,16 @@ private:
 						ui_movementAnalysis.simulation_OrientAngles[1].getValue() - 2.3
 					);
 					break;
+				case 4:
+					ui_movementAnalysis.simulation_OrientAngles[2].setValue(
+						ui_movementAnalysis.simulation_OrientAngles[2].getValue() + 2.3
+					);
+					break;
+				case 5:
+					ui_movementAnalysis.simulation_OrientAngles[2].setValue(
+						ui_movementAnalysis.simulation_OrientAngles[2].getValue() - 2.3
+					);
+					break;
 				}
 			}
 		}
@@ -71,7 +83,7 @@ private:
 
 	// INTERFACE PROPERTIES
 	int interface_Width = 1100;						// Pixels
-	int interface_Height = 550;						// Pixels
+	int interface_Height = 680;						// Pixels
 	int UIRefreshFreq = 30;							// UI Real Time Refresh Frequency (Hz)
 	short presentTab = 0;							// Global tab index
 	int previousTab = 0;							// To detect changes

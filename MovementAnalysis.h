@@ -23,12 +23,12 @@ public:
 		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
-		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
+		movementParams[4].initialize(0, 60, "Orientation Thigh ML");
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
 		movementParams[6].initialize(0, 180, "Angle Hip");
 		movementParams[7].initialize(0, 180, "Angle Knee");
-		movementParams[8].initialize(0, 5, "Ang Velocity Knee",false);
+		movementParams[8].initialize(0, 5, "Ang Velocity Knee");
 		movementParams[9].initialize(0, 5, "Ang Velocity Hip");
 		movementParams[10].initialize(0, 5, "STS Phase");
 		movementParams[11].initialize(0, 1, "Tri Osc");
