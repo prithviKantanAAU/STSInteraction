@@ -32,7 +32,9 @@ public:
 		movementParams[9].initialize(0, 5, "Ang Velocity Hip");
 		movementParams[10].initialize(0, 5, "STS Phase");
 		movementParams[11].initialize(0, 1, "Tri Osc");
-		movementParams[12].initialize(0, 200, "Trunk Jerk - Ang");
+		movementParams[12].initialize(0, 100, "Trunk Jerk - Ang");
+		movementParams[13].initialize(0, 100, "Thigh Jerk - Ang");
+		movementParams[14].initialize(0, 100, "Shank Jerk - Ang");
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -42,7 +44,7 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
-	short numMovementParams = 13;
+	short numMovementParams = 15;
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
@@ -128,9 +130,9 @@ public:
 	float jointAngularVel_DegPerSec[2] = { 0.0 };
 
 	// Jerk - Delay Registers
-	double forJerk_Acc_z1[3];
-	double forJerk_Gyr_z1[3];
-	double forJerk_Gyr_z2[3];
+	double forJerk_Acc_z1[3][3];
+	double forJerk_Gyr_z1[3][3];
+	double forJerk_Gyr_z2[3][3];
 
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
@@ -186,7 +188,9 @@ public:
 		{
 			computeAngles();
 			updateSTSPhase();
-			if (locationsOnline[0] != -1) computeJerkParams();
+			computeJerkParams(0, "Trunk Jerk - Ang");
+			computeJerkParams(1, "Thigh Jerk - Ang");
+			computeJerkParams(2, "Shank Jerk - Ang");
 			triOsc_Update();
 		}
 
@@ -327,32 +331,35 @@ public:
 		*yaw = isnan(*yaw) ? 0 : *yaw;
 	}
 
-	void computeJerkParams()
+	void computeJerkParams(int locationIdx, String jerkParamName)
 	{
-		// ANGULAR TRUNK JERK
-		float gyrX = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[0];
-		float gyrY = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[1];
-		float gyrZ = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[2];
-
-		float angAcc_X = gyrX - forJerk_Gyr_z1[0];
-		float angAcc_Y = gyrY - forJerk_Gyr_z1[1];
-		float angAcc_Z = gyrZ - forJerk_Gyr_z1[2];
-
-		float angAcc_X_z1 = forJerk_Gyr_z1[0] - forJerk_Gyr_z2[0];
-		float angAcc_Y_z1 = forJerk_Gyr_z1[1] - forJerk_Gyr_z2[1];
-		float angAcc_Z_z1 = forJerk_Gyr_z1[2] - forJerk_Gyr_z2[2];
-
-		float angJerk_X = fabs(angAcc_X - angAcc_X_z1);
-		float angJerk_Y = fabs(angAcc_Y - angAcc_Y_z1);
-		float angJerk_Z = fabs(angAcc_Z - angAcc_Z_z1);
-
-		float scalarJerk_ANG = sqrt(angJerk_X * angJerk_X + angJerk_Y * angJerk_Y + angJerk_Z * angJerk_Z);
-		store_MP_Value("Trunk Jerk - Ang", scalarJerk_ANG);
-		
-		for (int i = 0; i < 3; i++)											// SHUFFLE DELAYS
+		if (locationsOnline[locationIdx] != -1)
 		{
-			forJerk_Gyr_z2[i] = forJerk_Gyr_z1[i];
-			forJerk_Gyr_z1[i] = sensors_OSCReceivers[locationsOnline[0]].gyr_Buf[i];
+			// ANGULAR TRUNK JERK
+			float gyrX = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[0];
+			float gyrY = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[1];
+			float gyrZ = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[2];
+
+			float angAcc_X = gyrX - forJerk_Gyr_z1[locationIdx][0];
+			float angAcc_Y = gyrY - forJerk_Gyr_z1[locationIdx][1];
+			float angAcc_Z = gyrZ - forJerk_Gyr_z1[locationIdx][2];
+
+			float angAcc_X_z1 = forJerk_Gyr_z1[locationIdx][0] - forJerk_Gyr_z2[locationIdx][0];
+			float angAcc_Y_z1 = forJerk_Gyr_z1[locationIdx][1] - forJerk_Gyr_z2[locationIdx][1];
+			float angAcc_Z_z1 = forJerk_Gyr_z1[locationIdx][2] - forJerk_Gyr_z2[locationIdx][2];
+
+			float angJerk_X = fabs(angAcc_X - angAcc_X_z1);
+			float angJerk_Y = fabs(angAcc_Y - angAcc_Y_z1);
+			float angJerk_Z = fabs(angAcc_Z - angAcc_Z_z1);
+
+			float scalarJerk_ANG = sqrt(angJerk_X * angJerk_X + angJerk_Y * angJerk_Y + angJerk_Z * angJerk_Z);
+			store_MP_Value(jerkParamName, scalarJerk_ANG);
+
+			for (int i = 0; i < 3; i++)											// SHUFFLE DELAYS
+			{
+				forJerk_Gyr_z2[locationIdx][i] = forJerk_Gyr_z1[locationIdx][i];
+				forJerk_Gyr_z1[locationIdx][i] = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[i];
+			}
 		}
 	}
 

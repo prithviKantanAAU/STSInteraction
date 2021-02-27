@@ -289,7 +289,7 @@ class UI_MappingMatrix
 		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
 
 		int matrix_Width = 0.75 * interfaceWidth;
-		int matrix_Height = 0.5 * interfaceHeight;
+		int matrix_Height = 0.65 * interfaceHeight;
 
 		int matrix_startPointX = (interfaceWidth - matrix_Width) / 2 + 100;
 		int matrix_startPointY = (interfaceHeight - matrix_Height) / 2 - 70;
@@ -412,7 +412,7 @@ class UI_MappingMatrix
 		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
 
 		int matrix_Width = 0.75 * interfaceWidth;
-		int matrix_Height = 0.5 * interfaceHeight;
+		int matrix_Height = 0.65 * interfaceHeight;
 
 		int matrix_startPointX = (interfaceWidth - matrix_Width) / 2 + 100;
 		int matrix_startPointY = (interfaceHeight - matrix_Height) / 2 - 70;
