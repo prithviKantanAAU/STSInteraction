@@ -44,6 +44,16 @@ class UI_MappingMatrix
 	Label  preset_ListLoad_LAB;
 	TextEditor preset_Name;
 	FILE *presetFile;
+
+	// PRESETS - DATA HOLDERS
+	float dataHolder_oscBPM = 1;
+	bool dataHolder_voiceCue_ON = false;
+	float dataHolder_voiceCue_timingFine = 0;
+	float dataHolder_voiceCue_voldB = 0;
+	int dataHolder_voiceCue_Length = 1;
+	bool dataHolder_voiceCue_isIntervalEnabled[8] = { false, false, false };
+	bool dataHolder_voiceCue_isPos[8] = { false, false, false };
+	float dataHolder_voiceCue_location[8] = { 0.5, 0.5, 0.5 };
     
     void configure()
     {

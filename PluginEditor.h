@@ -429,24 +429,28 @@ private:
 		ui_musicControl.triOsc_BPM.onValueChange = [this]
 		{
 			processor.movementAnalysis.triOsc_Freq = ui_musicControl.triOsc_BPM.getValue() / 60.0;
+			ui_mappingMatrix.dataHolder_oscBPM = ui_musicControl.triOsc_BPM.getValue() / 60.0;
 		};
 
 		ui_musicControl.voiceCue_Enable.setToggleState(processor.movementAnalysis.voiceCue.isEnabled, sendNotificationSync);
 		ui_musicControl.voiceCue_Enable.onStateChange = [this]
 		{
 			processor.movementAnalysis.voiceCue.isEnabled = ui_musicControl.voiceCue_Enable.getToggleState();
+			ui_mappingMatrix.dataHolder_voiceCue_ON = ui_musicControl.voiceCue_Enable.getToggleState();
 		};
 
 		ui_musicControl.voiceCue_Level.setValue(processor.movementAnalysis.voiceCue.voiceGain_dB);
 		ui_musicControl.voiceCue_Level.onValueChange = [this]
 		{
 			processor.movementAnalysis.voiceCue.voiceGain_dB = ui_musicControl.voiceCue_Level.getValue();
+			ui_mappingMatrix.dataHolder_voiceCue_voldB = ui_musicControl.voiceCue_Level.getValue();
 		};
 
 		ui_musicControl.voiceCue_CountLength.setValue(processor.movementAnalysis.voiceCue.count_Length);
 		ui_musicControl.voiceCue_CountLength.onValueChange = [this]
 		{
 			processor.movementAnalysis.voiceCue.count_Length = (int)ui_musicControl.voiceCue_CountLength.getValue();
+			ui_mappingMatrix.dataHolder_voiceCue_Length = (int)ui_musicControl.voiceCue_CountLength.getValue();
 		};
 
 		for (int i = 0; i < 8; i++)
@@ -455,24 +459,28 @@ private:
 			ui_musicControl.voiceCue_intervalEnable[i].onStateChange = [this,i]
 			{
 				processor.movementAnalysis.voiceCue.interval_IsEnabled[i] = ui_musicControl.voiceCue_intervalEnable[i].getToggleState();
+				ui_mappingMatrix.dataHolder_voiceCue_isIntervalEnabled[i] = ui_musicControl.voiceCue_intervalEnable[i].getToggleState();
 			};
 
 			ui_musicControl.voiceCue_isPosCrossing[i].setToggleState(processor.movementAnalysis.voiceCue.isPosCrossing[i], sendNotificationSync);
 			ui_musicControl.voiceCue_isPosCrossing[i].onStateChange = [this,i]
 			{
 				processor.movementAnalysis.voiceCue.isPosCrossing[i] = ui_musicControl.voiceCue_isPosCrossing[i].getToggleState();
+				ui_mappingMatrix.dataHolder_voiceCue_isPos[i] = ui_musicControl.voiceCue_isPosCrossing[i].getToggleState();
 			};
 
 			ui_musicControl.voiceCue_OscTrig_Location[i].setValue(processor.movementAnalysis.voiceCue.interval_crossThresh[i]);
 			ui_musicControl.voiceCue_OscTrig_Location[i].onValueChange = [this,i]
 			{
 				processor.movementAnalysis.voiceCue.interval_crossThresh[i] = ui_musicControl.voiceCue_OscTrig_Location[i].getValue();
+				ui_mappingMatrix.dataHolder_voiceCue_location[i] = ui_musicControl.voiceCue_OscTrig_Location[i].getValue();
 			};
 		}
 
 		ui_musicControl.voiceCue_FineTimeAdjust.onValueChange = [this]
 		{
 			processor.movementAnalysis.voiceCue.fineOffset = ui_musicControl.voiceCue_FineTimeAdjust.getValue();
+			ui_mappingMatrix.dataHolder_voiceCue_timingFine = ui_musicControl.voiceCue_FineTimeAdjust.getValue();
 		};
 	}
 
