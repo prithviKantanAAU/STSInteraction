@@ -614,8 +614,11 @@ private:
 
 		ui_mappingMatrix.preset_Save.onClick = [this]
 		{
-			ui_mappingMatrix.saveAsPreset();
-			ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets);
+			ui_mappingMatrix.saveAsPreset(processor.movementAnalysis.movementParams,
+				processor.movementAnalysis.musicControl.feedbackVariables);
+			ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets,
+				processor.movementAnalysis.movementParams,
+				processor.movementAnalysis.musicControl.feedbackVariables);
 			ui_mappingMatrix.preset_Name.setText("");
 		};
 	}

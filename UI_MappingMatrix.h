@@ -51,8 +51,8 @@ class UI_MappingMatrix
 	float dataHolder_voiceCue_timingFine = 0;
 	float dataHolder_voiceCue_voldB = 0;
 	int dataHolder_voiceCue_Length = 1;
-	bool dataHolder_voiceCue_isIntervalEnabled[8] = { false, false, false };
-	bool dataHolder_voiceCue_isPos[8] = { false, false, false };
+	bool dataHolder_voiceCue_isIntervalEnabled[8] = { true, true, false };
+	bool dataHolder_voiceCue_isPos[8] = { true, false, true };
 	float dataHolder_voiceCue_location[8] = { 0.5, 0.5, 0.5 };
     
     void configure()
@@ -77,12 +77,7 @@ class UI_MappingMatrix
 		preset_Save.setButtonText("Save as Preset");
     }
 
-	void populatePresets(int numPresets, MappingPreset presetArray[])
-	{
-
-	}
-
-	void saveAsPreset()
+	void saveAsPreset(MovementParameter mpArray[], FeedbackVariable apArray[])
 	{
 		if (preset_Name.getText() == "")
 			return;
@@ -97,46 +92,116 @@ class UI_MappingMatrix
 			presetFile = fopen(presetFile_Path.toStdString().c_str(), "w");
 
 			// SAVE CSV FILE
-			//String formatSpecifier = String::repeatedString("%s,", num_AP + 1) + "\n";
 			String formatSpecifier = "%s,\n";
 
-			int numLines = num_MP + 3 + num_MP;
+			// SPECIFY TOTAL LINES
+			int numLines = 1 + num_MP + num_MP + num_MP + 3 + 8;
+
 			String lineString = "";
 			String lineHeader = "";
 
-			for (int l = 0; l < numLines; l++)
+			for (int l = 0; l < numLines; l++)											// FULL FILE
 			{
 				lineString = "";
-				for (int a = 0; a < num_AP; a++)
+				for (int a = 0; a < num_AP; a++)										// EACH LINE
 				{
-					if (l < num_MP)
+					if (l == 0)															// FIRST LINE - AP NAMES
 					{
-						lineHeader = "MP Row " + String(l + 1);
-						lineString += mapping_Matrix[l][a].getToggleState() ? "1," : "0,";
+						lineHeader = "AP Names";
+						lineString += apArray[a].name + ",";
 					}
 
-					if (l == num_MP)
+					if (l >= 1 && l < num_MP + 1)										// MAPPING MATRIX BOOLEANS
+					{
+						lineHeader = "isMap_" + mpArray[l - 1].name;
+						lineString += mapping_Matrix[l - 1][a].getToggleState() ? "1," : "0,";
+					}
+
+					if (l >= num_MP + 1 && l < num_MP + 1 + num_MP)						// MAPPING MATRIX STRENGTH
+					{
+						lineHeader = "mapStr_" + mpArray[l - num_MP - 1].name;
+						lineString += String(mapping_Strength[l - num_MP - 1][a].getValue(), 2) + ",";
+					}
+
+					if (l >= num_MP + 1 + num_MP && l < num_MP + num_MP + num_MP + 1)	// MAPPING THRESH
+					{
+						if (a == 0)
+						{
+							lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
+							lineString += String(mp_minThresh[l - 2 * num_MP - 1].getValue(), 2) + ",";
+						}
+					}
+
+					if (l == 3 * num_MP + 1)											// MAPPING FUNCTION IDX
 					{
 						lineHeader = "Map Func Idx";
 						lineString += String(mapping_Function[a].getSelectedId()) + ",";
 					}
 
-					if (l == num_MP + 1)
+					if (l == 3 * num_MP + 2)											// MAPPING POLARITY
 					{
 						lineHeader = "Polarity";
 						lineString += String(mapping_Polarity[a].getSelectedId()) + ",";
 					}
 
-					if (l == num_MP + 2)
+					if (l == 3 * num_MP + 3)											// MAPPING QUANT BITS
 					{
 						lineHeader = "Quant Bits";
 						lineString += String(mapping_QuantLevels[a].getSelectedId() - 1) + ",";
 					}
 
-					if (l > num_MP + 2)
+					if (a == 0)
 					{
-						lineHeader = "MP Str Row " + String(l - num_MP - 2 - 1 + 1);
-						lineString += String(mapping_Strength[l - num_MP - 2 - 1][a].getValue(),2) + ",";
+						if (l == 3 * num_MP + 4)										// OSC BPM
+						{
+							lineHeader = "OSC_BPM";
+							lineString = String(dataHolder_oscBPM, 4);
+						}
+
+						if (l == 3 * num_MP + 5)										// VOICE CUE ON
+						{
+							lineHeader = "VoiceCue_ON";
+							lineString = dataHolder_voiceCue_ON ? "1" : "0";
+						}
+
+						if (l == 3 * num_MP + 6)										// TIMING FINE
+						{
+							lineHeader = "VoiceCue_TimingFine";
+							lineString = String(dataHolder_voiceCue_timingFine,2);
+						}
+
+						if (l == 3 * num_MP + 7)										// VOICE CUE LEVEL
+						{
+							lineHeader = "VoiceCue_LeveldB";
+							lineString = String(dataHolder_voiceCue_voldB,2);
+						}
+
+						if (l == 3 * num_MP + 8)										// VOICE CUE LENGTH
+						{
+							lineHeader = "VoiceCue_Length";
+							lineString = String(dataHolder_voiceCue_Length);
+						}
+					}
+
+					if (a < 3)
+					{
+						if (l == 3 * num_MP + 9)										// IS INTERVAL ENABLED
+						{
+							lineHeader = "VoiceCue_isIntervalEnabled";
+							lineString += dataHolder_voiceCue_isIntervalEnabled[a] ? "1," : "0,";
+						}
+
+						if (l == 3 * num_MP + 10)										// IS INTERVAL POSITIVE CROSS
+						{
+							lineHeader = "VoiceCue_isIntervalPos";
+							lineString += dataHolder_voiceCue_isPos[a] ? "1," : "0,";
+						}
+
+						if (l == 3 * num_MP + 11)										// CUE LOCATION
+						{
+							lineHeader = "VoiceCue_intervalLocation";
+							lineString += String(dataHolder_voiceCue_location[a],2) + ",";
+						}
 					}
 				}
 
@@ -153,7 +218,7 @@ class UI_MappingMatrix
 
 	short num_Presets = 0;
 
-	void populatePresets(MappingPreset presetArray[])
+	void populatePresets(MappingPreset presetArray[], MovementParameter mpArray[], FeedbackVariable apArray[])
 	{
 		preset_ListLoad.clear();
 		preset_ListLoad.addItem("No Preset", 1);
@@ -170,14 +235,17 @@ class UI_MappingMatrix
 		{
 			currentFile = presetFiles.getUnchecked(i);
 			presetArray[i].name = currentFile.getFileNameWithoutExtension();
-			loadPreset_SINGLE(&presetArray[i + 1], currentFile);
+			loadPreset_SINGLE(&presetArray[i + 1], currentFile, mpArray, apArray);
 			preset_ListLoad.addItem(presetArray[i].name, i + 2);
 		}
 	}
 
-	void loadPreset_SINGLE(MappingPreset *presetContainer, File currentFile)
+	void loadPreset_SINGLE(MappingPreset *presetContainer, File currentFile, MovementParameter mpArray[],
+							FeedbackVariable apArray[])
 	{
 		juce::FileInputStream inputStream(currentFile); // [2]
+		short apOrder_inFile[20] = {-1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1};
+		short apOrder_writeIdx = 0;
 
 		if (!inputStream.openedOk())
 			return;  // failed to open
@@ -190,25 +258,60 @@ class UI_MappingMatrix
 			String line_header = line.upToFirstOccurrenceOf(",", false, true);
 			line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
 
-			for (int i = 0; i < num_MP; i++)
+			if (line_header == "AP Names")				// ESTABLISH ORDER OF COLUMNS
 			{
-				if (line_header == "MP Row " + String(i + 1))
+				String presentAP = "";
+				while (line_Rem != "")					// UNTIL LINE STRING EXHAUSTED
+				{
+					presentAP = line_Rem.upToFirstOccurrenceOf(",", false, true);
+					
+					for (int a = 0; a < 20; a++)
+					{
+						if (presentAP == apArray[a].name)
+						{
+							apOrder_inFile[apOrder_writeIdx] = a;
+							apOrder_writeIdx++;
+						}
+					}
+
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+				}
+			}
+
+			for (int i = 0; i < num_MP; i++)							// FOR EACH MP
+			{
+				if (line_header == "isMap_" + mpArray[i].name)			// MAPPING MATRIX BOOL ROWS
 				{
 					for (int j = 0; j < num_AP; j++)
 					{
-						presetContainer->mappingMatrix[i][j] =
-							line_Rem.upToFirstOccurrenceOf(",", false, true) == "1" ? true : false;
-						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+						if (apOrder_inFile[j] != -1)
+						{
+							presetContainer->mappingMatrix[i][apOrder_inFile[j]] =
+								line_Rem.upToFirstOccurrenceOf(",", false, true) == "1" ? true : false;
+							line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+						}
 					}
 				}
 
-				if (line_header == "MP Str Row " + String(i + 1))
+				if (line_header == "mapStr_" + mpArray[i].name)			// MAPPING MATRIX STR ROWS
 				{
 					for (int j = 0; j < num_AP; j++)
 					{
-						presetContainer->mappingStrength[i][j] =
-							line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
-						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+						if (apOrder_inFile[j] != -1)
+						{
+							presetContainer->mappingStrength[i][apOrder_inFile[j]] =
+								line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+							line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+						}
+					}
+				}
+
+				if (line_header == "mapThr_" + mpArray[i].name)			// MAPPING MATRIX THR ROWS
+				{
+					for (int j = 0; j < num_AP; j++)
+					{
+							presetContainer->mappingThresh[i] =
+								line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
 					}
 				}
 			}
@@ -242,6 +345,69 @@ class UI_MappingMatrix
 					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
 				}
 			}
+
+			if (line_header == "OSC_BPM")
+			{
+				presetContainer->dataHolder_oscBPM = line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+			}
+
+			if (line_header == "VoiceCue_ON")
+			{
+				presetContainer->dataHolder_voiceCue_ON = (line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue() == 1) ? true : false;
+			}
+
+			if (line_header == "VoiceCue_TimingFine")
+			{
+				presetContainer->dataHolder_voiceCue_timingFine = line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+			}
+
+			if (line_header == "VoiceCue_LeveldB")
+			{
+				presetContainer->dataHolder_voiceCue_voldB = line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+			}
+
+			if (line_header == "VoiceCue_Length")
+			{
+				presetContainer->dataHolder_voiceCue_Length = line_Rem.upToFirstOccurrenceOf(",", false, true).getIntValue();
+			}
+
+			short mat_writeIdx = 0;
+
+			if (line_header == "VoiceCue_isIntervalEnabled")
+			{
+				while (line_Rem != "")
+				{
+					presetContainer->dataHolder_voiceCue_isIntervalEnabled[mat_writeIdx] =
+						line_Rem.upToFirstOccurrenceOf(",", false, true) == "1" ? true : false;
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					mat_writeIdx++;
+				}
+				mat_writeIdx = 0;
+			}
+
+			if (line_header == "VoiceCue_isIntervalPos")
+			{
+				while (line_Rem != "")
+				{
+					presetContainer->dataHolder_voiceCue_isPos[mat_writeIdx] =
+						line_Rem.upToFirstOccurrenceOf(",", false, true) == "1" ? true : false;
+					mat_writeIdx++;
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+				}
+				mat_writeIdx = 0;
+			}
+
+			if (line_header == "VoiceCue_intervalLocation")
+			{
+				while (line_Rem != "")
+				{
+					presetContainer->dataHolder_voiceCue_location[mat_writeIdx] =
+						line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+					mat_writeIdx++;
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+				}
+				mat_writeIdx = 0;
+			}
 		}
 	}
 
@@ -253,6 +419,7 @@ class UI_MappingMatrix
 			{
 				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],sendNotificationSync);
 				mapping_Strength[j][i].setValue(loadedPreset->mappingStrength[j][i]);
+				mp_minThresh[j].setValue(loadedPreset->mappingThresh[j]);
 			}
 			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
 			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);

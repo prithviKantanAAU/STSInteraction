@@ -22,7 +22,9 @@ StsinteractionAudioProcessorEditor::StsinteractionAudioProcessorEditor (Stsinter
 	musicControl_initializeControls();
 	mappingMatrix_initializeControls();
 
-	ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets);
+	ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets,
+		processor.movementAnalysis.movementParams,
+		processor.movementAnalysis.musicControl.feedbackVariables);
 
 	// SET INITIAL TAB
 	switchTab(0);
@@ -101,6 +103,21 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		{
 			ui_mappingMatrix.loadPreset(&processor.movementAnalysis.musicControl.mappingPresets
 				[box->getSelectedId() - 1]);
+			auto preset = &processor.movementAnalysis.musicControl.mappingPresets[box->getSelectedId() - 1];
+			
+			// SET VOICE CUE RELATED CONTROLS
+			ui_musicControl.triOsc_BPM.setValue(preset->dataHolder_oscBPM * 60);
+			ui_musicControl.voiceCue_Enable.setToggleState(preset->dataHolder_voiceCue_ON,sendNotificationSync);
+			ui_musicControl.voiceCue_Level.setValue(preset->dataHolder_voiceCue_voldB);
+			ui_musicControl.voiceCue_CountLength.setValue(preset->dataHolder_voiceCue_Length);
+			ui_musicControl.voiceCue_FineTimeAdjust.setValue(preset->dataHolder_voiceCue_timingFine);
+
+			for (int i = 0; i < 3; i++)
+			{
+				ui_musicControl.voiceCue_intervalEnable[i].setToggleState(preset->dataHolder_voiceCue_isIntervalEnabled[i],	sendNotificationSync);
+				ui_musicControl.voiceCue_isPosCrossing[i].setToggleState(preset->dataHolder_voiceCue_isPos[i], sendNotificationSync);
+				ui_musicControl.voiceCue_OscTrig_Location[i].setValue(preset->dataHolder_voiceCue_location[i]);
+			}
 		}
 
 		for (int i = 0; i < 3; i++)
