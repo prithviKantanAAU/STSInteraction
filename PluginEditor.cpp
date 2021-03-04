@@ -22,9 +22,7 @@ StsinteractionAudioProcessorEditor::StsinteractionAudioProcessorEditor (Stsinter
 	musicControl_initializeControls();
 	mappingMatrix_initializeControls();
 
-	ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets,
-		processor.movementAnalysis.movementParams,
-		processor.movementAnalysis.musicControl.feedbackVariables);
+	ui_mappingMatrix.populatePresets(mapPresetPtr,mpArrayPtr,apArrayPtr);
 
 	// SET INITIAL TAB
 	switchTab(0);
@@ -36,74 +34,59 @@ StsinteractionAudioProcessorEditor::~StsinteractionAudioProcessorEditor()
 
 void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 {
-	for (int i = 0; i < processor.movementAnalysis.sensorInfo.numSensorsMax; i++)
+	for (int i = 0; i < sensInfoPtr->numSensorsMax; i++)
 	{
 		if (box == &ui_sensorCon.Location[i])
-		{
-			processor.movementAnalysis.sensorInfo.bodyLocation[i] = ui_sensorCon.Location[i].getSelectedId();
-		}
+			sensInfoPtr->bodyLocation[i] = ui_sensorCon.Location[i].getSelectedId();
 	}
 
 	if (box == &ui_movementAnalysis.operationMode)
 	{
-		processor.movementAnalysis.operationMode_Present = box->getSelectedId();
+		mAnalysisPtr->operationMode_Present = box->getSelectedId();
 	}
 
 	if (box == &ui_movementAnalysis.orientationAlgo)
 	{
-		processor.movementAnalysis.orientAlgo_Present = box->getSelectedId();
+		mAnalysisPtr->orientAlgo_Present = box->getSelectedId();
 	}
 
 	if (box == &ui_musicControl.tonic)
-	{
-		processor.movementAnalysis.musicControl.musicInfoCompute.idx_tonic_Present = 
-			box->getSelectedId() - 1;
-	}
+		musInfoCompPtr->idx_tonic_Present = box->getSelectedId() - 1;
 
 	if (box == &ui_musicControl.scale)
-	{
-		processor.movementAnalysis.musicControl.musicInfoCompute.idx_scale_Present = 
-			box->getSelectedId() - 1;
-	}
+		musInfoCompPtr->idx_scale_Present = box->getSelectedId() - 1;
 
 	if (box == &ui_musicControl.chord_Type)
-	{
-		processor.movementAnalysis.musicControl.musicInfoCompute.idx_chordTypes_Present =
-			box->getSelectedId() - 1;
-	}
+		musInfoCompPtr->idx_chordTypes_Present = box->getSelectedId() - 1;
 
 	for (int i = 0; i < 8; i++)
 	{
 		if (box == &ui_musicControl.chord_Degree[i])
-		{
-			processor.movementAnalysis.musicControl.musicInfoCompute.chord_degSequence[i] =
-				box->getSelectedId();
-		}
+			musInfoCompPtr->chord_degSequence[i] = box->getSelectedId();
 	}
 
-	for (int i = 0; i < processor.movementAnalysis.musicControl.numFbVariables; i++)
+	for (int i = 0; i < musControlPtr->numFbVariables; i++)
 	{
 		if (box == &ui_mappingMatrix.mapping_Function[i])
 		{
-			processor.movementAnalysis.musicControl.feedbackVariables[i].mapFunc = box->getSelectedId();
+			apArrayPtr[i].mapFunc = box->getSelectedId();
 		}
 
 		if (box == &ui_mappingMatrix.mapping_Polarity[i])
 		{
-			processor.movementAnalysis.musicControl.feedbackVariables[i].polarity = box->getSelectedId();
+			apArrayPtr[i].polarity = box->getSelectedId();
 		}
 
 		if (box == &ui_mappingMatrix.mapping_QuantLevels[i])
 		{
-			processor.movementAnalysis.musicControl.feedbackVariables[i].quantLevels_2raisedTo 
+			apArrayPtr[i].quantLevels_2raisedTo
 				= box->getSelectedId() - 1;
 		}
 
 		if (box == &ui_mappingMatrix.preset_ListLoad)
 		{
-			ui_mappingMatrix.loadPreset(&processor.movementAnalysis.musicControl.mappingPresets
-				[box->getSelectedId() - 1]);
-			auto preset = &processor.movementAnalysis.musicControl.mappingPresets[box->getSelectedId() - 1];
+			ui_mappingMatrix.loadPreset(&mapPresetPtr[box->getSelectedId() - 1]);
+			auto preset = &mapPresetPtr[box->getSelectedId() - 1];
 			
 			// SET VOICE CUE RELATED CONTROLS
 			ui_musicControl.triOsc_BPM.setValue(preset->dataHolder_oscBPM * 60);
@@ -123,10 +106,10 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		for (int i = 0; i < 3; i++)
 		{
 			if (box == &ui_movementAnalysis.IMU_Mount_Side[i])
-				processor.movementAnalysis.IMU_Mount_Side[i] = box->getSelectedId();
+				mAnalysisPtr->IMU_Mount_Side[i] = box->getSelectedId();
 
 			if (box == &ui_movementAnalysis.IMU_Polarity[i])
-				processor.movementAnalysis.IMU_Polarity[i] = box->getSelectedId();
+				mAnalysisPtr->IMU_Polarity[i] = box->getSelectedId();
 		}
 	}
 }
@@ -139,7 +122,7 @@ void StsinteractionAudioProcessorEditor::timerCallback()
 		switchTab(presentTab);
 	previousTab = presentTab;
 
-	if (processor.movementAnalysis.operationMode_Present == 1)
+	if (mAnalysisPtr->operationMode_Present == 1)
 		simulation_HandleKeyPresses();
 
 	// UPDATE LABELS ON PRESENT TAB
@@ -167,25 +150,25 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 	{
 	case 0:												// Sensors Tab
 		ui_sensorCon.toggleVisible(true);
-		ui_movementAnalysis.toggleVisible(false, processor.movementAnalysis.dataInput_Mode);
+		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
 		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 1:												// Movement Tab
 		ui_sensorCon.toggleVisible(false);
-		ui_movementAnalysis.toggleVisible(true, processor.movementAnalysis.dataInput_Mode);
+		ui_movementAnalysis.toggleVisible(true, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
 		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 2:												// Music Tab
 		ui_sensorCon.toggleVisible(false);
-		ui_movementAnalysis.toggleVisible(false, processor.movementAnalysis.dataInput_Mode);
+		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(true);
 		ui_mappingMatrix.toggleVisible(false);
 		break;
 	case 3:												// Mapping Matrix
 		ui_sensorCon.toggleVisible(false);
-		ui_movementAnalysis.toggleVisible(false, processor.movementAnalysis.dataInput_Mode);
+		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
 		ui_mappingMatrix.toggleVisible(true);
 		break;
@@ -208,16 +191,16 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 		FileChooser logChooser("Please select a valid log file:",
 			File::getSpecialLocation(File::userHomeDirectory), extension);
 
-		switch (processor.movementAnalysis.dataInput_Mode)
+		switch (mAnalysisPtr->dataInput_Mode)
 		{
 		case 0:
 			if (logChooser.browseForFileToOpen())
 			{
 				File logFile(logChooser.getResult());
 				filePath = logFile.getFullPathName();
-				if (processor.movementAnalysis.open_mpLogFile_forStream(filePath))
+				if (mAnalysisPtr->open_mpLogFile_forStream(filePath))
 				{
-					processor.movementAnalysis.dataInput_Mode = 1;
+					mAnalysisPtr->dataInput_Mode = 1;
 					ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(true);
 					ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
 					ui_movementAnalysis.mpLog_File_Progress.setVisible(true);
@@ -229,7 +212,7 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 
 		case 1:
 			// UNLOAD
-			processor.movementAnalysis.dataInput_Mode = 0;
+			mAnalysisPtr->dataInput_Mode = 0;
 			ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
 			ui_movementAnalysis.mpLog_File_FWD.setVisible(false);
@@ -239,7 +222,7 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 			break;
 		case 2:
 			// UNLOAD
-			processor.movementAnalysis.dataInput_Mode = 0;
+			mAnalysisPtr->dataInput_Mode = 0;
 			ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(false);
 			ui_movementAnalysis.mpLog_File_Stop.setVisible(false);
 			ui_movementAnalysis.mpLog_File_FWD.setVisible(false);
@@ -252,11 +235,11 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 
 	ui_movementAnalysis.mpLog_File_Play_Pause.onClick = [this]
 	{
-		switch (processor.movementAnalysis.dataInput_Mode)
+		switch (mAnalysisPtr->dataInput_Mode)
 		{
 		case 1:
 			// START PLAYBACK
-			processor.movementAnalysis.dataInput_Mode = 2;
+			mAnalysisPtr->dataInput_Mode = 2;
 			ui_movementAnalysis.mpLog_File_Stop.setVisible(true);
 			ui_movementAnalysis.mpLog_File_FWD.setVisible(true);
 			ui_movementAnalysis.mpLog_File_RWD.setVisible(true);
@@ -264,7 +247,7 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 			break;
 		case 2:
 			// PAUSE PLAYBACK
-			processor.movementAnalysis.dataInput_Mode = 1;
+			mAnalysisPtr->dataInput_Mode = 1;
 			ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Loop Play Data");
 			break;
 		}
@@ -272,11 +255,11 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 
 	ui_movementAnalysis.mpLog_File_Stop.onClick = [this]
 	{
-		processor.movementAnalysis.dataInput_Mode = 1;
-		processor.movementAnalysis.mpFile_Streaming_Line_Current = 0;
+		mAnalysisPtr->dataInput_Mode = 1;
+		mAnalysisPtr->mpFile_Streaming_Line_Current = 0;
 		ui_movementAnalysis.mpLog_File_FWD.setVisible(false);
 		ui_movementAnalysis.mpLog_File_RWD.setVisible(false);
-		processor.movementAnalysis.mpFile_Streaming_Progress = 0;
+		mAnalysisPtr->mpFile_Streaming_Progress = 0;
 		ui_movementAnalysis.mpLog_File_Play_Pause.setButtonText("Loop Play Data");
 	};
 
@@ -286,14 +269,14 @@ void StsinteractionAudioProcessorEditor::resized()
 {
 	ui_sensorCon.setLayout();
 	ui_movementAnalysis.setLayout();
-	ui_musicControl.setLayout(processor.movementAnalysis.musicControl.mixerSettings.num_Tracks);
+	ui_musicControl.setLayout(musControlPtr->mixerSettings.num_Tracks);
 	ui_mappingMatrix.setLayout
 	(
 		interface_Width,
 		interface_Height,
-		processor.movementAnalysis.numMovementParams,
-		processor.movementAnalysis.musicControl.numFbVariables,
-		processor.movementAnalysis.movementParams,
-		processor.movementAnalysis.musicControl.feedbackVariables
+		mAnalysisPtr->numMovementParams,
+		musControlPtr->numFbVariables,
+		mpArrayPtr,
+		apArrayPtr
 	);
 }

@@ -56,6 +56,10 @@ public:
 	Label IMU_segmentAngles_ML_Indicator[3];
 	Label IMU_segmentRanges_ML_Bounds[3][2];	// 8, 10
 
+	Slider Joint_Range_AP[2];					// 0 = HIP, 1 = KNEE
+	Label Joint_Range_AP_MovementRanges[2][2];   // 0 = HIP, 1 = KNEE
+	Label Joint_Range_AP_HyperExtendThresh[2]; // o = HIP, 1 = KNEE
+
 	// MP LOG STREAMING CONTROLS
 	Label dataInput_Mode_Status;
 	TextButton mpLog_File_Load_Unload;
@@ -202,6 +206,16 @@ public:
 			);
 		}
 
+		// JOINT RANGE INITIALIZATION
+		for (int i = 0; i < 2; i++)
+		{
+			Joint_Range_AP[i].setRange(0, 220);
+			Joint_Range_AP[i].setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
+			Joint_Range_AP[i].setColour(Joint_Range_AP[i].trackColourId, Colours::yellow);
+			Joint_Range_AP[i].setColour(Joint_Range_AP[i].backgroundColourId, Colours::blue);
+			Joint_Range_AP[i].setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
+		}
+
 		// MP Log Streaming
 		mpLog_File_Load_Unload.setButtonText("Load Log");
 		mpLog_File_Load_Unload.setColour(mpLog_File_Load_Unload.buttonColourId, Colours::blue);
@@ -239,6 +253,14 @@ public:
 			IMU_range_segmentAngles_ML[i].setVisible(on);		// 8
 			IMU_segmentRanges_ML_Bounds[i][1].setVisible(on);	// 9
 			simulation_OrientAngles[i].setVisible(on);			// X
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			Joint_Range_AP[i].setVisible(on);
+			Joint_Range_AP_MovementRanges[i][0].setVisible(on);
+			Joint_Range_AP_MovementRanges[i][1].setVisible(on);
+			Joint_Range_AP_HyperExtendThresh[i].setVisible(on);
 		}
 
 		// MP LOG STREAMING
@@ -362,6 +384,38 @@ public:
 				IMU_Config_Column_StartPos[9],
 				IMU_Config_StartY + IMU_Config_Row_Offset * i,
 				IMU_Config_Column_Width[9],
+				IMU_Config_Row_Height
+			);
+		}
+
+		// JOINT RANGE CONTROLS
+		for (int i = 0; i < 2; i++)
+		{
+			Joint_Range_AP_MovementRanges[i][0].setBounds(
+				IMU_Config_Column_StartPos[4] - 40,
+				IMU_Config_StartY + IMU_Config_Row_Offset * 2 * i + 170,
+				IMU_Config_Column_Width[4] + 40,
+				IMU_Config_Row_Height
+			);
+
+			Joint_Range_AP[i].setBounds(
+				IMU_Config_Column_StartPos[5],
+				IMU_Config_StartY + IMU_Config_Row_Offset * 2 * i + 170,
+				IMU_Config_Column_Width[5],
+				IMU_Config_Row_Height
+			);
+
+			Joint_Range_AP_MovementRanges[i][1].setBounds(
+				IMU_Config_Column_StartPos[6],
+				IMU_Config_StartY + IMU_Config_Row_Offset * 2 * i + 170,
+				IMU_Config_Column_Width[6],
+				IMU_Config_Row_Height
+			);
+
+			Joint_Range_AP_HyperExtendThresh[i].setBounds(
+				IMU_Config_Column_StartPos[5] + IMU_Config_Column_Width[5] / 2 - 60,
+				IMU_Config_StartY + IMU_Config_Row_Offset * 2 * i + IMU_Config_Row_Offset + 160,
+				120,
 				IMU_Config_Row_Height
 			);
 		}

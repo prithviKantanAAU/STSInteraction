@@ -23,18 +23,21 @@ public:
 		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
 		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
-		movementParams[4].initialize(0, 60, "Orientation Thigh ML");
+		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
-		movementParams[6].initialize(0, 180, "Angle Hip");
-		movementParams[7].initialize(0, 180, "Angle Knee");
+		movementParams[6].initialize(0, 220, "Angle Hip");
+		movementParams[7].initialize(0, 220, "Angle Knee");
 		movementParams[8].initialize(0, 5, "Ang Velocity Knee");
 		movementParams[9].initialize(0, 5, "Ang Velocity Hip");
 		movementParams[10].initialize(0, 5, "STS Phase");
 		movementParams[11].initialize(0, 1, "Tri Osc");
 		movementParams[12].initialize(0, 100, "Trunk Jerk - Ang");
-		movementParams[13].initialize(0, 100, "Thigh Jerk - Ang");
-		movementParams[14].initialize(0, 100, "Shank Jerk - Ang");
+		movementParams[13].initialize(0, 100, "Thigh Jerk - Ang",false);
+		movementParams[14].initialize(0, 100, "Shank Jerk - Ang",false);
+
+		movementParams[15].initialize(0, 1, "Hyperextend Hip");
+		movementParams[16].initialize(0, 1, "Hyperextend Knee");
 
 		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
 		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
@@ -44,7 +47,7 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
-	short numMovementParams = 15;
+	short numMovementParams = 17;
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
@@ -121,6 +124,9 @@ public:
 	// IMU Axis and Invert
 	short IMU_Mount_Side[3] = {1,1,1};
 	short IMU_Polarity[3] = { 1,1,1 };
+
+	// Joint Hyperextend Thresholds
+	float jointAngles_thresh_Hyper[2] = { 180.0, 180.0 };
 
 	// Joint Bend Angles
 	float jointAngles_Deg[2] = { 0.0 };
@@ -245,12 +251,15 @@ public:
 		store_MP_Value("Orientation Thigh ML", fabs(orientation_Deg_ML[1]));
 		store_MP_Value("Orientation Shank ML", fabs(orientation_Deg_ML[2]));
 		
-		// COMPUTE JOINT ANGLES	
+		// COMPUTE JOINT ANGLES, CHECK HYPEREXTENSION
 		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
 		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
 		
 		store_MP_Value("Angle Hip", jointAngles_Deg[0]);
 		store_MP_Value("Angle Knee", jointAngles_Deg[1]);
+
+		store_MP_Value("Hyperextend Hip", (jointAngles_Deg[0] >= jointAngles_thresh_Hyper[0]) ? 1 : 0);
+		store_MP_Value("Hyperextend Knee", (jointAngles_Deg[1] >= jointAngles_thresh_Hyper[1]) ? 1 : 0);
 
 		// COMPUTE JOINT ANGULAR VELOCITY
 		jointAngularVel_DegPerSec[0] = fabs(angularVel_Smooth[0].doBiQuad(jointAngles_Deg[0] - jointAngles_Deg_Z1[0], 0.0));

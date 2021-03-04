@@ -3,6 +3,15 @@
 #include "PluginProcessor.h"
 #include "UI_SensorConfig.h"
 #include "UI_MovementAnalysis.h"
+#include "GaitParam_Single.h"
+#include "AudioParam_Single.h"
+#include "SensorInfo.h"
+#include "MappingPreset.h"
+#include "MusicControl.h"
+#include "MovementAnalysis.h"
+#include "MusicInfoCompute.h"
+#include "OSC_Class.h"
+#include "VoiceCue_Settings.h"
 #include "UI_MusicControl.h"
 #include "UI_MappingMatrix.h"
 
@@ -25,6 +34,17 @@ private:
 	UI_MappingMatrix ui_mappingMatrix;
     StsinteractionAudioProcessor& processor;
 	std::unique_ptr<TabbedComponent> tabs;
+	
+	// SHORTCUT POINTERS
+	MovementAnalysis* mAnalysisPtr = &processor.movementAnalysis;
+	MovementParameter* mpArrayPtr = mAnalysisPtr->movementParams;
+	FeedbackVariable* apArrayPtr = mAnalysisPtr->musicControl.feedbackVariables;
+	MappingPreset* mapPresetPtr = mAnalysisPtr->musicControl.mappingPresets;
+	MusicInfoCompute* musInfoCompPtr = &mAnalysisPtr->musicControl.musicInfoCompute;
+	MusicControl* musControlPtr = &mAnalysisPtr->musicControl;
+	SensorInfo* sensInfoPtr = &mAnalysisPtr->sensorInfo;
+	OSCReceiverUDP_Sensor* oscSensPtr = mAnalysisPtr->sensors_OSCReceivers;
+	VoiceCues* voiceCuePtr = &mAnalysisPtr->voiceCue;
 
 	// SIMULATION KEYPRESSES
 	KeyPress TrunkThigh_PlusMinus_RLUD[4];
@@ -155,6 +175,11 @@ private:
 		{
 			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
 			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
+
+			addAndMakeVisible(ui_movementAnalysis.Joint_Range_AP[j]);
+			addAndMakeVisible(ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0]);
+			addAndMakeVisible(ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1]);
+			addAndMakeVisible(ui_movementAnalysis.Joint_Range_AP_HyperExtendThresh[j]);
 		}
 		addAndMakeVisible(ui_movementAnalysis.ML);
 		addAndMakeVisible(ui_movementAnalysis.AP);
@@ -181,7 +206,7 @@ private:
 		addAndMakeVisible(ui_musicControl.toggle_DSP_OnOff);
 		addAndMakeVisible(ui_musicControl.gain_Master);
 		addAndMakeVisible(ui_musicControl.gain_Master_LAB);
-		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
+		for (int i = 0; i < musControlPtr->mixerSettings.num_Tracks; i++)
 		{
 			addAndMakeVisible(ui_musicControl.gain_Track[i]);
 			addAndMakeVisible(ui_musicControl.gain_Track_LAB[i]);
@@ -248,26 +273,25 @@ private:
 		String statusText = "";
 		for (int i = 0; i < 3; i++)
 		{
-			statusText = processor.movementAnalysis.sensorInfo.isOnline[i] ? "ON" : "OFF";
+			statusText = sensInfoPtr->isOnline[i] ? "ON" : "OFF";
 			ui_sensorCon.Status[i].setText(statusText, dontSendNotification);
 
-			ui_sensorCon.Port[i].setText(String(processor.movementAnalysis.sensorInfo.UDP_Ports[i])
-				, dontSendNotification);
+			ui_sensorCon.Port[i].setText(String(sensInfoPtr->UDP_Ports[i]), dontSendNotification);
 
 			ui_sensorCon.Location[i].addListener(this);
 
 			ui_sensorCon.BiasComp[i].onClick = [this, i]
 			{
-				if (!processor.movementAnalysis.sensors_OSCReceivers[i].isBiasComp_ON)
+				if (!oscSensPtr[i].isBiasComp_ON)
 				{
-					processor.movementAnalysis.sensors_OSCReceivers[i].isBiasComp_DONE = false;
-					processor.movementAnalysis.sensors_OSCReceivers[i].isBiasComp_ON = true;
+					oscSensPtr[i].isBiasComp_DONE = false;
+					oscSensPtr[i].isBiasComp_ON = true;
 				}
 			};
 
 			ui_sensorCon.WLAN_IP[i].onTextChange = [this, i]
 			{
-				processor.movementAnalysis.sensorInfo.remoteIP[i] = ui_sensorCon.WLAN_IP[i].getText();
+				sensInfoPtr->remoteIP[i] = ui_sensorCon.WLAN_IP[i].getText();
 			};
 		}
 	}
@@ -279,15 +303,15 @@ private:
 
 		// Operation Mode - Sensor / Simulation
 		ui_movementAnalysis.operationMode.addListener(this);
-		for (int i = 0; i < processor.movementAnalysis.numOperationModes; i++)
-			ui_movementAnalysis.operationMode.addItem(processor.movementAnalysis.OperationModes[i], i + 1);
-		ui_movementAnalysis.operationMode.setSelectedId(processor.movementAnalysis.operationMode_Present);
+		for (int i = 0; i < mAnalysisPtr->numOperationModes; i++)
+			ui_movementAnalysis.operationMode.addItem(mAnalysisPtr->OperationModes[i], i + 1);
+		ui_movementAnalysis.operationMode.setSelectedId(mAnalysisPtr->operationMode_Present);
 
 		// Orientation Detection Algorithm - Madgwick / 6DOF Complementary Filter
 		ui_movementAnalysis.orientationAlgo.addListener(this);
-		for (int i = 0; i < processor.movementAnalysis.numOrientationAlgos; i++)
-			ui_movementAnalysis.orientationAlgo.addItem(processor.movementAnalysis.OrientationAlgos[i], i + 1);
-		ui_movementAnalysis.orientationAlgo.setSelectedId(processor.movementAnalysis.orientAlgo_Present);
+		for (int i = 0; i < mAnalysisPtr->numOrientationAlgos; i++)
+			ui_movementAnalysis.orientationAlgo.addItem(mAnalysisPtr->OrientationAlgos[i], i + 1);
+		ui_movementAnalysis.orientationAlgo.setSelectedId(mAnalysisPtr->orientAlgo_Present);
 		
 		// MP Log Playback
 		mpLogStream_Configure_Button_Behaviors();
@@ -297,35 +321,51 @@ private:
 		{
 			ui_movementAnalysis.simulation_OrientAngles[i].onValueChange = [this, i]
 			{
-				processor.movementAnalysis.setSimulationAngle
+				mAnalysisPtr->setSimulationAngle
 				(i, ui_movementAnalysis.simulation_OrientAngles[i].getValue());
 			};
 
 			ui_movementAnalysis.IMU_Mount_Side[i].addListener(this);
 			ui_movementAnalysis.IMU_Polarity[i].addListener(this);
 
-			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMinValue(processor.movementAnalysis.movementParams[i].minVal);
-			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMaxValue(processor.movementAnalysis.movementParams[i].maxVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMinValue(mpArrayPtr[i].minVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMaxValue(mpArrayPtr[i].maxVal);
 
 			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].onValueChange = [this,i]
 			{
-				processor.movementAnalysis.movementParams[i].minVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMinValue();
-				processor.movementAnalysis.movementParams[i].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMaxValue();
+				mpArrayPtr[i].minVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMinValue();
+				mpArrayPtr[i].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMaxValue();
 
 				ui_movementAnalysis.simulation_OrientAngles[i].setRange(
-					processor.movementAnalysis.movementParams[i].minVal,
-					processor.movementAnalysis.movementParams[i].maxVal
+					mpArrayPtr[i].minVal,
+					mpArrayPtr[i].maxVal
 				);
 			};
 
-			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].setMinValue(processor.movementAnalysis.movementParams[i+3].minVal);
-			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].setMaxValue(processor.movementAnalysis.movementParams[i+3].maxVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].setMinValue(mpArrayPtr[i+3].minVal);
+			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].setMaxValue(mpArrayPtr[i+3].maxVal);
 
 			ui_movementAnalysis.IMU_range_segmentAngles_ML[i].onValueChange = [this, i]
 			{
-				processor.movementAnalysis.movementParams[i + 3].minVal = ui_movementAnalysis.IMU_range_segmentAngles_ML[i].getMinValue();
-				processor.movementAnalysis.movementParams[i + 3].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_ML[i].getMaxValue();
+				mpArrayPtr[i + 3].minVal = ui_movementAnalysis.IMU_range_segmentAngles_ML[i].getMinValue();
+				mpArrayPtr[i + 3].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_ML[i].getMaxValue();
 			};
+		}
+
+		// Hip, Knee Limits
+		for (int i = 0; i < 2; i++)
+		{
+			ui_movementAnalysis.Joint_Range_AP[i].setMinValue(mpArrayPtr[6 + i].minVal);
+			ui_movementAnalysis.Joint_Range_AP[i].setMaxValue(mpArrayPtr[6 + i].maxVal);
+			ui_movementAnalysis.Joint_Range_AP[i].setValue(mAnalysisPtr->jointAngles_thresh_Hyper[i]);
+
+			ui_movementAnalysis.Joint_Range_AP[i].onValueChange = [this, i]
+			{
+				mpArrayPtr[6 + i].minVal = ui_movementAnalysis.Joint_Range_AP[i].getMinValue();
+				mAnalysisPtr->jointAngles_thresh_Hyper[i] = ui_movementAnalysis.Joint_Range_AP[i].getValue();
+				mpArrayPtr[6 + i].maxVal = ui_movementAnalysis.Joint_Range_AP[i].getMaxValue();
+			};
+
 		}
 
 		ui_movementAnalysis.record_MovementLog.onClick = [this]
@@ -368,21 +408,17 @@ private:
 			}
 		};
 
-		ui_musicControl.gain_Master.setValue(processor.movementAnalysis.musicControl.mixerSettings.masterGain);
+		ui_musicControl.gain_Master.setValue(musControlPtr->mixerSettings.masterGain);
 		ui_musicControl.gain_Master.onValueChange = [this]
 		{
 			if (processor.isReady)
 			processor.set_masterGain(ui_musicControl.gain_Master.getValue());
 		};
 
-		for (int i = 0; i < processor.movementAnalysis.musicControl.mixerSettings.num_Tracks; i++)
+		for (int i = 0; i < musControlPtr->mixerSettings.num_Tracks; i++)
 		{
-			ui_musicControl.gain_Track[i].setValue(
-				processor.movementAnalysis.musicControl.mixerSettings.gain_Track[i]);
-			ui_musicControl.gain_Track_LAB[i].setText(
-				processor.movementAnalysis.musicControl.mixerSettings.names_Tracks[i],
-				dontSendNotification
-			);
+			ui_musicControl.gain_Track[i].setValue(musControlPtr->mixerSettings.gain_Track[i]);
+			ui_musicControl.gain_Track_LAB[i].setText(musControlPtr->mixerSettings.names_Tracks[i],dontSendNotification);
 
 			ui_musicControl.gain_Track[i].onValueChange = [this,i]
 			{
@@ -392,29 +428,22 @@ private:
 			};
 		}
 
+		// TONIC
 		ui_musicControl.tonic.addListener(this);
 		for (int i = 0; i < 12; i++)
-		{
-			ui_musicControl.tonic.addItem(
-				processor.movementAnalysis.musicControl.musicInfoCompute.tonics_Names[i], i + 1);
-		}
+			ui_musicControl.tonic.addItem(musInfoCompPtr->tonics_Names[i], i + 1);
 		ui_musicControl.tonic.setSelectedId(1);
 
+		// SCALE
 		ui_musicControl.scale.addListener(this);
-		for (int i = 0; i < processor.movementAnalysis.musicControl.musicInfoCompute.numScales; i++)
-		{
-			ui_musicControl.scale.addItem(
-				processor.movementAnalysis.musicControl.musicInfoCompute.scales_Names[i], i + 1);
-		}
+		for (int i = 0; i < musInfoCompPtr->numScales; i++)
+			ui_musicControl.scale.addItem(musInfoCompPtr->scales_Names[i], i + 1);
 		ui_musicControl.scale.setSelectedId(1);
 
+		// CHORD TYPE
 		ui_musicControl.chord_Type.addListener(this);
-		for (int i = 0; i < processor.movementAnalysis.musicControl.musicInfoCompute.numChordTypes; i++)
-		{
-			ui_musicControl.chord_Type.addItem(
-				processor.movementAnalysis.musicControl.musicInfoCompute.chordTypes_Names[i], i + 1
-			);
-		}
+		for (int i = 0; i < musInfoCompPtr->numChordTypes; i++)
+			ui_musicControl.chord_Type.addItem(musInfoCompPtr->chordTypes_Names[i], i + 1);
 		ui_musicControl.chord_Type.setSelectedId(1);
 
 		for (int i = 0; i < 8; i++)
@@ -422,64 +451,63 @@ private:
 			ui_musicControl.chord_Degree[i].addListener(this);
 			for (int j = 1; j <= 8; j++)
 				ui_musicControl.chord_Degree[i].addItem(String(j), j);
-			ui_musicControl.chord_Degree[i].setSelectedId
-			(processor.movementAnalysis.musicControl.musicInfoCompute.chord_degSequence[i]);
+			ui_musicControl.chord_Degree[i].setSelectedId(musInfoCompPtr->chord_degSequence[i]);
 		}
 
 		ui_musicControl.triOsc_BPM.onValueChange = [this]
 		{
-			processor.movementAnalysis.triOsc_Freq = ui_musicControl.triOsc_BPM.getValue() / 60.0;
+			mAnalysisPtr->triOsc_Freq = ui_musicControl.triOsc_BPM.getValue() / 60.0;
 			ui_mappingMatrix.dataHolder_oscBPM = ui_musicControl.triOsc_BPM.getValue() / 60.0;
 		};
 
-		ui_musicControl.voiceCue_Enable.setToggleState(processor.movementAnalysis.voiceCue.isEnabled, sendNotificationSync);
+		ui_musicControl.voiceCue_Enable.setToggleState(voiceCuePtr->isEnabled, sendNotificationSync);
 		ui_musicControl.voiceCue_Enable.onStateChange = [this]
 		{
-			processor.movementAnalysis.voiceCue.isEnabled = ui_musicControl.voiceCue_Enable.getToggleState();
+			voiceCuePtr->isEnabled = ui_musicControl.voiceCue_Enable.getToggleState();
 			ui_mappingMatrix.dataHolder_voiceCue_ON = ui_musicControl.voiceCue_Enable.getToggleState();
 		};
 
-		ui_musicControl.voiceCue_Level.setValue(processor.movementAnalysis.voiceCue.voiceGain_dB);
+		ui_musicControl.voiceCue_Level.setValue(voiceCuePtr->voiceGain_dB);
 		ui_musicControl.voiceCue_Level.onValueChange = [this]
 		{
-			processor.movementAnalysis.voiceCue.voiceGain_dB = ui_musicControl.voiceCue_Level.getValue();
+			voiceCuePtr->voiceGain_dB = ui_musicControl.voiceCue_Level.getValue();
 			ui_mappingMatrix.dataHolder_voiceCue_voldB = ui_musicControl.voiceCue_Level.getValue();
 		};
 
-		ui_musicControl.voiceCue_CountLength.setValue(processor.movementAnalysis.voiceCue.count_Length);
+		ui_musicControl.voiceCue_CountLength.setValue(voiceCuePtr->count_Length);
 		ui_musicControl.voiceCue_CountLength.onValueChange = [this]
 		{
-			processor.movementAnalysis.voiceCue.count_Length = (int)ui_musicControl.voiceCue_CountLength.getValue();
+			voiceCuePtr->count_Length = (int)ui_musicControl.voiceCue_CountLength.getValue();
 			ui_mappingMatrix.dataHolder_voiceCue_Length = (int)ui_musicControl.voiceCue_CountLength.getValue();
 		};
 
 		for (int i = 0; i < 8; i++)
 		{
-			ui_musicControl.voiceCue_intervalEnable[i].setToggleState(processor.movementAnalysis.voiceCue.interval_IsEnabled[i], sendNotificationSync);
+			ui_musicControl.voiceCue_intervalEnable[i].setToggleState(voiceCuePtr->interval_IsEnabled[i], sendNotificationSync);
 			ui_musicControl.voiceCue_intervalEnable[i].onStateChange = [this,i]
 			{
-				processor.movementAnalysis.voiceCue.interval_IsEnabled[i] = ui_musicControl.voiceCue_intervalEnable[i].getToggleState();
+				voiceCuePtr->interval_IsEnabled[i] = ui_musicControl.voiceCue_intervalEnable[i].getToggleState();
 				ui_mappingMatrix.dataHolder_voiceCue_isIntervalEnabled[i] = ui_musicControl.voiceCue_intervalEnable[i].getToggleState();
 			};
 
-			ui_musicControl.voiceCue_isPosCrossing[i].setToggleState(processor.movementAnalysis.voiceCue.isPosCrossing[i], sendNotificationSync);
+			ui_musicControl.voiceCue_isPosCrossing[i].setToggleState(voiceCuePtr->isPosCrossing[i], sendNotificationSync);
 			ui_musicControl.voiceCue_isPosCrossing[i].onStateChange = [this,i]
 			{
-				processor.movementAnalysis.voiceCue.isPosCrossing[i] = ui_musicControl.voiceCue_isPosCrossing[i].getToggleState();
+				voiceCuePtr->isPosCrossing[i] = ui_musicControl.voiceCue_isPosCrossing[i].getToggleState();
 				ui_mappingMatrix.dataHolder_voiceCue_isPos[i] = ui_musicControl.voiceCue_isPosCrossing[i].getToggleState();
 			};
 
-			ui_musicControl.voiceCue_OscTrig_Location[i].setValue(processor.movementAnalysis.voiceCue.interval_crossThresh[i]);
+			ui_musicControl.voiceCue_OscTrig_Location[i].setValue(voiceCuePtr->interval_crossThresh[i]);
 			ui_musicControl.voiceCue_OscTrig_Location[i].onValueChange = [this,i]
 			{
-				processor.movementAnalysis.voiceCue.interval_crossThresh[i] = ui_musicControl.voiceCue_OscTrig_Location[i].getValue();
+				voiceCuePtr->interval_crossThresh[i] = ui_musicControl.voiceCue_OscTrig_Location[i].getValue();
 				ui_mappingMatrix.dataHolder_voiceCue_location[i] = ui_musicControl.voiceCue_OscTrig_Location[i].getValue();
 			};
 		}
 
 		ui_musicControl.voiceCue_FineTimeAdjust.onValueChange = [this]
 		{
-			processor.movementAnalysis.voiceCue.fineOffset = ui_musicControl.voiceCue_FineTimeAdjust.getValue();
+			voiceCuePtr->fineOffset = ui_musicControl.voiceCue_FineTimeAdjust.getValue();
 			ui_mappingMatrix.dataHolder_voiceCue_timingFine = ui_musicControl.voiceCue_FineTimeAdjust.getValue();
 		};
 	}
@@ -489,70 +517,58 @@ private:
 	{
 		Colour labelColour = Colours::black;
 
-		for (int i = 0; i < processor.movementAnalysis.numMovementParams; i++)
+		for (int i = 0; i < mAnalysisPtr->numMovementParams; i++)
 		{
 			ui_mappingMatrix.labels_movementParams[i].setText(
-				processor.movementAnalysis.movementParams[i].name
+				mpArrayPtr[i].name
 				, dontSendNotification
 			);
-			if (processor.movementAnalysis.movementParams[i].name == "Placeholder")
+			if (mpArrayPtr[i].name == "Placeholder")
 				ui_mappingMatrix.labels_movementParams[i].setColour(
 					ui_mappingMatrix.labels_movementParams[i].textColourId, Colours::red
 				);
 
 			ui_mappingMatrix.mp_minThresh[i].onValueChange = [this, i]
 			{
-				processor.movementAnalysis.movementParams[i].thresh_min_NORM = ui_mappingMatrix.mp_minThresh[i].getValue();
+				mpArrayPtr[i].thresh_min_NORM = ui_mappingMatrix.mp_minThresh[i].getValue();
 			};
 
-			for (int j = 0; j < processor.movementAnalysis.musicControl.numFbVariables; j++)
+			for (int j = 0; j < musControlPtr->numFbVariables; j++)
 			{
-				ui_mappingMatrix.mapping_Matrix[i][j].setToggleState
-				(processor.movementAnalysis.musicControl.mappingMatrix[i][j],
-					dontSendNotification);
-				ui_mappingMatrix.mapping_Matrix[i][j].setColour(
-					ui_mappingMatrix.mapping_Matrix[i][j].tickColourId, Colours::yellow);
+				ui_mappingMatrix.mapping_Matrix[i][j].setToggleState(musControlPtr->mappingMatrix[i][j],dontSendNotification);
+				ui_mappingMatrix.mapping_Matrix[i][j].setColour(ui_mappingMatrix.mapping_Matrix[i][j].tickColourId, Colours::yellow);
 
 				ui_mappingMatrix.mapping_Matrix[i][j].onStateChange = [this, i, j]
 				{
-					processor.movementAnalysis.musicControl.mappingMatrix[i][j] =
-						ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
-
-					ui_mappingMatrix.mapping_Strength[i][j].setVisible(
-						ui_mappingMatrix.mapping_Matrix[i][j].getToggleState()
-					);
+					musControlPtr->mappingMatrix[i][j] = ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
+					ui_mappingMatrix.mapping_Strength[i][j].setVisible(ui_mappingMatrix.mapping_Matrix[i][j].getToggleState());
 				};
 
 				ui_mappingMatrix.mapping_Strength[i][j].setRange(-2, 2, 0.5);
 				ui_mappingMatrix.mapping_Strength[i][j].setValue(1);
 				ui_mappingMatrix.mapping_Strength[i][j].setSliderStyle(Slider::SliderStyle::Rotary);
-				ui_mappingMatrix.mapping_Strength[i][j].setColour(
-					ui_mappingMatrix.mapping_Strength[i][j].rotarySliderFillColourId, Colours::yellow);
+				ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].rotarySliderFillColourId, Colours::yellow);
 				ui_mappingMatrix.mapping_Strength[i][j].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 20, 20);
 
 				ui_mappingMatrix.mapping_Strength[i][j].onValueChange = [this, i, j]
 				{
-					processor.movementAnalysis.musicControl.mappingStrength[i][j] = ui_mappingMatrix.mapping_Strength[i][j].getValue();
+					musControlPtr->mappingStrength[i][j] = ui_mappingMatrix.mapping_Strength[i][j].getValue();
 					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == 1.0)
-						ui_mappingMatrix.mapping_Strength[i][j].setColour(
-							ui_mappingMatrix.mapping_Strength[i][j].thumbColourId,Colours::green);
-					else ui_mappingMatrix.mapping_Strength[i][j].setColour(
-						ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::blue);
+						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId,Colours::green);
+					else ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::blue);
 					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == -1.0)
-						ui_mappingMatrix.mapping_Strength[i][j].setColour(
-							ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::red);
+						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::red);
 					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == 0.0)
-						ui_mappingMatrix.mapping_Strength[i][j].setColour(
-							ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::white);
+						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::white);
 				};
 			}
 
 			ui_mappingMatrix.preset_ListLoad.addListener(this);
 		}
 
-		for (int k = 0; k < processor.movementAnalysis.musicControl.numFbVariables; k++)
+		for (int k = 0; k < musControlPtr->numFbVariables; k++)
 		{
-			switch (processor.movementAnalysis.musicControl.feedbackVariables[k].parameterType)
+			switch (apArrayPtr[k].parameterType)
 			{
 			case 1:
 				labelColour = Colours::magenta;
@@ -569,29 +585,22 @@ private:
 			}
 
 			ui_mappingMatrix.labels_audioParams[k].setText(
-				processor.movementAnalysis.musicControl.feedbackVariables[k].name
+				apArrayPtr[k].name
 				, dontSendNotification
 			);
 
 			ui_mappingMatrix.labels_audioParams[k].setColour(ui_mappingMatrix.labels_audioParams[k].textColourId, labelColour);
 
-			if (processor.movementAnalysis.musicControl.feedbackVariables[k].name == "Placeholder")
+			if (apArrayPtr[k].name == "Placeholder")
 				ui_mappingMatrix.labels_audioParams[k].setColour(
 					ui_mappingMatrix.labels_audioParams[k].textColourId, Colours::red
 				);
 
 			// ADD MAPPING FUNCTION SHAPES TO ui_mappingMatrix.mapping_Function[k]
 			ui_mappingMatrix.mapping_Function[k].addListener(this);
-			for (int m = 0; m < processor.movementAnalysis.musicControl.numMapFunc; m++)
-			{
-				ui_mappingMatrix.mapping_Function[k].addItem(
-					processor.movementAnalysis.musicControl.mapFunc_Names[m]
-					,m + 1
-				);
-			}
-			ui_mappingMatrix.mapping_Function[k].setSelectedId(
-				processor.movementAnalysis.musicControl.feedbackVariables[k].mapFunc
-			);
+			for (int m = 0; m < musControlPtr->numMapFunc; m++)
+				ui_mappingMatrix.mapping_Function[k].addItem(musControlPtr->mapFunc_Names[m],m + 1);
+			ui_mappingMatrix.mapping_Function[k].setSelectedId(apArrayPtr[k].mapFunc);
 
 			ui_mappingMatrix.mapping_Polarity[k].addListener(this);
 			ui_mappingMatrix.mapping_Polarity[k].addItem("+", 1);
@@ -607,18 +616,15 @@ private:
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("4", 5);
 			ui_mappingMatrix.mapping_QuantLevels[k].addItem("5", 6);
 			ui_mappingMatrix.mapping_QuantLevels[k].setSelectedId(
-				processor.movementAnalysis.musicControl.feedbackVariables[k].quantLevels_2raisedTo + 1
+				apArrayPtr[k].quantLevels_2raisedTo + 1
 			);
 
 		}
 
 		ui_mappingMatrix.preset_Save.onClick = [this]
 		{
-			ui_mappingMatrix.saveAsPreset(processor.movementAnalysis.movementParams,
-				processor.movementAnalysis.musicControl.feedbackVariables);
-			ui_mappingMatrix.populatePresets(processor.movementAnalysis.musicControl.mappingPresets,
-				processor.movementAnalysis.movementParams,
-				processor.movementAnalysis.musicControl.feedbackVariables);
+			ui_mappingMatrix.saveAsPreset(mpArrayPtr, apArrayPtr);
+			ui_mappingMatrix.populatePresets(mapPresetPtr,mpArrayPtr,apArrayPtr);
 			ui_mappingMatrix.preset_Name.setText("");
 		};
 	}
@@ -632,9 +638,9 @@ private:
 		String batteryText = "";
 		for (int i = 0; i < 3; i++)
 		{
-			text = processor.movementAnalysis.sensorInfo.isOnline[i] ? "ON" : "OFF";
+			text = sensInfoPtr->isOnline[i] ? "ON" : "OFF";
 
-			if (processor.movementAnalysis.sensorInfo.isOnline[i])
+			if (sensInfoPtr->isOnline[i])
 			{
 				ui_sensorCon.WLAN_IP[i].setColour(ui_sensorCon.WLAN_IP[i].backgroundColourId, Colours::green);
 				ui_sensorCon.WLAN_IP[i].setReadOnly(true);
@@ -646,20 +652,20 @@ private:
 			}
 
 			ui_sensorCon.Status[i].setText(text, dontSendNotification);
-			isSensorOnline = processor.movementAnalysis.sensorInfo.isOnline[i];
-			batteryLevel = processor.movementAnalysis.sensorInfo.batteryPercent[i];
+			isSensorOnline = sensInfoPtr->isOnline[i];
+			batteryLevel = sensInfoPtr->batteryPercent[i];
 			batteryText = isSensorOnline ? String(batteryLevel) : "N/A";
 			ui_sensorCon.BatteryLevel[i].setText(batteryText, dontSendNotification);
-			if (processor.movementAnalysis.sensorInfo.isOnline[i])
+			if (sensInfoPtr->isOnline[i])
 				ui_sensorCon.BiasComp[i].setVisible(true);
 			else
 				ui_sensorCon.BiasComp[i].setVisible(false);
-			if (processor.movementAnalysis.sensors_OSCReceivers[i].isBiasComp_ON)
+			if (oscSensPtr[i].isBiasComp_ON)
 			{
 				ui_sensorCon.BiasComp[i].setButtonText("Calibrating");
 				ui_sensorCon.BiasComp[i].setColour(ui_sensorCon.BiasComp[i].buttonColourId, Colours::blue);
 			}
-			if (processor.movementAnalysis.sensors_OSCReceivers[i].isBiasComp_DONE)
+			if (oscSensPtr[i].isBiasComp_DONE)
 			{
 				ui_sensorCon.BiasComp[i].setButtonText("Calibrated");
 				ui_sensorCon.BiasComp[i].setColour(ui_sensorCon.BiasComp[i].buttonColourId, Colours::green);
@@ -667,7 +673,7 @@ private:
 
 			ui_sensorCon.PacketPercent[i].setText
 			(
-				String(processor.movementAnalysis.sensors_OSCReceivers[i].oscSampleReceived_Percent, 2),
+				String(oscSensPtr[i].oscSampleReceived_Percent, 2),
 				dontSendNotification
 			);
 		}
@@ -680,55 +686,65 @@ private:
 		int rowIndex = 0;
 		for (int i = 0; i < 3; i++)
 		{
-			colour_onlineIndicator = processor.movementAnalysis.locationsOnline[i] != -1 ? Colours::green : Colours::red;
+			colour_onlineIndicator = mAnalysisPtr->locationsOnline[i] != -1 ? Colours::green : Colours::red;
 			// SET COLOUR OF ONLINE INDICATOR
 			ui_movementAnalysis.IMU_Online_Indicator[i].setColour(ui_movementAnalysis.IMU_Online_Indicator[i].backgroundColourId, colour_onlineIndicator);
 		}
 
-		ui_movementAnalysis.update_Indicators_SensorOrientation(processor.movementAnalysis.movementParams);
+		ui_movementAnalysis.update_Indicators_SensorOrientation(mpArrayPtr);
 
 		// JOINT ANGLE DISPLAYS
 		for (int j = 0; j < 2; j++)
 		{
 			ui_movementAnalysis.JointAngles[j].setText(
-				String(processor.movementAnalysis.movementParams[6 + j].value, 2)
+				String(mpArrayPtr[6 + j].value, 2)
 				, dontSendNotification
 			);
 
 			ui_movementAnalysis.JointVelocities[j].setText(
-				String(processor.movementAnalysis.movementParams[9 - j].value, 2)
+				String(mpArrayPtr[9 - j].value, 2)
 				, dontSendNotification
+			);
+
+			ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText(
+				((j == 0) ? "HIP     " : "KNEE   ") + String(mpArrayPtr[6 + j].minVal,2),
+				dontSendNotification
+			);
+
+			ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+				String(mpArrayPtr[6 + j].maxVal, 2),
+				dontSendNotification
+			);
+
+			ui_movementAnalysis.Joint_Range_AP_HyperExtendThresh[j].setText(
+				"HYP THRESH: " + String(mAnalysisPtr->jointAngles_thresh_Hyper[j], 2),
+				dontSendNotification
 			);
 		}
 
 		// DATA INPUT MODE
 		ui_movementAnalysis.dataInput_Mode_Status.setText(
-			processor.movementAnalysis.dataInput_Mode_Names[processor.movementAnalysis.dataInput_Mode]
+			mAnalysisPtr->dataInput_Mode_Names[mAnalysisPtr->dataInput_Mode]
 			, dontSendNotification
 		);
 		
 		// LOG PROGRESS
-		ui_movementAnalysis.mpLog_File_Progress_VAL = processor.movementAnalysis.mpFile_Streaming_Progress;
+		ui_movementAnalysis.mpLog_File_Progress_VAL = mAnalysisPtr->mpFile_Streaming_Progress;
 
 		// HANDLE FWD BUTTON PRESS
 		if (ui_movementAnalysis.mpLog_File_FWD.isDown())
-			processor.movementAnalysis.mpFile_Streaming_Line_Current =
-			(processor.movementAnalysis.mpFile_Streaming_Line_Current + 20)
-			% processor.movementAnalysis.mpFile_Streaming_Lines_Total;
+			mAnalysisPtr->mpFile_Streaming_Line_Current = (mAnalysisPtr->mpFile_Streaming_Line_Current + 20)
+			% mAnalysisPtr->mpFile_Streaming_Lines_Total;
 
 		// HANDLE RWD BUTTON PRESS
 		if (ui_movementAnalysis.mpLog_File_RWD.isDown())
-			processor.movementAnalysis.mpFile_Streaming_Line_Current =
-			max(0,(processor.movementAnalysis.mpFile_Streaming_Line_Current - 20));
+			mAnalysisPtr->mpFile_Streaming_Line_Current = max(0,(mAnalysisPtr->mpFile_Streaming_Line_Current - 20));
 
 		// STS PHASE DISPLAY
-		ui_movementAnalysis.STS_Phase_Disp.setText(
-			processor.movementAnalysis.STS_Phases[(int)processor.movementAnalysis.movementParams[10].value]
-			, dontSendNotification
-		);
+		ui_movementAnalysis.STS_Phase_Disp.setText(mAnalysisPtr->STS_Phases[(int)mpArrayPtr[10].value], dontSendNotification);
 
 		// REAL TIME VISUALIZE
-		ui_movementAnalysis.updateSTSAnim(processor.movementAnalysis.movementParams);
+		ui_movementAnalysis.updateSTSAnim(mpArrayPtr);
 	}
 
 	// Update Music Control Tab Elements
@@ -762,10 +778,10 @@ private:
 		ui_mappingMatrix.updateValueVisualizers(
 			interface_Width,
 			interface_Height,
-			processor.movementAnalysis.numMovementParams,
-			processor.movementAnalysis.musicControl.numFbVariables,
-			processor.movementAnalysis.movementParams,
-			processor.movementAnalysis.musicControl.feedbackVariables
+			mAnalysisPtr->numMovementParams,
+			musControlPtr->numFbVariables,
+			mpArrayPtr,
+			apArrayPtr
 		);
 	}
 
