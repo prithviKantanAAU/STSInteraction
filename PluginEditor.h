@@ -102,7 +102,7 @@ private:
 	void mpLogStream_Configure_Button_Behaviors();
 
 	// INTERFACE PROPERTIES
-	int interface_Width = 1100;						// Pixels
+	int interface_Width = 1350;						// Pixels
 	int interface_Height = 680;						// Pixels
 	int UIRefreshFreq = 30;							// UI Real Time Refresh Frequency (Hz)
 	short presentTab = 0;							// Global tab index
@@ -184,6 +184,7 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.ML);
 		addAndMakeVisible(ui_movementAnalysis.AP);
 		addAndMakeVisible(ui_movementAnalysis.STS_Phase_Disp);
+		addAndMakeVisible(ui_movementAnalysis.gyrMeasError);
 		addAndMakeVisible(ui_movementAnalysis.record_MovementLog);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
 		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
@@ -352,6 +353,15 @@ private:
 			};
 		}
 
+		// GyrError Adjust
+		ui_movementAnalysis.gyrMeasError.onValueChange = [this]
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				mAnalysisPtr->quaternionFilters[i].updateBeta(ui_movementAnalysis.gyrMeasError.getValue());
+			}
+		};
+
 		// Hip, Knee Limits
 		for (int i = 0; i < 2; i++)
 		{
@@ -432,7 +442,7 @@ private:
 		ui_musicControl.tonic.addListener(this);
 		for (int i = 0; i < 12; i++)
 			ui_musicControl.tonic.addItem(musInfoCompPtr->tonics_Names[i], i + 1);
-		ui_musicControl.tonic.setSelectedId(1);
+		ui_musicControl.tonic.setSelectedId(7);
 
 		// SCALE
 		ui_musicControl.scale.addListener(this);
@@ -742,6 +752,9 @@ private:
 
 		// STS PHASE DISPLAY
 		ui_movementAnalysis.STS_Phase_Disp.setText(mAnalysisPtr->STS_Phases[(int)mpArrayPtr[10].value], dontSendNotification);
+
+		// MADGWICK BETA
+		ui_movementAnalysis.madgwick_Beta.setText("Beta: " + String(mAnalysisPtr->quaternionFilters[0].beta, 4), dontSendNotification);
 
 		// REAL TIME VISUALIZE
 		ui_movementAnalysis.updateSTSAnim(mpArrayPtr);

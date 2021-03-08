@@ -22,8 +22,8 @@ public:
 		//            short pol, short mapF, short numQuantLevels short numSynthControls,
 		//            short paramType, bool isVis)
 		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150, 0, 1, 4, 1, 1,true);
-		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 4, 1, 2, true);
-		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 4, 1, 1, true);
+		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 3, 1, 2, true);
+		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 3, 1, 1, true);
 		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50, 1, 2, 3, 4, 2, true);
 		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0, 1, 2, 3, 4, 1, true);
 		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 6, 0, 1, 3, true);
@@ -31,9 +31,13 @@ public:
 		feedbackVariables[7].initialize("Perc2 Tr", 700, 1200, 700, 1, 4, 4, 1, 1, true);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 2, 0, 1, 4, false);
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 2, 0, 1, 3, true);
-		feedbackVariables[10].initialize("Vowel", 0, 3, 0, 1, 2, 0, 1, 4, true);
+		feedbackVariables[10].initialize("Vowel", 0, 2, 0, 1, 2, 0, 1, 4, true);
 		feedbackVariables[11].initialize("Gtr Tr", 0, 200, 1, 0, 1, 4, 1, 1, true);
-		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, true);
+		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, false);
+		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, true);
+		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
+		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
+		feedbackVariables[16].initialize("WarningBell", 0, 1, 1, 0, 1, 0, 1, 4, true);
 	};
 	~MusicControl() 
 	{
@@ -43,7 +47,7 @@ public:
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 13;
+	short numFbVariables = 17;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES

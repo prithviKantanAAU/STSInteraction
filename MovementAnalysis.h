@@ -7,6 +7,7 @@
 #include "quaternionFilters.h"
 #include "GaitParam_Single.h"
 #include "BiQuad.h"
+#include "medianFilter.h"
 #include "VoiceCue_Settings.h"
 
 #define M_PI           3.14159265358979323846  /* pi */
@@ -28,8 +29,8 @@ public:
 
 		movementParams[6].initialize(0, 220, "Angle Hip");
 		movementParams[7].initialize(0, 220, "Angle Knee");
-		movementParams[8].initialize(0, 5, "Ang Velocity Knee");
-		movementParams[9].initialize(0, 5, "Ang Velocity Hip");
+		movementParams[8].initialize(0, 3, "Ang Velocity Knee");
+		movementParams[9].initialize(0, 3, "Ang Velocity Hip");
 		movementParams[10].initialize(0, 5, "STS Phase");
 		movementParams[11].initialize(0, 1, "Tri Osc");
 		movementParams[12].initialize(0, 100, "Trunk Jerk - Ang");
@@ -39,10 +40,8 @@ public:
 		movementParams[15].initialize(0, 1, "Hyperextend Hip");
 		movementParams[16].initialize(0, 1, "Hyperextend Knee");
 
-		angularVel_Smooth[0].calculateLPFCoeffs(5, 0.7, 100);
-		angularVel_Smooth[1].calculateLPFCoeffs(5, 0.7, 100);
-
 		setupReceivers();
+		eulerSmoothing_INIT();
 
 		musicControl.numMovementParams = numMovementParams;
 	};
@@ -54,10 +53,69 @@ public:
 	MusicControl musicControl;
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
 	ComplementaryFilter compFilters[3];
-	BiQuad angularVel_Smooth[2];						// 1 = Hip	 // 2 = Knee
 	MovementParameter movementParams[20];
 	VoiceCues voiceCue;
 	bool voice_isTrigger = false;
+
+	// EULER ANGLE POST-SMOOTHING FILTERS
+	MedianFilter eulerMedianFilt[3][2];
+	BiQuad eulerSmoothing[3][3][2];						// 3 Stages // 3 Locations // 2 Directions
+	short eulerMedianFilt_L = 3;
+	short eulerSmoothing_Order = 6;
+	short eulerSmoothing_Fc = 49;
+	double eulerSmoothing_Q = 0.7;
+
+	void eulerSmoothing_INIT()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				eulerMedianFilt[i][j].filterLength = eulerMedianFilt_L;
+				for (int k = 0; k < 3; k++)
+				{
+					eulerSmoothing[k][i][j].flushDelays();
+					eulerSmoothing[k][i][j].calculateLPFCoeffs(eulerSmoothing_Fc, eulerSmoothing_Q, 100);
+				}
+			}
+		}
+	}
+
+	void eulerSmoothing_APPLY()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (locationsOnline[i] != -1)
+			{
+				for (int j = 0; j < 2; j++)
+				{
+					if (j == 0)
+					{
+						// APPLY MEDIAN FILTER
+						orientation_Deg[i] = eulerMedianFilt[i][j].doFiltering(orientation_Deg[i]);
+
+						// APPLY NECESSARY STAGES OF SMOOTHING
+						for (int k = 0; k < eulerSmoothing_Order / 2; k++)
+						{
+							orientation_Deg[i] = eulerSmoothing[k][i][j].doBiQuad(orientation_Deg[i], 0);
+						}
+					}
+
+					if (j == 1)
+					{
+						// APPLY MEDIAN FILTER
+						orientation_Deg_ML[i] = eulerMedianFilt[i][j].doFiltering(orientation_Deg_ML[i]);
+
+						// APPLY NECESSARY STAGES OF SMOOTHING
+						for (int k = 0; k < eulerSmoothing_Order / 2; k++)
+						{
+							orientation_Deg_ML[i] = eulerSmoothing[k][i][j].doBiQuad(orientation_Deg_ML[i], 0);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	short numOrientationAlgos = 2;
 	short orientAlgo_Present = 1;
@@ -242,6 +300,8 @@ public:
 			break;
 		}
 		
+		eulerSmoothing_APPLY();
+
 		// STORE ML AND AP ORIENTATIONS
 		store_MP_Value("Orientation Trunk AP", orientation_Deg[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
 		store_MP_Value("Orientation Thigh AP", orientation_Deg[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
@@ -262,8 +322,8 @@ public:
 		store_MP_Value("Hyperextend Knee", (jointAngles_Deg[1] >= jointAngles_thresh_Hyper[1]) ? 1 : 0);
 
 		// COMPUTE JOINT ANGULAR VELOCITY
-		jointAngularVel_DegPerSec[0] = fabs(angularVel_Smooth[0].doBiQuad(jointAngles_Deg[0] - jointAngles_Deg_Z1[0], 0.0));
-		jointAngularVel_DegPerSec[1] = fabs(angularVel_Smooth[1].doBiQuad(jointAngles_Deg[1] - jointAngles_Deg_Z1[1], 0.0));
+		jointAngularVel_DegPerSec[0] = fabs(jointAngles_Deg[0] - jointAngles_Deg_Z1[0]);
+		jointAngularVel_DegPerSec[1] = fabs(jointAngles_Deg[1] - jointAngles_Deg_Z1[1]);
 		jointAngles_Deg_Z1[0] = jointAngles_Deg[0];
 		jointAngles_Deg_Z1[1] = jointAngles_Deg[1];
 

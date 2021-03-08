@@ -45,6 +45,10 @@ public:
 	ComboBox IMU_Mount_Side[3];					// 2
 	ComboBox IMU_Polarity[3];					// 3
 	Label IMU_Location[3];						// 4
+
+	// QUATERNION BETA SLIDER
+	Slider gyrMeasError;
+	Label madgwick_Beta;
 	
 	Label AP;
 	Slider IMU_range_segmentAngles_AP[3];		// 6
@@ -236,6 +240,15 @@ public:
 		record_MovementLog.setButtonText("Record");
 
 		JointAngles[0].attachToComponent(&stsAnim_joint[1], true);	
+
+		// Madgwick Gyr Error
+		gyrMeasError.setRange(0.01, 100);
+		gyrMeasError.setValue(40);
+		gyrMeasError.setColour(gyrMeasError.backgroundColourId, Colours::blue);
+		gyrMeasError.setColour(gyrMeasError.trackColourId, Colours::yellow);
+		gyrMeasError.setSkewFactor(0.2);
+		gyrMeasError.setTextBoxStyle(Slider::NoTextBox, false, 10, 10);
+		madgwick_Beta.attachToComponent(&gyrMeasError, false);
 	}
 
 	void toggleVisible(bool on, short dataInputMode)
@@ -262,6 +275,8 @@ public:
 			Joint_Range_AP_MovementRanges[i][1].setVisible(on);
 			Joint_Range_AP_HyperExtendThresh[i].setVisible(on);
 		}
+
+		gyrMeasError.setVisible(on);
 
 		// MP LOG STREAMING
 		dataInput_Mode_Status.setVisible(on);
@@ -471,6 +486,7 @@ public:
 		);
 
 		// MISCELLANEOUS
+		gyrMeasError.setBounds(10, 600, 200, 50);
 		operationMode.setBounds(10, 175, 200, 20);
 		orientationAlgo.setBounds(10, 205, 200, 20);
 		record_MovementLog.setBounds(10, 235, 200, 20);

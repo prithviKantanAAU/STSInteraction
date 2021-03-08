@@ -10,9 +10,6 @@ class OSCReceiverUDP_Sensor : public Component,
 public:
 	bool connectionStatus = false;
 	int portNumber = 0;
-	MedianFilter medFilter_ACC[3];
-	MedianFilter medFilter_GYR[3];
-	MedianFilter medFilter_MAG[3];
 	
 	// DATA BUFFERS
 	float oscDataArray[10] = { 0.0 };
@@ -33,26 +30,21 @@ public:
 
 	// FILTERING
 	float fs = 100;
-	BiQuad LPF_Acc[3];
-	BiQuad LPF_Gyr[3];
-	BiQuad LPF_Mag[3];
-
-	BiQuad LPF_Acc_2[3];
-	BiQuad LPF_Gyr_2[3];
-	BiQuad LPF_Mag_2[3];
-
-	BiQuad LPF_Acc_3[3];
-	BiQuad LPF_Gyr_3[3];
-	BiQuad LPF_Mag_3[3];
-
-	float filterFc = 49;
+	BiQuad LPF_Interp[9];
+	MedianFilter medianPre[9];
+	
+	// CONNECTION HEALTH CHECKING
 	short oscSampleReceived_BUFFER[200] = { 0 };
 	int oscSampleReceived_WriteIdx = 0;
 	float oscSampleReceived_Percent = 0;
 
 	OSCReceiverUDP_Sensor()
 	{
-		initializeFilters();
+		for (int i = 0; i < 9; i++)
+		{
+			medianPre[i].filterLength = 3;
+			LPF_Interp[i].calculateLPFCoeffs(49, 0.7, 100);
+		}
 	}
 
 	~OSCReceiverUDP_Sensor()
@@ -63,34 +55,6 @@ public:
 	void setSampleRate(float value)
 	{
 		fs = value;
-		initializeFilters();
-	}
-
-	void initializeFilters()
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			LPF_Acc[i].flushDelays();
-			LPF_Acc[i].calculateLPFCoeffs(filterFc, 0.7,fs);
-			LPF_Gyr[i].flushDelays();
-			LPF_Gyr[i].calculateLPFCoeffs(filterFc, 0.7,fs);
-			LPF_Mag[i].flushDelays();
-			LPF_Mag[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-
-			LPF_Acc_2[i].flushDelays();
-			LPF_Acc_2[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-			LPF_Gyr_2[i].flushDelays();
-			LPF_Gyr_2[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-			LPF_Mag_2[i].flushDelays();
-			LPF_Mag_2[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-
-			LPF_Acc_3[i].flushDelays();
-			LPF_Acc_3[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-			LPF_Gyr_3[i].flushDelays();
-			LPF_Gyr_3[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-			LPF_Mag_3[i].flushDelays();
-			LPF_Mag_3[i].calculateLPFCoeffs(filterFc, 0.7, fs);
-		}
 	}
 
 	void setupPortAndListener(int localPort, std::string address)
@@ -110,16 +74,6 @@ public:
 		messageSize = size;
 	}
 
-	void set_medianFilter_N(int n)
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			medFilter_ACC[i].filterLength = n;
-			medFilter_GYR[i].filterLength = n;
-			medFilter_MAG[i].filterLength = n;
-		}
-	}
-
 	void refreshConnection()
 	{
 		disconnect();
@@ -135,25 +89,13 @@ public:
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			acc[i] = medFilter_ACC[i].doFiltering(acc[i]);
-			gyr[i] = medFilter_GYR[i].doFiltering(gyr[i]);
-			mag[i] = medFilter_MAG[i].doFiltering(mag[i]);
+			acc[i] = medianPre[i].doFiltering(acc[i]);
+			gyr[i] = medianPre[i + 3].doFiltering(gyr[i]);
+			mag[i] = medianPre[i + 6].doFiltering(mag[i]);
 
-			// 6th ORDER FILTERING
-			// First 2 degrees
-			acc_Buf[i] = LPF_Acc[i].doBiQuad(acc[i], 0);
-			gyr_Buf[i] = LPF_Gyr[i].doBiQuad(gyr[i], 0);
-			mag_Buf[i] = LPF_Mag[i].doBiQuad(mag[i], 0);
-
-			// Next 2 degrees
-			acc_Buf[i] = LPF_Acc_2[i].doBiQuad(acc_Buf[i], 0);
-			gyr_Buf[i] = LPF_Gyr_2[i].doBiQuad(gyr_Buf[i], 0);
-			mag_Buf[i] = LPF_Mag_2[i].doBiQuad(mag_Buf[i], 0);
-
-			// Last 2 degrees
-			acc_Buf[i] = LPF_Acc_3[i].doBiQuad(acc_Buf[i], 0);
-			gyr_Buf[i] = LPF_Gyr_3[i].doBiQuad(gyr_Buf[i], 0);
-			mag_Buf[i] = LPF_Mag_3[i].doBiQuad(mag_Buf[i], 0);
+			acc_Buf[i] = LPF_Interp[i].doBiQuad(acc[i],0.0);
+			gyr_Buf[i] = LPF_Interp[i + 3].doBiQuad(gyr[i],0.0);
+			mag_Buf[i] = LPF_Interp[i + 6].doBiQuad(mag[i], 0.0);
 		}
 		updateBias(acc_Buf, gyr_Buf);
 		compensateBias(acc_Buf, gyr_Buf, mag_Buf);

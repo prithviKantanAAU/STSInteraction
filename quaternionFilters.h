@@ -12,6 +12,12 @@ public:
 	QuaternionFilter() {};
 	~QuaternionFilter() {};
 
+	void updateBeta(float gyroMeasError_DEG)
+	{
+		GyroMeasError = M_PI * (gyroMeasError_DEG / 180.0f);
+		beta = sqrt(3.0f / 4.0f) * GyroMeasError;
+	}
+
 	float GyroMeasError = M_PI * (40.0f / 180.0f);
 	float beta = sqrt(3.0f / 4.0f) * GyroMeasError;
 	float q[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
