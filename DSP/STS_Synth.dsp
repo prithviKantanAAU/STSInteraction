@@ -54,6 +54,18 @@ SONI_10_DefaultVals = 0.5,0,0,0;
 SONI_10_PitchWarp = array_soniSliders(10,SONI_10_DefaultVals);
 SONI_11_DefaultVals = 0,0,0,0;
 SONI_11_Vowel = array_soniSliders(11,SONI_11_DefaultVals);
+SONI_12_DefaultVals = 0,0,0,0;
+SONI_12_GtrTr = array_soniSliders(12,SONI_12_DefaultVals);
+SONI_13_DefaultVals = 0.01,0,0,0;
+SONI_13_GtrStf = array_soniSliders(13,SONI_13_DefaultVals);
+SONI_14_DefaultVals = 0,0,0,0;
+SONI_14_VoiceFric = array_soniSliders(14,SONI_14_DefaultVals);
+SONI_15_DefaultVals = 1,0,0,0;
+SONI_15_DjembeSharp = array_soniSliders(15,SONI_15_DefaultVals);
+SONI_16_DefaultVals = 1,0,0,0;
+SONI_16_MarimbaSharp = array_soniSliders(16,SONI_16_DefaultVals);
+SONI_17_DefaultVals = 0,0,0,0;
+SONI_17_WarningBell = array_soniSliders(17,SONI_17_DefaultVals);
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
@@ -61,31 +73,40 @@ TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
 FRQ_MEL = SONI_2_MelodyFr : ba.selectn(4,0);						// TRACK 2
 TRG_MEL = FVToTrigger(SONI_3_MelodyTr : ba.selectn(4,0));										
 
-FRQ_CHORD_N1 = SONI_4_ChordFr : ba.selectn(4,0);					// TRACK 3
-FRQ_CHORD_N2 = SONI_4_ChordFr : ba.selectn(4,1);
-FRQ_CHORD_N3 = SONI_4_ChordFr : ba.selectn(4,2);
-FRQ_CHORD_N4 = SONI_4_ChordFr : ba.selectn(4,3);
+FRQ_CHORD_N1 = SONI_4_ChordFr : ba.selectn(4,0) : limit(20,20000);					// TRACK 3
+FRQ_CHORD_N2 = SONI_4_ChordFr : ba.selectn(4,1) : limit(20,20000);
+FRQ_CHORD_N3 = SONI_4_ChordFr : ba.selectn(4,2) : limit(20,20000);
+FRQ_CHORD_N4 = SONI_4_ChordFr : ba.selectn(4,3) : limit(20,20000);
 TRG_CHORD = FVToTrigger(SONI_5_ChordTr : ba.selectn(4,0));		
 
 TRG_PERC_2 = FVToTrigger(SONI_8_Perc2Tr : ba.selectn(4,0));			// TRACK 4
 
 FRQ_BASS = FRQ_CHORD_N1 / 2.0;										// TRACK 5
 
-PARAM_VAL_DETUNE = SONI_6_Detune : ba.selectn(4,0);					// DETUNE
-PARAM_VAL_PAN = SONI_7_Pan : ba.selectn(4,0);						// PAN
-PARAM_VAL_DYNAMICS = SONI_9_Dynamics : ba.selectn(4,0);				// DYNAMICS
-PARAM_VAL_PITCH = SONI_10_PitchWarp : ba.selectn(4,0);				// PITCH
-PARAM_VAL_VOWEL = SONI_11_Vowel : ba.selectn(4,0);					// VOWEL
+TRG_GTR = FVToTrigger(SONI_12_GtrTr : ba.selectn(4,0));				// TRACK 6
+
+TRG_BELL = FVToTrigger(SONI_17_WarningBell : ba.selectn(4,0));		// TRACK 7
+
+PARAM_VAL_DETUNE = SONI_6_Detune : ba.selectn(4,0) : limit(0,1);					// DETUNE
+PARAM_VAL_PAN = SONI_7_Pan : ba.selectn(4,0) : limit(0,1);						// PAN
+PARAM_VAL_DYNAMICS = SONI_9_Dynamics : ba.selectn(4,0) : limit(7,10);				// DYNAMICS
+PARAM_VAL_PITCH = SONI_10_PitchWarp : ba.selectn(4,0) : limit(0,1);				// PITCH
+PARAM_VAL_VOWEL = SONI_11_Vowel : ba.selectn(4,0) : limit(0,3);					// VOWEL
+PARAM_VAL_GTRSTF = SONI_13_GtrStf : ba.selectn(4,0) : limit(0.01,1);				// GUITAR STIFFNESS
+PARAM_VAL_VOICEFRIC = SONI_14_VoiceFric : ba.selectn(4,0) : limit(0, 1000);			// VOICE FRICATIVE QUALITY
+PARAM_VAL_DJEMBESHARP = SONI_15_DjembeSharp : ba.selectn(4,0) : limit(0.01,5);		// DJEMBE STRIKE SHARPNESS
+PARAM_VAL_MARIMBASHARP = SONI_16_MarimbaSharp : ba.selectn(4,0) : limit(1,10);		// MARIMBA STRIKE SHARPNESS
 
 // TRACK SYNTHESIS DEFINITION  
 
 // TRACK 1 - MAIN PERCUSSION
+DJ_FREQ = SONI_1_PercTr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_MAIN) + 50;
+DJ_SHRPNS = 1 + PARAM_VAL_DJEMBESHARP;
 Synth_T1_MainPerc = 
-pm.djembe(SONI_1_PercTr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_MAIN) + 50,0.7,1,1,TRG_PERC_MAIN) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
+pm.djembe(DJ_FREQ,DJ_SHRPNS/8,DJ_SHRPNS,1,TRG_PERC_MAIN) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_MAIN,10) : monoChannel(1) : getPanFunction(0);
 
 // TRACK 2 - MELODY
-F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
-//synthFunc_Melody(freq) = fmSynth_Versatile(freq,MALLET_MRATIO,MALLET_I_FIXED,MALLET_I_ENV,MALLET_A,MALLET_D,MALLET_S,MALLET_R,MALLET_ENVTYPE,TRG_MEL,PARAM_VAL_DYNAMICS,PARAM_VAL_DYNAMICS/2.0);
+F0_M = FRQ_MEL : Soni_FreqWarpFactor;
 synthFunc_Melody(freq) = voiceSynth_FormantBP(freq,PARAM_VAL_DYNAMICS,TRG_MEL,PARAM_VAL_DYNAMICS/2.0);
 Synth_T2_Melody = leadSynth(F0_M,synthFunc_Melody,PARAM_VAL_DYNAMICS,TRG_MEL,RL_M,FC_LP_M,PARAM_VAL_DYNAMICS/2.0) : stereoChannel(2);
   
@@ -99,23 +120,36 @@ chordSum = par(i,4,chordSingle_Synth(chordFreq(i), synthFunc_Chord(chordTrg(i)))
 Synth_T3_Chord = chordSum : stereoChannel(3);
 
 // TRACK 4 - SECONDARY PERCUSSION
+MR_FREQ = SONI_8_Perc2Tr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_2) + 100;
+MR_SHRPNS = 1 + PARAM_VAL_MARIMBASHARP;
 Synth_T4_SecPerc = 
-pm.marimba(SONI_8_Perc2Tr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_2) + 100,0.7,7000,1,1,TRG_PERC_2) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_2,10) : monoChannel(4) : getPanFunction(2);
+pm.marimba(MR_FREQ,0.7,12000,MR_SHRPNS,1,TRG_PERC_2) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_PERC_2,10) : monoChannel(4) : getPanFunction(2);
 
 // TRACK 5 - BASSLINE
 F0_R = FRQ_BASS : ba.sAndH(TRG_CHORD) : Soni_FreqWarpFactor;
 Synth_T5_Bass = fmSynth(F0_R,MOD_NUM_R,FREQ_FACTOR_R,RL_R,MOD_DEPTH_R,TRG_CHORD) : applyVelocity(PARAM_VAL_DYNAMICS,TRG_CHORD,10) : monoChannel(5) : getPanFunction(0);
+
+// TRACK 6 - GUITAR
+F0_GTR = FRQ_MEL * 2 : ba.sAndH(TRG_GTR) : Soni_FreqWarpFactor;
+synthFunc_Guitar(freq) = guitarString(freq,PARAM_VAL_GTRSTF,TRG_GTR);
+Synth_T6_Guitar = leadSynth(F0_GTR,synthFunc_Guitar,PARAM_VAL_DYNAMICS,TRG_GTR,RL_M,FC_LP_M,PARAM_VAL_DYNAMICS/2.0) : stereoChannel(6);
+
+// TRACK 7 - WARNINGS
+Synth_T7_Warning = pm.churchBell(1,10000,0.8,1,TRG_BELL) * en.ar(0.001,2,TRG_BELL) : monoChannel(7) : getPanFunction(0);
 
 track1 = Synth_T1_MainPerc : stereoMasterSection(1);
 track2 = Synth_T2_Melody   : stereoMasterSection(2);
 track3 = Synth_T3_Chord    : stereoMasterSection(3);
 track4 = Synth_T4_SecPerc  : stereoMasterSection(4);
 track5 = Synth_T5_Bass     : stereoMasterSection(5);
+track6 = Synth_T6_Guitar   : stereoMasterSection(6);
+track7 = Synth_T7_Warning  : stereoMasterSection(7);
+reverbTrack = track2 : stereoLinGain(1) : reverbMaster;
 
 masterChannel = masterComp : stereoLinGain(masterGain) : stereoEffect(masterLimiter(0)) : stereoEffect(hard_clip(1)) : Soni_PAN;
   
-process = track1,track2,track3,track4,track5 :> masterChannel;
-//process = track2 :> masterChannel;
+process = track1,track2,track3,track4,track5,track6,track7,reverbTrack :> masterChannel;
+//process = track6 :> masterChannel;
 							    
 /////////////////////////////////////////////////////////////////////////////////// FUNCTIONS ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -129,11 +163,11 @@ limit(lower,higher) = _ : max(lower) : min(higher);
 hard_clip(limit) = _ : min(limit) : max(-1*limit) : _;
 
 // CONVERT QUANTIZED FEEDBACK VARIABLE VALUE TO IMPULSIVE TRIGGER
-FVToTrigger(quantInput) = trigger with
+FVToTrigger(quantInput) = min(1,trigger) with
 {
   trigger = (posTrig + negTrig);
   posTrig = quantInput : ba.impulsify;
-  negTrig = - 1 * (quantInput) : ba.impulsify;
+  negTrig = - 1 * (quantInput) : ba.impulsify * (quantInput > 0);
 };
 
 // CONVERT 0-10 VELOCITY VALUE TO MONO GAIN MULTIPLIER
@@ -229,6 +263,12 @@ stereoMasterSection(trackIndex) = stereoOut
 // MASTER LIMITER
 masterLimiter(ipGaindB) = _ : compLimiter(ipGaindB,10,0,0.001,0.05,0.050);
 
+reverbMaster = _,_ <: re.zita_rev1_stereo(REV_MST_PDEL_MS,REV_MST_F_DC_MID,REV_MST_F_MID_HI,REV_MST_T60_DC,rt_60,REV_MST_FsMax) : filter
+with {
+  rt_60 = 4;
+filter = stereoEffect(fi.bandpass(1,REV_MST_HPF_FC,REV_MST_LPF_FC));	
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Sample Playback
@@ -314,12 +354,13 @@ pianoSim_singleNote(freq,trigger,acc) = monoOut
   ampEnv = pow(en.ar(0.001,4 * 1,trigger),6)  : si.smooth(ba.tau2pole(0.002));							// AMPLITUDE ENV
 };
 
-voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(2,vowel_H,0,freq,0.4) * env : fi.resonlp(8000,3,1) with
+voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM_VAL_VOICEFRIC,freqLow,0.4) * env : fi.resonlp(8000,3,1) with
 {
-	freqLow = freq / 2.0 : si.smoo;
+	vib = (1 + 0.01 * os.osc(6));
+	freqLow = freq : _*vib : si.smooth(ba.tau2pole(0.02));
   	vowel_idx = PARAM_VAL_VOWEL;
-	env = en.ar(0.001, 2, trigger) : 	si.smoo;
-  	vowel_H = vowel_idx : si.smoo;
+	env = sqrt(en.ar(0.02, 0.8, trigger)) * vib;
+  	vowel_H = vowel_idx;
 };
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
 { 
@@ -332,7 +373,17 @@ fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
   stereoChordOut = freq1Bus,freq2Bus,freq3Bus,freq4Bus :> stereoLinGain(env);												// SUM + ENVELOPE
 };
 
+guitarNuts = pm.lTermination(pm.bridgeFilter(0.8,0.6)*-1,pm.basicBlock);
+guitarBridge = pm.rTermination(pm.basicBlock,pm.bridgeFilter(0.8,0.6)*-1);
 
+guitarString(freq,stiffness,trigger) = pm.endChain(egChain) * 1.5
+with{
+  	length = pm.speedOfSound / freq;
+    maxStringLength = pm.maxLength;
+    lengthTuning = 0.11;
+    stringL = length-lengthTuning;
+    egChain = pm.chain(guitarNuts : pm.openStringPick(stringL,stiffness,0.2,trigger) : guitarBridge);
+};
 
 ///////////////////////////////////////////////////////////////////////////// CONST PARAM DUMP ///////////////////////////////////////////////////////////////////////////////////////////////////
 
