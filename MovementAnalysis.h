@@ -31,7 +31,7 @@ public:
 		movementParams[7].initialize(0, 220, "Angle Knee");
 		movementParams[8].initialize(0, 3, "Ang Velocity Knee");
 		movementParams[9].initialize(0, 3, "Ang Velocity Hip");
-		movementParams[10].initialize(0, 5, "STS Phase");
+		movementParams[10].initialize(-1, 6, "STS Phase");
 		movementParams[11].initialize(0, 1, "Tri Osc");
 		movementParams[12].initialize(0, 100, "Trunk Jerk - Ang");
 		movementParams[13].initialize(0, 100, "Thigh Jerk - Ang",false);
@@ -438,7 +438,7 @@ public:
 		// COMPUTE STS PHASE BASED ON ANGLES AND PREVIOUS PHASE
 		if(!updateSTSPhase_CheckTransition_POS());
 		updateSTSPhase_CheckTransition_NEG();
-		store_MP_Value("STS Phase",STS_Phase);
+		store_MP_Value("STS Phase", STS_Phase);
 
 		// SHUFFLE PHASE
 		STS_Phase_isChanged = (STS_Phase != STS_Phase_z1) ? true : false;
