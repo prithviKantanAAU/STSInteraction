@@ -29,4 +29,9 @@ public:
 	void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy,
 		float gz, float mx, float my, float mz,	float deltat);
 	float * getQ();
+
+	// IMU ONLY CODE
+	void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az);
+	float invSqrt(float x);
+	float sampleFreq = 100;
 };
