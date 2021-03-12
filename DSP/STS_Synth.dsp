@@ -66,6 +66,8 @@ SONI_16_DefaultVals = 1,0,0,0;
 SONI_16_MarimbaSharp = array_soniSliders(16,SONI_16_DefaultVals);
 SONI_17_DefaultVals = 0,0,0,0;
 SONI_17_WarningBell = array_soniSliders(17,SONI_17_DefaultVals);
+SONI_18_DefaultVals = 1500,0,0,0;
+SONI_18_GtrDyn = array_soniSliders(18,SONI_18_DefaultVals);
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
@@ -96,6 +98,7 @@ PARAM_VAL_GTRSTF = SONI_13_GtrStf : ba.selectn(4,0) : limit(0.01,1);				// GUITA
 PARAM_VAL_VOICEFRIC = SONI_14_VoiceFric : ba.selectn(4,0) : limit(0, 1000);			// VOICE FRICATIVE QUALITY
 PARAM_VAL_DJEMBESHARP = SONI_15_DjembeSharp : ba.selectn(4,0) : limit(0.01,5);		// DJEMBE STRIKE SHARPNESS
 PARAM_VAL_MARIMBASHARP = SONI_16_MarimbaSharp : ba.selectn(4,0) : limit(1,10);		// MARIMBA STRIKE SHARPNESS
+PARAM_VAL_GTRDYN = SONI_18_GtrDyn : ba.selectn(4,0) : *(10) : si.smoo : limit(500,15000);				// GUITAR EXCITATION CUTOFF
 
 // TRACK SYNTHESIS DEFINITION  
 
@@ -144,7 +147,7 @@ track4 = Synth_T4_SecPerc  : stereoMasterSection(4);
 track5 = Synth_T5_Bass     : stereoMasterSection(5);
 track6 = Synth_T6_Guitar   : stereoMasterSection(6);
 track7 = Synth_T7_Warning  : stereoMasterSection(7);
-reverbTrack = track2 : stereoLinGain(1) : reverbMaster;
+reverbTrack = track2,track6 :> reverbMaster;
 
 masterChannel = masterComp : stereoLinGain(masterGain) : stereoEffect(masterLimiter(0)) : stereoEffect(hard_clip(1)) : Soni_PAN;
   
@@ -376,7 +379,7 @@ fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
 guitarNuts = pm.lTermination(pm.bridgeFilter(0.8,0.6)*-1,pm.basicBlock);
 guitarBridge = pm.rTermination(pm.basicBlock,pm.bridgeFilter(0.8,0.6)*-1);
 
-guitarString(freq,stiffness,trigger) = pm.endChain(egChain) * 1.5
+guitarString(freq,stiffness,trigger) = pm.endChain(egChain) * 1.5 : fi.resonlp(PARAM_VAL_GTRDYN,0.7,1) * (1 + (PARAM_VAL_GTRDYN - 500)/15000.0)
 with{
   	length = pm.speedOfSound / freq;
     maxStringLength = pm.maxLength;
