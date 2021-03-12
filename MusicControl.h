@@ -33,11 +33,12 @@ public:
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 2, 0, 1, 3, true);
 		feedbackVariables[10].initialize("Vowel", 0, 2, 0, 1, 2, 0, 1, 4, true);
 		feedbackVariables[11].initialize("Gtr Tr", 0, 200, 1, 0, 1, 4, 1, 1, true);
-		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, false);
+		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, true);
 		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, true);
 		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
 		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
 		feedbackVariables[16].initialize("WarningBell", 0, 1, 1, 0, 1, 0, 1, 4, true);
+		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
 	};
 	~MusicControl() 
 	{
@@ -47,7 +48,7 @@ public:
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 17;
+	short numFbVariables = 18;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES
