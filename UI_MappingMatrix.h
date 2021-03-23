@@ -23,16 +23,16 @@ class UI_MappingMatrix
 	// Add SetVisible to ToggleVisible() here
 	// Set position in SetLayout() here
 
-	Label labels_movementParams[20];
-	Label labels_audioParams[20];
-	ToggleButton mapping_Matrix[20][20];
-	Slider mapping_Strength[20][20];
-	Slider mp_minThresh[20];
-	ComboBox mapping_Function[20];
-	ComboBox mapping_Polarity[20];
-	ComboBox mapping_QuantLevels[20];
-	Label movementParams_Value[20][2];		// 0 = Filled // 1 = Unfilled
-	Label audioParams_Value[20][2];
+	Label labels_movementParams[40];
+	Label labels_audioParams[40];
+	ToggleButton mapping_Matrix[40][40];
+	Slider mapping_Strength[40][40];
+	Slider mp_minThresh[40];
+	ComboBox mapping_Function[40];
+	ComboBox mapping_Polarity[40];
+	ComboBox mapping_QuantLevels[40];
+	Label movementParams_Value[40][2];		// 0 = Filled // 1 = Unfilled
+	Label audioParams_Value[40][2];
 	float width_Value = 90;
 	float width_Value_AP = 50;
 	int num_MP = 0;
@@ -57,7 +57,7 @@ class UI_MappingMatrix
     
     void configure()
     {
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 40; i++)
 		{
 			movementParams_Value[i][0].setColour(movementParams_Value[i][0].backgroundColourId, Colours::yellow);
 			movementParams_Value[i][1].setColour(movementParams_Value[i][1].backgroundColourId, Colours::blue);
@@ -429,7 +429,7 @@ class UI_MappingMatrix
     
     void toggleVisible(bool on)
     {
-		for (int i = 0; i < 20; i++)		// Columns
+		for (int i = 0; i < 40; i++)		// Columns
 		{
 			labels_movementParams[i].setVisible(on);
 			labels_audioParams[i].setVisible(on);
@@ -440,7 +440,7 @@ class UI_MappingMatrix
 			movementParams_Value[i][1].setVisible(on);
 			audioParams_Value[i][0].setVisible(on);
 			audioParams_Value[i][1].setVisible(on);
-			for (int j = 0; j < 20; j++)	// Rows
+			for (int j = 0; j < 40; j++)	// Rows
 			{
 				mapping_Matrix[i][j].setVisible(on);
 				mapping_Strength[i][j].setVisible(on && mapping_Matrix[i][j].getToggleState());

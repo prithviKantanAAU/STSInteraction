@@ -171,7 +171,7 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
 		}
 
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
 			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
@@ -187,7 +187,7 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.gyrMeasError);
 		addAndMakeVisible(ui_movementAnalysis.record_MovementLog);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
-		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
+		//addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
 
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
@@ -241,7 +241,7 @@ private:
 	// Add Mapping Matrix Controls
 	void addControls_MappingMatrix()
 	{
-		for (int i = 0; i < 20; i++)		// Columns
+		for (int i = 0; i < 40; i++)		// Columns
 		{
 			addAndMakeVisible(ui_mappingMatrix.labels_movementParams[i]);
 			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[i]);
@@ -253,7 +253,7 @@ private:
 			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][1]);
 			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][1]);
 
-			for (int j = 0; j < 20; j++)	// Rows
+			for (int j = 0; j < 40; j++)	// Rows
 			{
 				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
 				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[i][j]);
@@ -362,7 +362,7 @@ private:
 		};
 
 		// Hip, Knee Limits
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			ui_movementAnalysis.Joint_Range_AP[i].setMinValue(mpArrayPtr[6 + i].minVal);
 			ui_movementAnalysis.Joint_Range_AP[i].setMaxValue(mpArrayPtr[6 + i].maxVal);
@@ -703,27 +703,39 @@ private:
 		ui_movementAnalysis.update_Indicators_SensorOrientation(mpArrayPtr);
 
 		// JOINT ANGLE DISPLAYS
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			ui_movementAnalysis.JointAngles[j].setText(
-				String(mpArrayPtr[6 + j].value, 2)
+				String(mAnalysisPtr->jointAngles_Deg[j], 2)
 				, dontSendNotification
 			);
 
 			ui_movementAnalysis.JointVelocities[j].setText(
-				String(mpArrayPtr[9 - j].value, 2)
+				String(mAnalysisPtr->jointAngularVel_DegPerSec[j], 2)
 				, dontSendNotification
 			);
 
-			ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText(
-				((j == 0) ? "HIP     " : "KNEE   ") + String(mpArrayPtr[6 + j].minVal,2),
-				dontSendNotification
-			);
-
-			ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
-				String(mpArrayPtr[6 + j].maxVal, 2),
-				dontSendNotification
-			);
+			switch (j)
+			{
+			case 0:
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText("HIP     " +
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Hip", "Min"),2),dontSendNotification);
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Hip", "Max"), 2), dontSendNotification);
+				break;
+			case 1:
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText("KNEE    " +
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Knee", "Min"), 2), dontSendNotification);
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Knee", "Max"), 2), dontSendNotification);
+				break;
+			case 2:
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText("ANKLE   " +
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Ankle", "Min"), 2), dontSendNotification);
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Ankle", "Max"), 2), dontSendNotification);
+				break;
+			}
 
 			ui_movementAnalysis.Joint_Range_AP_HyperExtendThresh[j].setText(
 				"HYP THRESH: " + String(mAnalysisPtr->jointAngles_thresh_Hyper[j], 2),

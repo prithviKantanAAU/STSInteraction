@@ -12,9 +12,9 @@ class MusicControl
 public:
 	MusicControl()
 	{
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 40; i++)
 		{
-			for (int j = 0; j < 20; j++)
+			for (int j = 0; j < 40; j++)
 				mappingStrength[i][j] = 1.0;
 		}
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -71,14 +71,14 @@ public:
 	};
 
 	// MAPPING MATRIX
-	bool mappingMatrix[20][20] = { false };
-	float mappingStrength[20][20];
+	bool mappingMatrix[40][40] = { false };
+	float mappingStrength[40][40];
 	void updateMappingMatrix(short row, short col, bool onOff)
 	{
 		mappingMatrix[row][col] = onOff;
 	}
 
-	double fbVar_FinalVals[20][4] = { 
+	double fbVar_FinalVals[40][4] = { 
 		{0,0,0,0}
 	};
 

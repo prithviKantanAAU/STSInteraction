@@ -1,5 +1,6 @@
 #pragma once
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "MovementAnalysis.h"
 
 class UI_MovementAnalysis
 {
@@ -23,7 +24,7 @@ public:
 
 	// STRINGS CONTAINING TEXT INFO
 	String IMULocations[3] = { "Trunk","Thigh","Shank" };
-	String JointNames[2] = {"Hip","Knee"};
+	String JointNames[3] = {"Hip","Knee","Ankle"};
 	String IMU_Mount_Side_Options[2] = { "Front", "Side" };
 	String IMU_Polarity_Options[2] = { "+", "-" };
 	short IMU_Mount_Side_Options_NUM = 2;
@@ -60,9 +61,9 @@ public:
 	Label IMU_segmentAngles_ML_Indicator[3];
 	Label IMU_segmentRanges_ML_Bounds[3][2];	// 8, 10
 
-	Slider Joint_Range_AP[2];					// 0 = HIP, 1 = KNEE
-	Label Joint_Range_AP_MovementRanges[2][2];   // 0 = HIP, 1 = KNEE
-	Label Joint_Range_AP_HyperExtendThresh[2]; // o = HIP, 1 = KNEE
+	Slider Joint_Range_AP[3];					// 0 = HIP, 1 = KNEE
+	Label Joint_Range_AP_MovementRanges[3][2];   // 0 = HIP, 1 = KNEE
+	Label Joint_Range_AP_HyperExtendThresh[3]; // o = HIP, 1 = KNEE
 
 	// MP LOG STREAMING CONTROLS
 	Label dataInput_Mode_Status;
@@ -117,8 +118,8 @@ public:
 	ComboBox orientationAlgo;
 
 	// HIGH LEVEL PARAMETERS
-	Label JointAngles[2];						// 0 = HIP	 // 1 = KNEE
-	Label JointVelocities[2];					// 0 = HIP	 // 1 = KNEE
+	Label JointAngles[3];						// 0 = HIP	 // 1 = KNEE	// 2 = ANKLE
+	Label JointVelocities[3];					// 0 = HIP	 // 1 = KNEE	// 2 = ANKLE
 	Label STS_Phase_Disp;						
 
 	// STS SIMULATION
@@ -210,9 +211,9 @@ public:
 		}
 
 		// JOINT RANGE INITIALIZATION
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			Joint_Range_AP[i].setRange(0, 220);
+			Joint_Range_AP[i].setRange(-40, 180);
 			Joint_Range_AP[i].setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
 			Joint_Range_AP[i].setColour(Joint_Range_AP[i].trackColourId, Colours::yellow);
 			Joint_Range_AP[i].setColour(Joint_Range_AP[i].backgroundColourId, Colours::blue);
@@ -267,7 +268,7 @@ public:
 			simulation_OrientAngles[i].setVisible(on);			// X
 		}
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			Joint_Range_AP[i].setVisible(on);
 			Joint_Range_AP_MovementRanges[i][0].setVisible(on);
@@ -295,7 +296,7 @@ public:
 
 		// STS VISUALIZER
 		STS_Phase_Disp.setVisible(on);
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			JointAngles[j].setVisible(on);
 			JointVelocities[j].setVisible(on);
@@ -404,7 +405,7 @@ public:
 		}
 
 		// JOINT RANGE CONTROLS
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			Joint_Range_AP_MovementRanges[i][0].setBounds(
 				IMU_Config_Column_StartPos[4] - 40,
@@ -513,32 +514,14 @@ public:
 	int stsAnim_Segments_Offset_X[3][20] = { 0 };
 	int stsAnim_Segments_Offset_Y[3][20] = { 0 };
 
-	float getMPVal_fromArray(MovementParameter mpArray[], String mpName, String valType)
-	{
-		for (int i = 0; i < 20; i++)
-		{
-			if (mpArray[i].name == mpName)
-			{
-				if (valType == "Val")
-				return mpArray[i].value;
-
-				if (valType == "Max")
-					return mpArray[i].maxVal;
-
-				if (valType == "Min")
-					return mpArray[i].minVal;
-			}
-		}
-	}
-
 	void updateSTSAnim(MovementParameter mpArray[])
 	{
-		float angle_Trunk_AP = getMPVal_fromArray(mpArray, "Orientation Trunk AP", "Val");
-		float angle_Thigh_AP = getMPVal_fromArray(mpArray, "Orientation Thigh AP", "Val");
-		float angle_Shank_AP = getMPVal_fromArray(mpArray, "Orientation Shank AP", "Val");
-		float angle_Trunk_ML = getMPVal_fromArray(mpArray, "Orientation Trunk ML", "Val");
-		float angle_Thigh_ML = getMPVal_fromArray(mpArray, "Orientation Thigh ML", "Val");
-		float angle_Shank_ML = getMPVal_fromArray(mpArray, "Orientation Shank ML", "Val");
+		float angle_Trunk_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk AP", "Val");
+		float angle_Thigh_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Thigh AP", "Val");
+		float angle_Shank_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Shank AP", "Val");
+		float angle_Trunk_ML = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk ML", "Val");
+		float angle_Thigh_ML = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Thigh ML", "Val");
+		float angle_Shank_ML = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Shank ML", "Val");
 
 		// VECTORIZATION OF ANGLES AND SEGMENT LENGTHS
 		float seg_AngleVec[3] = {angle_Shank_AP,angle_Thigh_AP,angle_Trunk_AP};
@@ -584,6 +567,12 @@ public:
 			{
 				JointAngles[0].setBounds(jointStart_X - stsAnim_joint_Width - 30, jointStart_Y, 50, 20);
 				JointVelocities[0].setBounds(jointStart_X - stsAnim_joint_Width - 30, jointStart_Y + 15, 50, 20);
+			}
+
+			if (i == 0)
+			{
+				JointAngles[2].setBounds(jointStart_X + stsAnim_joint_Width, jointStart_Y, 50, 20);
+				JointVelocities[2].setBounds(jointStart_X + stsAnim_joint_Width, jointStart_Y + 15, 50, 20);
 			}
 		}
 

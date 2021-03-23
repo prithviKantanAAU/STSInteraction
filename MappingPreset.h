@@ -6,9 +6,9 @@ class MappingPreset
 public:
 	MappingPreset()
 	{
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 40; i++)
 		{
-			for (int j = 0; j < 20; j++)
+			for (int j = 0; j < 40; j++)
 			{
 				mappingMatrix[i][j] = false;
 				mappingStrength[i][j] = 1.0;
@@ -21,15 +21,15 @@ public:
 	{};
 
 	String name = "No Preset";
-	bool mappingMatrix[20][20];
-	float mappingStrength[20][20];
-	short mapFunc_Idx[20] = 
+	bool mappingMatrix[40][40];
+	float mappingStrength[40][40];
+	short mapFunc_Idx[40] = 
 	{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-	short polarity[20] =
+	short polarity[40] =
 	{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
-	short num_quantBits[20] =
+	short num_quantBits[40] =
 	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	float mappingThresh[20];
+	float mappingThresh[40];
 
 	// VOICE - DATA HOLDERS
 	float dataHolder_oscBPM = 1;

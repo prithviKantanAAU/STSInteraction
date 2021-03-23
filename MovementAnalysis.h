@@ -20,25 +20,46 @@ class MovementAnalysis
 public:
 	MovementAnalysis()
 	{
-		movementParams[0].initialize(-5, 40, "Orientation Trunk AP");
-		movementParams[1].initialize(-90, 10, "Orientation Thigh AP");
-		movementParams[2].initialize(-90, 90, "Orientation Shank AP");
-		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
+		// SEGMENT ORIENTATION
+		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",false);
+		movementParams[1].initialize(-90, 10, "Orientation Thigh AP", false);
+		movementParams[2].initialize(-40, 40, "Orientation Shank AP",false);
+		movementParams[3].initialize(0, 40, "Orientation Trunk ML",false);
 		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
-		movementParams[6].initialize(0, 220, "Angle Hip");
-		movementParams[7].initialize(0, 220, "Angle Knee");
-		movementParams[8].initialize(0, 3, "Ang Velocity Knee");
-		movementParams[9].initialize(0, 3, "Ang Velocity Hip");
-		movementParams[10].initialize(-1, 6, "STS Phase");
-		movementParams[11].initialize(0, 1, "Tri Osc");
-		movementParams[12].initialize(0, 100, "Trunk Jerk - Ang");
-		movementParams[13].initialize(0, 100, "Thigh Jerk - Ang",false);
-		movementParams[14].initialize(0, 100, "Shank Jerk - Ang",false);
+		// JOINT ANGLES
+		movementParams[6].initialize(-40, 180, "Angle Hip");
+		movementParams[7].initialize(-40, 180, "Angle Knee");
+		movementParams[8].initialize(-40, 0, "Angle Ankle");
 
-		movementParams[15].initialize(0, 1, "Hyperextend Hip");
-		movementParams[16].initialize(0, 1, "Hyperextend Knee");
+		// JOINT HYPEREXTENSION
+		movementParams[9].initialize(0, 1, "Hyperextend Hip");
+		movementParams[10].initialize(0, 1, "Hyperextend Knee");
+
+		// JOINT ANGULAR VELOCITY
+		movementParams[11].initialize(0, 3, "Ang Velocity Knee");
+		movementParams[12].initialize(0, 3, "Ang Velocity Hip");
+		movementParams[13].initialize(0, 3, "Ang Velocity Ankle");
+
+		// STS MOVEMENT PHASE CLASSIFICATIONS
+		movementParams[14].initialize(-1, 6, "STS Phase");
+		
+		// CoM NORMALIZED DISPLACEMENTS
+		movementParams[15].initialize(0, 3, "Horiz Disp");
+		movementParams[16].initialize(0, 3, "Verti Disp");
+
+		// CoM NORMALIZED VELOCITY
+		movementParams[17].initialize(0, 3, "Horiz Vel");
+		movementParams[18].initialize(0, 3, "Verti Vel");
+
+		// ANGULAR JERK MEASURES
+		movementParams[19].initialize(0, 100, "Trunk Jerk - Ang",false);
+		movementParams[20].initialize(0, 100, "Thigh Jerk - Ang",false);
+		movementParams[21].initialize(0, 100, "Shank Jerk - Ang",false);
+
+		// TRIANGLE OSCILLATOR
+		movementParams[22].initialize(0, 1, "Tri Osc");
 
 		setupReceivers();
 		eulerSmoothing_INIT();
@@ -46,14 +67,14 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
-	short numMovementParams = 17;
+	short numMovementParams = 23;
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
 	MusicControl musicControl;
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
 	ComplementaryFilter compFilters[3];
-	MovementParameter movementParams[20];
+	MovementParameter movementParams[40];
 	VoiceCues voiceCue;
 	bool voice_isTrigger = false;
 
@@ -144,8 +165,8 @@ public:
 	String columnNames_Log[20];
 	int columnIdx_Log = 0;
 
-	String STS_Phases[6] =
-	{
+	// STS Phase Present, Past and Change
+	String STS_Phases[6] = 	{
 		"Steady Sitting",
 		"Onset",
 		"Seat Off",
@@ -153,8 +174,6 @@ public:
 		"Sit Onset",
 		"Seat On"
 	};
-
-	// STS Phase Present, Past and Change
 	short STS_Phase = 0;
 	short STS_Phase_z1 = 0;
 	bool STS_Phase_isChanged = false;
@@ -164,17 +183,7 @@ public:
 	float range_horiz[2] = { -130, -50 };
 	float range_vert[2] = {-30,30};
 
-	// Resting Values
-	float restAngle_Deg_Hip = 90;
-	float restAngle_Deg_Knee = 90;
-	float restAngle_Deg_Trunk = 0;
-
-	// Phase Detection Thresholds
-	float thresh_Deg_Onset_Hip = 5;
-	float thresh_Deg_SeatOff_Knee = 5;
-	float thresh_Deg_Standing_Both = 5;
-
-	// IMU AP Orientation Values
+	// BODY SEGMENT ORIENTATION VALUES // 0 = TRUNK // 1 = THIGH // 2 = SHANK
 	float orientation_Deg[3] = { 0.0, -90.0, 0.0 };				// AP
 	float orientation_Deg_ML[3] = { 0.0, 0, 0.0 };				// ML
 	float orientation_Deg_Yaw[3] = { 0.0, 0, 0.0 };				// Yaw
@@ -184,14 +193,12 @@ public:
 	short IMU_Polarity[3] = { 1,1,1 };
 
 	// Joint Hyperextend Thresholds
-	float jointAngles_thresh_Hyper[2] = { 180.0, 180.0 };
+	float jointAngles_thresh_Hyper[3] = { 0.0, 0.0, 0.0 };
 
-	// Joint Bend Angles
-	float jointAngles_Deg[2] = { 0.0 };
-	float jointAngles_Deg_Z1[2] = { 0.0 };
-
-	// Joint Bend Angular Velocities
-	float jointAngularVel_DegPerSec[2] = { 0.0 };
+	// Joint Bend Angles	// 0 = HIP // 1 = KNEE // 2 = ANKLE
+	float jointAngles_Deg[3] = { 0.0 };
+	float jointAngles_Deg_Z1[3] = { 0.0 };
+	float jointAngularVel_DegPerSec[3] = { 0.0 };
 
 	// Jerk - Delay Registers
 	double forJerk_Acc_z1[3][3];
@@ -312,23 +319,28 @@ public:
 		store_MP_Value("Orientation Shank ML", fabs(orientation_Deg_ML[2]));
 		
 		// COMPUTE JOINT ANGLES, CHECK HYPEREXTENSION
-		jointAngles_Deg[0] = 180 - (orientation_Deg[0] + fabs(orientation_Deg[1]));
-		jointAngles_Deg[1] = 180 - (fabs(orientation_Deg[1]) + orientation_Deg[2]);
+		jointAngles_Deg[0] = orientation_Deg[0] - orientation_Deg[1];
+		jointAngles_Deg[1] = orientation_Deg[2] - orientation_Deg[1];
+		jointAngles_Deg[2] = -orientation_Deg[2];
 		
 		store_MP_Value("Angle Hip", jointAngles_Deg[0]);
 		store_MP_Value("Angle Knee", jointAngles_Deg[1]);
+		store_MP_Value("Angle Ankle", jointAngles_Deg[2]);
 
-		store_MP_Value("Hyperextend Hip", (jointAngles_Deg[0] >= jointAngles_thresh_Hyper[0]) ? 1 : 0);
-		store_MP_Value("Hyperextend Knee", (jointAngles_Deg[1] >= jointAngles_thresh_Hyper[1]) ? 1 : 0);
+		store_MP_Value("Hyperextend Hip", (jointAngles_Deg[0] <= jointAngles_thresh_Hyper[0]) ? 1 : 0);
+		store_MP_Value("Hyperextend Knee", (jointAngles_Deg[1] <= jointAngles_thresh_Hyper[1]) ? 1 : 0);
 
 		// COMPUTE JOINT ANGULAR VELOCITY
 		jointAngularVel_DegPerSec[0] = fabs(jointAngles_Deg[0] - jointAngles_Deg_Z1[0]);
 		jointAngularVel_DegPerSec[1] = fabs(jointAngles_Deg[1] - jointAngles_Deg_Z1[1]);
+		jointAngularVel_DegPerSec[2] = fabs(jointAngles_Deg[2] - jointAngles_Deg_Z1[2]);
 		jointAngles_Deg_Z1[0] = jointAngles_Deg[0];
 		jointAngles_Deg_Z1[1] = jointAngles_Deg[1];
+		jointAngles_Deg_Z1[2] = jointAngles_Deg[2];
 
 		store_MP_Value("Ang Velocity Hip", jointAngularVel_DegPerSec[0]);
 		store_MP_Value("Ang Velocity Knee", jointAngularVel_DegPerSec[1]);
+		store_MP_Value("Ang Velocity Ankle", jointAngularVel_DegPerSec[2]);
 	}
 
 	void computeIMUOrientations()
@@ -353,16 +365,6 @@ public:
 						(IMU_Mount_Side[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i],
 						(IMU_Mount_Side[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
 						&orientation_Deg_Yaw[i]);
-
-				if (orientAlgo_Present == 2)									// Regular Complementary Filter
-				{
-					compFilters[locationsOnline[i]].getOrientation_Fused(
-						sensors_OSCReceivers[locationsOnline[i]].acc_Buf,
-						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
-						(IMU_Mount_Side[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
-						(IMU_Mount_Side[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i]
-					);
-				}
 			}
 		}
 	}
@@ -370,10 +372,6 @@ public:
 	void getOrientation_Quaternion(float *accBuf, float *gyrBuf,
 		float *magBuf, QuaternionFilter *qFilt, float *pitch, float *roll, float *yaw)
 	{
-		//qFilt->MadgwickQuaternionUpdate(accBuf[0], accBuf[1], accBuf[2], gyrBuf[0] * DEG_TO_RAD,
-		//	gyrBuf[1] * DEG_TO_RAD, gyrBuf[2] * DEG_TO_RAD,
-		//	magBuf[0], magBuf[1], magBuf[2], 1.0 / sensorInfo.IMU_SampleRate);
-
 		qFilt->MadgwickAHRSupdateIMU(gyrBuf[0] * DEG_TO_RAD, gyrBuf[1] * DEG_TO_RAD, gyrBuf[2] * DEG_TO_RAD,
 									accBuf[0], accBuf[1], accBuf[2]);
 
@@ -564,7 +562,6 @@ public:
 		if (operationMode_Present == 1)
 		{
 			orientation_Deg[sliderIdx] = val;
-			//movementParams[sliderIdx].storeValue(val);
 		}
 	}
 
@@ -626,5 +623,23 @@ public:
 		voice_isTrigger = shuffleArray_voiceTrig(voiceCue.getVoiceTriggerSignal(fetch_MP_Value("Tri Osc")));
 		mpFile_Streaming_Progress = mpFile_Streaming_Line_Current / (double)mpFile_Streaming_Lines_Total;
 		mpFile_Streaming_Line_Current = (mpFile_Streaming_Line_Current + 1) % mpFile_Streaming_Lines_Total;
+	}
+
+	static float getMPVal_fromArray(MovementParameter mpArray[], String mpName, String valType)
+	{
+		for (int i = 0; i < 20; i++)
+		{
+			if (mpArray[i].name == mpName)
+			{
+				if (valType == "Val")
+					return mpArray[i].value;
+
+				if (valType == "Max")
+					return mpArray[i].maxVal;
+
+				if (valType == "Min")
+					return mpArray[i].minVal;
+			}
+		}
 	}
 };
