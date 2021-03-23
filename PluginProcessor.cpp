@@ -90,12 +90,25 @@ void StsinteractionAudioProcessor::start_Recording_MPLog()
     // RAW LOGS FOR ALL SENSORS
     short bodyPartIndex = 0;
     String sensorFileNameRaw;
+    String bodyPartName = "";
     for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
     {
         if (movementAnalysis.sensorInfo.isOnline[i])
         {
             bodyPartIndex = movementAnalysis.sensorInfo.bodyLocation[i];
-            sensorFileNameRaw = filepath_Rec + "\\Raw IMU Data - " + String(bodyPartIndex) + ".csv";
+            switch (bodyPartIndex)
+            {
+            case 1:
+                bodyPartName = "Trunk";
+                break;
+            case 2:
+                bodyPartName = "Thigh";
+                break;
+            case 3:
+                bodyPartName = "Shank";
+                break;
+            }
+            sensorFileNameRaw = filepath_Rec + "\\Raw IMU Data - " + bodyPartName + ".csv";
             imuRaw_Log[i] = fopen(sensorFileNameRaw.toStdString().c_str(), "w");
         }
     }
@@ -134,15 +147,15 @@ void StsinteractionAudioProcessor::writeLine_Recording_MPLog(MovementParameter m
         
         if (movementAnalysis.sensorInfo.isOnline[i])
         {
-            line += String(movementAnalysis.sensors_OSCReceivers[i].acc[0]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].acc[1]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].acc[2]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr[0]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr[1]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr[2]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].mag[0]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].mag[1]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].mag[2]);
+            line += String(movementAnalysis.sensors_OSCReceivers[i].acc_Buf[0]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].acc_Buf[1]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].acc_Buf[2]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr_Buf[0]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr_Buf[1]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr_Buf[2]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].mag_Buf[0]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].mag_Buf[1]) + ",";
+            line += String(movementAnalysis.sensors_OSCReceivers[i].mag_Buf[2]);
             fprintf(imuRaw_Log[i], mpLog_FormatSpec.c_str(), line);
         }
     }

@@ -195,9 +195,8 @@ private:
 
 		for (int j = 0; j < 20; j++)
 		{
-			addAndMakeVisible(ui_movementAnalysis.stsAnim_trunk[j]);
-			addAndMakeVisible(ui_movementAnalysis.stsAnim_thigh[j]);
-			addAndMakeVisible(ui_movementAnalysis.stsAnim_shank[j]);
+			for (int k = 0; k < 3; k++)
+			addAndMakeVisible(ui_movementAnalysis.stsAnim_Segments[k][j]);
 		}
 	}
 

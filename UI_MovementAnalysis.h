@@ -138,9 +138,8 @@ public:
 			stsAnim_joint[i].setColour(stsAnim_joint[i].backgroundColourId, Colours::blue);
 		for (int j = 0; j < 20; j++)
 		{
-			stsAnim_trunk[j].setColour(stsAnim_trunk[j].backgroundColourId, Colours::blue);
-			stsAnim_thigh[j].setColour(stsAnim_thigh[j].backgroundColourId, Colours::blue);
-			stsAnim_shank[j].setColour(stsAnim_shank[j].backgroundColourId, Colours::blue);
+			for (int k = 0; k < 3; k++)
+			stsAnim_Segments[k][j].setColour(stsAnim_Segments[k][j].backgroundColourId, Colours::blue);
 		}
 
 		// HEADERS
@@ -239,7 +238,7 @@ public:
 		record_MovementLog.setColour(record_MovementLog.buttonColourId, Colours::red);
 		record_MovementLog.setButtonText("Record");
 
-		JointAngles[0].attachToComponent(&stsAnim_joint[1], true);	
+		//JointAngles[0].attachToComponent(&stsAnim_joint[1], false);	
 
 		// Madgwick Gyr Error
 		gyrMeasError.setRange(0.01, 100);
@@ -305,9 +304,10 @@ public:
 			stsAnim_joint[i].setVisible(on);
 		for (int j = 0; j < 20; j++)
 		{
-			stsAnim_trunk[j].setVisible(on);
-			stsAnim_thigh[j].setVisible(on);
-			stsAnim_shank[j].setVisible(on);
+			for (int k = 0; k < 3; k++)
+			{
+				stsAnim_Segments[k][j].setVisible(on);
+			}
 		}
 	}
 
@@ -495,182 +495,117 @@ public:
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //
 	// REAL TIME VISUALIZER
 
+	float stsAnim_startX = 150;
+	float stsAnim_startY = 530;
+
+	// JOINTS
 	Label stsAnim_joint[4];
-	Label stsAnim_trunk[20];
-	Label stsAnim_thigh[20];
-	Label stsAnim_shank[20];
-
-	int stsAnim_width_joint = 20;
-	int stsAnim_height_joint = 20;
-
-	int stsAnim_widths_segments[3] = { 5, 1, 5 };
-	int stsAnim_heights_segments[3] = { 2, 5, 2 };
-
-	int stsAnim_topCorner_X = 50;
-	int stsAnim_topCorner_Y = 380;
-
 	int stsAnim_Offset_Joint_X[4] = { 0 };
 	int stsAnim_Offset_Joint_Y[4] = { 0 };
-	int stsAnim_Offset_Trunk_X[20] = { 0 };
-	int stsAnim_Offset_Trunk_Y[20] = { 0 };
-	int stsAnim_Offset_Thigh_X[20] = { 0 };
-	int stsAnim_Offset_Thigh_Y[20] = { 0 };
-	int stsAnim_Offset_Shank_X[20] = { 0 };
-	int stsAnim_Offset_Shank_Y[20] = { 0 };
+	int stsAnim_joint_Width = 20;
+	int stsAnim_joint_Height = 20;
+
+	// BODY SEGMENTS
+
+	int stsAnim_Segment_numPix = 20;
+	Label stsAnim_Segments[3][20];
+	int stsAnim_Segments_PixelSide = 3;
+	int stsAnim_Segments_Offset_X[3][20] = { 0 };
+	int stsAnim_Segments_Offset_Y[3][20] = { 0 };
+
+	float getMPVal_fromArray(MovementParameter mpArray[], String mpName, String valType)
+	{
+		for (int i = 0; i < 20; i++)
+		{
+			if (mpArray[i].name == mpName)
+			{
+				if (valType == "Val")
+				return mpArray[i].value;
+
+				if (valType == "Max")
+					return mpArray[i].maxVal;
+
+				if (valType == "Min")
+					return mpArray[i].minVal;
+			}
+		}
+	}
 
 	void updateSTSAnim(MovementParameter mpArray[])
 	{
-		float angle_Trunk_AP = mpArray[0].value;
-		float angle_Thigh_AP = mpArray[1].value * sqrt (abs((mpArray[1].value + 0.001)/ mpArray[1].minVal));
-		float angle_Shank_AP = mpArray[2].value * 0.55;
-		float angle_Trunk_ML = mpArray[3].value;
-		float angle_Thigh_ML = mpArray[4].value;
-		float angle_Shank_ML = mpArray[5].value;
+		float angle_Trunk_AP = getMPVal_fromArray(mpArray, "Orientation Trunk AP", "Val");
+		float angle_Thigh_AP = getMPVal_fromArray(mpArray, "Orientation Thigh AP", "Val");
+		float angle_Shank_AP = getMPVal_fromArray(mpArray, "Orientation Shank AP", "Val");
+		float angle_Trunk_ML = getMPVal_fromArray(mpArray, "Orientation Trunk ML", "Val");
+		float angle_Thigh_ML = getMPVal_fromArray(mpArray, "Orientation Thigh ML", "Val");
+		float angle_Shank_ML = getMPVal_fromArray(mpArray, "Orientation Shank ML", "Val");
 
-		float mlFrac_Trunk = angle_Trunk_ML / mpArray[3].maxVal;
-		float mlFrac_Thigh = angle_Thigh_ML / mpArray[4].maxVal;
-		float mlFrac_Shank = angle_Shank_ML / mpArray[5].maxVal;
+		// VECTORIZATION OF ANGLES AND SEGMENT LENGTHS
+		float seg_AngleVec[3] = {angle_Shank_AP,angle_Thigh_AP,angle_Trunk_AP};
+		float seg_Length = stsAnim_Segments_PixelSide * stsAnim_Segment_numPix;
+		float seg_Lengths[3] = {seg_Length, seg_Length, seg_Length };
 
-		float jerkFrac = fmin(((mpArray[12].value / mpArray[12].maxVal) - mpArray[12].thresh_min_NORM) * 10, 1.0);
+		float cumOffsets_X[4] = { 0.0,0.0,0.0,0.0 };
+		float cumOffsets_Y[4] = { 0.0,0.0,0.0,0.0 };
 
-		// Foot X Offset
-		int offsetAmplitude_Max_Foot_X = 20 * stsAnim_widths_segments[2];
-		int offset_Foot_X = offsetAmplitude_Max_Foot_X * angle_Shank_AP / 90.0 * -1;		// -1 to reverse direction
-		// Knee Constant
-		//
-		// Hip Y Offset
-		int offsetAmplitude_Max_Hip_Y = 20 * stsAnim_heights_segments[1];
-		int offset_Hip_Y = offsetAmplitude_Max_Hip_Y * (angle_Thigh_AP + 90) / 90.0 * -1; // -1 to reverse direction
-		// Head X Offset
-		int offsetAmplitude_Max_Head_X = 20 * stsAnim_widths_segments[0];
-		int offset_Head_X = offsetAmplitude_Max_Head_X * (angle_Trunk_AP) / 90.0;
-		// Head Y Offset
-		int offset_Head_Y = offset_Hip_Y;
+		float jointStarts_X[4] = { 0.0,0.0,0.0,0.0 };
+		float jointStarts_Y[4] = { 0.0,0.0,0.0,0.0 };
 
-		// Hip Rotation Radius
-		int radius_hipRotation = stsAnim_width_joint + 20 * stsAnim_widths_segments[1];
-		float offset_hipRotation_X = abs(radius_hipRotation * cos(angle_Thigh_AP * M_PI / 180.0));
-
-		// Knee Rotation Radius
-		int radius_kneeRotation = stsAnim_height_joint + 20 * stsAnim_heights_segments[2];
-		float offset_kneeRotation_Y = -abs(radius_kneeRotation * sin(angle_Shank_AP * M_PI / 180.0));
-
-		// SET BOUNDS
-
-		// HEAD
-		stsAnim_joint[0].setBounds(
-			stsAnim_topCorner_X + offset_Head_X + offset_hipRotation_X,
-			stsAnim_topCorner_Y + offset_Head_Y,
-			stsAnim_width_joint,
-			stsAnim_height_joint
-		);
-
-		stsAnim_joint[0].setColour(stsAnim_joint[0].backgroundColourId, 
-			Colour::fromFloatRGBA(jerkFrac,0,1-jerkFrac,1));
-
-		STS_Phase_Disp.setBounds(
-			stsAnim_topCorner_X + offset_Head_X + offset_hipRotation_X + 20,
-			stsAnim_topCorner_Y + offset_Head_Y + 2,
-			200,
-			15
-		);
-
-		// TRUNK
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 4; i++)				// SET POSITION OF EACH JOINT
 		{
-			stsAnim_trunk[i].setBounds(
-				stsAnim_topCorner_X + stsAnim_width_joint / 2.0 - stsAnim_widths_segments[0] / 2.0
-				+ (20-i) / 20.0 * offset_Head_X + offset_hipRotation_X,
-				stsAnim_topCorner_Y + offset_Head_Y + i * stsAnim_heights_segments[0] + stsAnim_height_joint,
-				stsAnim_widths_segments[0],
-				stsAnim_heights_segments[0]
-			);
+			float cumOffset_X = 0;
+			float cumOffset_Y = 0;
 
-			stsAnim_trunk[i].setColour(stsAnim_trunk[i].backgroundColourId,Colour::fromFloatRGBA(mlFrac_Trunk, 0.7, mlFrac_Trunk, 1));
+			// CALCULATE CUMULATIVE X AND Y OFFSET
+			for (int j = 0; j < i; j++)
+			{
+				cumOffset_X += seg_Lengths[j] * sin(seg_AngleVec[j] * M_PI / 180.0);
+				cumOffset_Y -= seg_Lengths[j] * cos(seg_AngleVec[j] * M_PI / 180.0);
+			}
+
+			cumOffsets_X[i] = cumOffset_X;
+			cumOffsets_Y[i] = cumOffset_Y;
+
+			float jointStart_X = stsAnim_startX + cumOffset_X;
+			float jointStart_Y = stsAnim_startY + cumOffset_Y;
+
+			jointStarts_X[i] = jointStart_X;
+			jointStarts_Y[i] = jointStart_Y;
+
+			// SET BOUNDS
+			stsAnim_joint[i].setBounds(	jointStart_X, jointStart_Y, stsAnim_joint_Width, stsAnim_joint_Height);
+
+			if (i == 1)
+			{
+				JointAngles[1].setBounds(jointStart_X + stsAnim_joint_Width, jointStart_Y, 50, 20);
+				JointVelocities[1].setBounds(jointStart_X + stsAnim_joint_Width, jointStart_Y + 15, 50, 20);
+			}
+			if (i == 2)
+			{
+				JointAngles[0].setBounds(jointStart_X - stsAnim_joint_Width - 30, jointStart_Y, 50, 20);
+				JointVelocities[0].setBounds(jointStart_X - stsAnim_joint_Width - 30, jointStart_Y + 15, 50, 20);
+			}
 		}
 
-		// HIP
-		stsAnim_joint[1].setBounds(
-			stsAnim_topCorner_X + offset_hipRotation_X,
-			stsAnim_topCorner_Y + offset_Hip_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0],
-			stsAnim_width_joint,
-			stsAnim_height_joint
-		);
-
-		stsAnim_joint[1].setColour(stsAnim_joint[1].backgroundColourId,
-			Colour::fromFloatRGBA(jerkFrac, 0, 1 - jerkFrac, 1));
-
-		JointVelocities[0].setBounds(
-			stsAnim_topCorner_X + offset_hipRotation_X - 45,
-			stsAnim_topCorner_Y + offset_Hip_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 17,
-			100,
-			15
-		);
-
-		// THIGH
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 3; i++)				// SET POSITION OF EACH SEGMENT
 		{
-			stsAnim_thigh[i].setBounds(
-				stsAnim_topCorner_X + stsAnim_width_joint + i * stsAnim_widths_segments[1] 
-				+ offset_hipRotation_X * stsAnim_width_joint /
-				(stsAnim_width_joint + 20.0 * stsAnim_widths_segments[1]) * (20-i)/20.0,
-				stsAnim_topCorner_Y + stsAnim_height_joint + (20-i)/20.0 * offset_Hip_Y
-				+ 20 * stsAnim_heights_segments[0] + stsAnim_height_joint / 2.0 - 
-				stsAnim_heights_segments[1] / 2.0,
-				stsAnim_widths_segments[1],
-				stsAnim_heights_segments[1]
-			);
+			float cumOffset_Px_X = 0.0;
+			float cumOffset_Px_Y = 0.0;
 
-			stsAnim_thigh[i].setColour(stsAnim_thigh[i].backgroundColourId, Colour::fromFloatRGBA(mlFrac_Thigh, 0.7, mlFrac_Thigh, 1));
+			for (int j = 0; j < stsAnim_Segment_numPix; j++)		// SET POSITION OF EACH SEGMENT PIXEL
+			{
+				// CALCULATE X AND Y OFFSET
+				cumOffset_Px_X = (cumOffsets_X[i+1] - cumOffsets_X[i]) * j / (double)stsAnim_Segment_numPix;
+				cumOffset_Px_Y = (cumOffsets_Y[i+1] - cumOffsets_Y[i]) * j / (double)stsAnim_Segment_numPix;
+
+				float pxStart_X = jointStarts_X[i] + cumOffset_Px_X;
+				float pxStart_Y = jointStarts_Y[i] + cumOffset_Px_Y;
+
+				// SET BOUNDS
+				stsAnim_Segments[i][j].setBounds(pxStart_X, pxStart_Y, stsAnim_Segments_PixelSide, stsAnim_Segments_PixelSide);
+			}
 		}
 
-		// KNEE
-		stsAnim_joint[2].setBounds(
-			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1],
-			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0],
-			stsAnim_width_joint,
-			stsAnim_height_joint
-		);
-
-		JointAngles[1].setBounds(
-			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1] + 20,
-			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 2,
-			100,
-			15
-		);
-
-		JointVelocities[1].setBounds(
-			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1] + 20,
-			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 18,
-			100,
-			15
-		);
-
-		// SHANK
-		for (int i = 0; i < 20; i++)
-		{
-			float vertOffset_ROTATION = offset_kneeRotation_Y * (i) / 20.0;
-
-			stsAnim_shank[i].setBounds(
-				stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1]
-				+ stsAnim_width_joint / 2.0 - stsAnim_widths_segments[0] / 2.0
-				+ (i) / 20.0 * offset_Foot_X,
-				stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0]
-				+ stsAnim_height_joint + i * stsAnim_heights_segments[2] + vertOffset_ROTATION,
-				stsAnim_widths_segments[2],
-				stsAnim_heights_segments[2]
-			);
-
-			stsAnim_shank[i].setColour(stsAnim_shank[i].backgroundColourId, Colour::fromFloatRGBA(mlFrac_Shank, 0.7, mlFrac_Shank, 1));
-		}
-
-		// FOOT
-		stsAnim_joint[3].setBounds(
-			stsAnim_topCorner_X + stsAnim_width_joint + 20 * stsAnim_widths_segments[1] + offset_Foot_X,
-			stsAnim_topCorner_Y + stsAnim_height_joint + 20 * stsAnim_heights_segments[0] + 
-			stsAnim_height_joint + 20 * stsAnim_heights_segments[2] + offset_kneeRotation_Y,
-			stsAnim_width_joint,
-			stsAnim_height_joint
-		);
 	}
+		
 };
