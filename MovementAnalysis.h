@@ -21,9 +21,9 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-90, 90, "Orientation Trunk AP",false);
-		movementParams[1].initialize(-90, 90, "Orientation Thigh AP", false);
-		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
+		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",false);
+		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
+		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML",false);
 		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
@@ -46,8 +46,8 @@ public:
 		movementParams[14].initialize(-1, 6, "STS Phase");
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(0.165, 0.53, "Horiz Disp");
-		movementParams[16].initialize(0.2, 0.9, "Verti Disp");
+		movementParams[15].initialize(0.23, 0.48, "Horiz Disp");
+		movementParams[16].initialize(0.36, 0.92, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 3, "Horiz Vel");
@@ -208,6 +208,8 @@ public:
 	// CoP Displacement Calculation
 	float segmentWise_WtPct[3] = { 0.624, 0.111, 0.05 };
 	float segmentWise_HtPct[3] = { 0.402, 0.241, 0.25 };
+	float CoM_Horiz_AP_z1 = 0.0;
+	float CoM_Vert_z1 = 0.0;
 
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
@@ -449,18 +451,6 @@ public:
 		float seg_AP_Ang_Mins[3] = { -80, -80, -80 };
 		float seg_AP_Ang_Maxs[3] = { 80, 80, 80 };
 
-		/*float seg_AP_Ang_Mins[3] = {
-			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Min"),
-			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Min"),
-			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Min")
-		};
-
-		float seg_AP_Ang_Maxs[3] = {
-			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Max"),
-			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Max"),
-			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Max")
-		};*/
-
 		// DISPLACEMENT FRACTIONS
 		float horiz_DispFracs_AP[3] = { 0.0,0.0,0.0 };
 		float vert_DispFracs[3] = { 0.0,0.0,0.0 };
@@ -507,9 +497,19 @@ public:
 
 			vert_DispFracs[0] * 0.6 * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
 
-
 		store_MP_Value("Horiz Disp", horiz_Disp_AP);
 		store_MP_Value("Verti Disp", vert_Disp);
+
+		// CALCULATE NORMALIZED CoM Velocity
+
+		float horiz_Vel_AP = fabs(horiz_Disp_AP - CoM_Horiz_AP_z1) * 100;
+		float vert_Vel = fabs(vert_Disp - CoM_Vert_z1) * 100;
+
+		CoM_Horiz_AP_z1 = horiz_Disp_AP;
+		CoM_Vert_z1 = vert_Disp;
+
+		store_MP_Value("Horiz Vel", horiz_Vel_AP);
+		store_MP_Value("Verti Vel", vert_Vel);
 	}
 
 	void updateSTSPhase()
@@ -717,6 +717,18 @@ public:
 
 				if (valType == "Min")
 					return mpArray[i].minVal;
+			}
+		}
+	}
+
+	void setBounds_MP(MovementParameter mpArray[], String mpName, float mini, float maxi)
+	{
+		for (int i = 0; i < numMovementParams; i++)
+		{
+			if (mpArray[i].name == mpName)
+			{
+				mpArray[i].minVal = mini;
+				mpArray[i].maxVal = maxi;
 			}
 		}
 	}

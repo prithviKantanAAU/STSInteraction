@@ -189,6 +189,19 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
 		//addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
 
+		// CoM BOUND SLIDERS
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_Lab);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_MIN);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_MAX);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_INDIC_VAL_H);
+
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_Lab);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MIN);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MAX);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_INDIC_VAL_V);
+
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
 			addAndMakeVisible(ui_movementAnalysis.stsAnim_joint[i]);
@@ -377,6 +390,25 @@ private:
 			};
 
 		}
+
+		// CoM H
+		ui_movementAnalysis.CoM_Disp_Bounds_H.setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Min"));
+		ui_movementAnalysis.CoM_Disp_Bounds_H.setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Max"));
+		ui_movementAnalysis.CoM_Disp_Bounds_H.onValueChange = [this]
+		{
+			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Horiz Disp",
+				ui_movementAnalysis.CoM_Disp_Bounds_H.getMinValue(),
+				ui_movementAnalysis.CoM_Disp_Bounds_H.getMaxValue());
+		};
+
+		ui_movementAnalysis.CoM_Disp_Bounds_V.setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Min"));
+		ui_movementAnalysis.CoM_Disp_Bounds_V.setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Max"));
+		ui_movementAnalysis.CoM_Disp_Bounds_V.onValueChange = [this]
+		{
+			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Verti Disp",
+				ui_movementAnalysis.CoM_Disp_Bounds_V.getMinValue(),
+				ui_movementAnalysis.CoM_Disp_Bounds_V.getMaxValue());
+		};
 
 		ui_movementAnalysis.record_MovementLog.onClick = [this]
 		{

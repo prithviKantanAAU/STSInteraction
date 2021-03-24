@@ -65,6 +65,20 @@ public:
 	Label Joint_Range_AP_MovementRanges[3][2];   // 0 = HIP, 1 = KNEE
 	Label Joint_Range_AP_HyperExtendThresh[3]; // o = HIP, 1 = KNEE
 
+	// CoM
+
+	Slider CoM_Disp_Bounds_H;
+	Label CoM_Disp_Bounds_H_Lab;
+	Label CoM_Disp_Bounds_H_MIN;
+	Label CoM_Disp_Bounds_H_MAX;
+	Label CoM_Disp_INDIC_VAL_H;
+
+	Slider CoM_Disp_Bounds_V;
+	Label CoM_Disp_Bounds_V_Lab;
+	Label CoM_Disp_Bounds_V_MIN;
+	Label CoM_Disp_Bounds_V_MAX;
+	Label CoM_Disp_INDIC_VAL_V;
+
 	// MP LOG STREAMING CONTROLS
 	Label dataInput_Mode_Status;
 	TextButton mpLog_File_Load_Unload;
@@ -108,8 +122,39 @@ public:
 
 			IMU_segmentRanges_ML_Bounds[i][0].setText(String(mpArray[i+3].minVal, 2), dontSendNotification);
 			IMU_segmentRanges_ML_Bounds[i][1].setText(String(mpArray[i+3].maxVal, 2), dontSendNotification);
-			
 		}
+
+		float CoM_H_MIN = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Min");
+		float CoM_H_MAX = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Max");
+		float CoM_V_MIN = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Min");
+		float CoM_V_MAX = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Max");
+
+		CoM_Disp_Bounds_H_MIN.setText("CoM_H " + String(CoM_H_MIN, 2), dontSendNotification);
+		CoM_Disp_Bounds_H_MAX.setText(String(CoM_H_MAX, 2), dontSendNotification);
+		CoM_Disp_Bounds_V_MIN.setText("CoM_V " + String(CoM_V_MIN, 2), dontSendNotification);
+		CoM_Disp_Bounds_V_MAX.setText(String(CoM_V_MAX, 2), dontSendNotification);
+
+		float horiz_Disp_Px_Offset = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Val")
+									 * IMU_Config_Column_Width[5];
+
+		float verti_Disp_Px_Offset = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Val")
+			* IMU_Config_Column_Width[5];
+
+		// ADJUST INDICATOR POSITION - HORIZ DISP
+		CoM_Disp_INDIC_VAL_H.setBounds(
+			IMU_Config_Column_StartPos[5] + horiz_Disp_Px_Offset,
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 3 + 160,
+			indicatorWidth,
+			indicatorHeight
+		);
+
+		// ADJUST INDICATOR POSITION - VERTI DISP
+		CoM_Disp_INDIC_VAL_V.setBounds(
+			IMU_Config_Column_StartPos[5] + verti_Disp_Px_Offset,
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 4 + 160,
+			indicatorWidth,
+			indicatorHeight
+		);
 	}
 
 	// RECORD LOG, OPERATION MODE AND ORIENTATION CALCULATION ALGORITHM
@@ -251,6 +296,24 @@ public:
 		madgwick_Beta.attachToComponent(&gyrMeasError, false);
 
 		stsAnim_CoM_Indicator.setColour(stsAnim_CoM_Indicator.backgroundColourId, Colours::yellow);
+
+		// CoM DISP SLIDERS
+
+		// HORIZONTAL
+		CoM_Disp_Bounds_H.setRange(0, 1);
+		CoM_Disp_Bounds_H.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+		CoM_Disp_Bounds_H.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+		CoM_Disp_Bounds_H.setColour(CoM_Disp_Bounds_H.trackColourId, Colours::yellow);
+		CoM_Disp_Bounds_H.setColour(CoM_Disp_Bounds_H.backgroundColourId, Colours::blue);
+		CoM_Disp_INDIC_VAL_H.setColour(CoM_Disp_INDIC_VAL_H.backgroundColourId, Colours::yellow);
+
+		// VERTICAL
+		CoM_Disp_Bounds_V.setRange(0, 1);
+		CoM_Disp_Bounds_V.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+		CoM_Disp_Bounds_V.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+		CoM_Disp_Bounds_V.setColour(CoM_Disp_Bounds_V.trackColourId, Colours::yellow);
+		CoM_Disp_Bounds_V.setColour(CoM_Disp_Bounds_V.backgroundColourId, Colours::blue);
+		CoM_Disp_INDIC_VAL_V.setColour(CoM_Disp_INDIC_VAL_V.backgroundColourId, Colours::yellow);
 	}
 
 	void toggleVisible(bool on, short dataInputMode)
@@ -295,6 +358,19 @@ public:
 		orientationAlgo.setVisible(on);
 		operationMode.setVisible(on);	
 		record_MovementLog.setVisible(on);
+
+		// CoM BOUND SLIDERS
+		CoM_Disp_Bounds_H.setVisible(on);
+		CoM_Disp_Bounds_H_Lab.setVisible(on);
+		CoM_Disp_Bounds_H_MIN.setVisible(on);
+		CoM_Disp_Bounds_H_MAX.setVisible(on);
+		CoM_Disp_INDIC_VAL_H.setVisible(on);
+		
+		CoM_Disp_Bounds_V.setVisible(on);
+		CoM_Disp_Bounds_V_Lab.setVisible(on);
+		CoM_Disp_Bounds_V_MIN.setVisible(on);
+		CoM_Disp_Bounds_V_MAX.setVisible(on);
+		CoM_Disp_INDIC_VAL_V.setVisible(on);
 
 		// STS VISUALIZER
 		STS_Phase_Disp.setVisible(on);
@@ -489,6 +565,49 @@ public:
 			20
 		);
 
+		// CoM DISP BOUNDS
+		CoM_Disp_Bounds_H.setBounds(
+			IMU_Config_Column_StartPos[5],
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 3 + 170,
+			IMU_Config_Column_Width[5],
+			IMU_Config_Row_Height
+		);
+
+		CoM_Disp_Bounds_V.setBounds(
+			IMU_Config_Column_StartPos[5],
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 4 + 170,
+			IMU_Config_Column_Width[5],
+			IMU_Config_Row_Height
+		);
+
+		CoM_Disp_Bounds_H_MIN.setBounds(
+			IMU_Config_Column_StartPos[4] - 40,
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 3 + 170,
+			IMU_Config_Column_Width[4] + 40,
+			IMU_Config_Row_Height
+		);
+
+		CoM_Disp_Bounds_H_MAX.setBounds(
+			IMU_Config_Column_StartPos[6],
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 3 + 170,
+			IMU_Config_Column_Width[6],
+			IMU_Config_Row_Height
+		);
+
+		CoM_Disp_Bounds_V_MIN.setBounds(
+			IMU_Config_Column_StartPos[4] - 40,
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 4 + 170,
+			IMU_Config_Column_Width[4] + 40,
+			IMU_Config_Row_Height
+		);
+
+		CoM_Disp_Bounds_V_MAX.setBounds(
+			IMU_Config_Column_StartPos[6],
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 4 + 170,
+			IMU_Config_Column_Width[6],
+			IMU_Config_Row_Height
+		);
+
 		// MISCELLANEOUS
 		gyrMeasError.setBounds(10, 600, 200, 50);
 		operationMode.setBounds(10, 175, 200, 20);
@@ -516,8 +635,6 @@ public:
 	int stsAnim_Segments_PixelSide = 3;
 	int stsAnim_Segments_Offset_X[3][20] = { 0 };
 	int stsAnim_Segments_Offset_Y[3][20] = { 0 };
-
-	// CoM
 
 	Label stsAnim_CoM_Indicator;
 
