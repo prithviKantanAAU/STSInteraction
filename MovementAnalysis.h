@@ -21,9 +21,9 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",false);
-		movementParams[1].initialize(-90, 10, "Orientation Thigh AP", false);
-		movementParams[2].initialize(-40, 40, "Orientation Shank AP",false);
+		movementParams[0].initialize(-90, 90, "Orientation Trunk AP",false);
+		movementParams[1].initialize(-90, 90, "Orientation Thigh AP", false);
+		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML",false);
 		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
@@ -46,8 +46,8 @@ public:
 		movementParams[14].initialize(-1, 6, "STS Phase");
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(0, 3, "Horiz Disp");
-		movementParams[16].initialize(0, 3, "Verti Disp");
+		movementParams[15].initialize(0.165, 0.53, "Horiz Disp");
+		movementParams[16].initialize(0.2, 0.9, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 3, "Horiz Vel");
@@ -205,6 +205,10 @@ public:
 	double forJerk_Gyr_z1[3][3];
 	double forJerk_Gyr_z2[3][3];
 
+	// CoP Displacement Calculation
+	float segmentWise_WtPct[3] = { 0.624, 0.111, 0.05 };
+	float segmentWise_HtPct[3] = { 0.402, 0.241, 0.25 };
+
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
 	long ticksElapsed = 0;
@@ -262,6 +266,7 @@ public:
 			computeJerkParams(0, "Trunk Jerk - Ang");
 			computeJerkParams(1, "Thigh Jerk - Ang");
 			computeJerkParams(2, "Shank Jerk - Ang");
+			computeCoM_Disp_Vel();
 			triOsc_Update();
 		}
 
@@ -433,7 +438,80 @@ public:
 		}
 	}
 
-	// Calculate STS Phase from
+	void computeCoM_Disp_Vel()
+	{
+		float seg_AP_Ang_Vals[3] = {
+			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Val"),
+			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Val"),
+			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Val")
+		};
+
+		float seg_AP_Ang_Mins[3] = { -80, -80, -80 };
+		float seg_AP_Ang_Maxs[3] = { 80, 80, 80 };
+
+		/*float seg_AP_Ang_Mins[3] = {
+			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Min"),
+			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Min"),
+			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Min")
+		};
+
+		float seg_AP_Ang_Maxs[3] = {
+			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Max"),
+			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Max"),
+			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Max")
+		};*/
+
+		// DISPLACEMENT FRACTIONS
+		float horiz_DispFracs_AP[3] = { 0.0,0.0,0.0 };
+		float vert_DispFracs[3] = { 0.0,0.0,0.0 };
+
+		// HELPER VARIABLES
+		float horiz_DispMax_AP_Lin[3] = { 0.0,0.0,0.0 };
+		float vert_DispMax_Lin[3] = { 0.0,0.0,0.0 };
+		float horiz_DispMin_AP_Lin[3] = { 0.0,0.0,0.0 };
+		float vert_DispMin_Lin[3] = { 0.0,0.0,0.0 };
+
+		float horiz_DispRanges_AP[3] = { 0.0,0.0,0.0 };
+		float vert_DispRanges[3] = { 0.0,0.0,0.0 };
+
+		for (int i = 0; i < 3; i++)						// FOR EACH BODY SEGMENT
+		{
+			horiz_DispMax_AP_Lin[i] = sin(M_PI / 180.0 * seg_AP_Ang_Maxs[i]);
+			horiz_DispMin_AP_Lin[i] = sin(M_PI / 180.0 * seg_AP_Ang_Mins[i]);
+
+			horiz_DispRanges_AP[i] = horiz_DispMax_AP_Lin[i] - horiz_DispMin_AP_Lin[i];
+
+			vert_DispMax_Lin[i] = cos(M_PI / 180.0 * seg_AP_Ang_Maxs[i]);
+			vert_DispMin_Lin[i] = cos(M_PI / 180.0 * seg_AP_Ang_Mins[i]);
+
+			vert_DispRanges[i] = (vert_DispMax_Lin[i] > vert_DispMin_Lin[i]) ? 
+				(1 - vert_DispMax_Lin[i]) : (1 - vert_DispMin_Lin[i]);
+
+			horiz_DispFracs_AP[i] = (sin(M_PI / 180.0 * seg_AP_Ang_Vals[i]) - sin(M_PI / 180.0 * seg_AP_Ang_Mins[i])) / horiz_DispRanges_AP[i];
+			vert_DispFracs[i] = (cos(M_PI / 180.0 * seg_AP_Ang_Vals[i]) - cos(M_PI / 180.0 * seg_AP_Ang_Mins[i])) / vert_DispRanges[i];
+		}
+
+		float horiz_Disp_AP = horiz_DispFracs_AP[2] * 1 * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
+			segmentWise_HtPct[1] * segmentWise_WtPct[1] + segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
+
+			horiz_DispFracs_AP[1] * 1.4 * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
+				+ segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
+
+			horiz_DispFracs_AP[0] * 0.6 * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
+
+		float vert_Disp = vert_DispFracs[2] * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
+			segmentWise_HtPct[1] * segmentWise_WtPct[1] + segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
+
+			vert_DispFracs[1] * 1.4 * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
+				+ segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
+
+			vert_DispFracs[0] * 0.6 * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
+
+
+		store_MP_Value("Horiz Disp", horiz_Disp_AP);
+		store_MP_Value("Verti Disp", vert_Disp);
+	}
+
 	void updateSTSPhase()
 	{
 		// COMPUTE STS PHASE BASED ON ANGLES AND PREVIOUS PHASE

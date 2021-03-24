@@ -249,6 +249,8 @@ public:
 		gyrMeasError.setSkewFactor(0.2);
 		gyrMeasError.setTextBoxStyle(Slider::NoTextBox, false, 10, 10);
 		madgwick_Beta.attachToComponent(&gyrMeasError, false);
+
+		stsAnim_CoM_Indicator.setColour(stsAnim_CoM_Indicator.backgroundColourId, Colours::yellow);
 	}
 
 	void toggleVisible(bool on, short dataInputMode)
@@ -310,6 +312,7 @@ public:
 				stsAnim_Segments[k][j].setVisible(on);
 			}
 		}
+		stsAnim_CoM_Indicator.setVisible(on);
 	}
 
 	void setLayout()
@@ -514,6 +517,10 @@ public:
 	int stsAnim_Segments_Offset_X[3][20] = { 0 };
 	int stsAnim_Segments_Offset_Y[3][20] = { 0 };
 
+	// CoM
+
+	Label stsAnim_CoM_Indicator;
+
 	void updateSTSAnim(MovementParameter mpArray[])
 	{
 		float angle_Trunk_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk AP", "Val");
@@ -522,6 +529,20 @@ public:
 		float angle_Trunk_ML = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk ML", "Val");
 		float angle_Thigh_ML = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Thigh ML", "Val");
 		float angle_Shank_ML = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Shank ML", "Val");
+
+		float CoM_Disp_Horiz_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Val");
+		float CoM_Disp_Vert = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Val");
+
+		float CoM_X_MIN = 40;
+		float CoM_X_MAX = 335;
+		float CoM_Y_MIN = 505;
+		float CoM_Y_MAX = 390;
+
+		stsAnim_CoM_Indicator.setBounds(
+			CoM_X_MIN + (CoM_X_MAX - CoM_X_MIN) * CoM_Disp_Horiz_AP,
+			CoM_Y_MIN + (CoM_Y_MAX - CoM_Y_MIN) * CoM_Disp_Vert
+			,5,5
+		);
 
 		// VECTORIZATION OF ANGLES AND SEGMENT LENGTHS
 		float seg_AngleVec[3] = {angle_Shank_AP,angle_Thigh_AP,angle_Trunk_AP};
