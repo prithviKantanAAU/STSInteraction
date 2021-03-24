@@ -650,7 +650,7 @@ public:
 		float CoM_Disp_Horiz_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Val");
 		float CoM_Disp_Vert = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Val");
 
-		float CoM_X_MIN = 40;
+		float CoM_X_MIN = 10;
 		float CoM_X_MAX = 335;
 		float CoM_Y_MIN = 505;
 		float CoM_Y_MAX = 390;

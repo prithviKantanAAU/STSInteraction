@@ -464,6 +464,10 @@ public:
 		float horiz_DispRanges_AP[3] = { 0.0,0.0,0.0 };
 		float vert_DispRanges[3] = { 0.0,0.0,0.0 };
 
+		// SEGMENT WEIGHTS - MODIFY FOR BEST EFFECT
+		float horiz_DispWts_Seg[3] = { 1.2, 1, 1 };
+		float verti_DispWts_Seg[3] = { 0.8, 1.3, 1 };
+
 		for (int i = 0; i < 3; i++)						// FOR EACH BODY SEGMENT
 		{
 			horiz_DispMax_AP_Lin[i] = sin(M_PI / 180.0 * seg_AP_Ang_Maxs[i]);
@@ -481,21 +485,21 @@ public:
 			vert_DispFracs[i] = (cos(M_PI / 180.0 * seg_AP_Ang_Vals[i]) - cos(M_PI / 180.0 * seg_AP_Ang_Mins[i])) / vert_DispRanges[i];
 		}
 
-		float horiz_Disp_AP = horiz_DispFracs_AP[2] * 1 * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
+		float horiz_Disp_AP = horiz_DispFracs_AP[2] * horiz_DispWts_Seg[2] * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
 			segmentWise_HtPct[1] * segmentWise_WtPct[1] + segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
 
-			horiz_DispFracs_AP[1] * 1.4 * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
+			horiz_DispFracs_AP[1] * horiz_DispWts_Seg[1] * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
 				+ segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
 
-			horiz_DispFracs_AP[0] * 0.6 * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
+			horiz_DispFracs_AP[0] * horiz_DispWts_Seg[0] * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
 
-		float vert_Disp = vert_DispFracs[2] * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
+		float vert_Disp = vert_DispFracs[2] * verti_DispWts_Seg[2] * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
 			segmentWise_HtPct[1] * segmentWise_WtPct[1] + segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
 
-			vert_DispFracs[1] * 1.4 * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
+			vert_DispFracs[1] * verti_DispWts_Seg[1] * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
 				+ segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
 
-			vert_DispFracs[0] * 0.6 * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
+			vert_DispFracs[0] * horiz_DispWts_Seg[0] * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
 
 		store_MP_Value("Horiz Disp", horiz_Disp_AP);
 		store_MP_Value("Verti Disp", vert_Disp);
