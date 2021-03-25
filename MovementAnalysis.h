@@ -162,7 +162,7 @@ public:
 	long mpFile_Streaming_Line_Current = 0;
 	int mpFile_Streaming_map_Col_to_MP[20];
 	double mpFile_Streaming_Progress = 0;
-	String columnNames_Log[20];
+	String columnNames_Log[40];
 	int columnIdx_Log = 0;
 
 	// STS Phase Present, Past and Change
@@ -691,7 +691,7 @@ public:
 
 	void stream_mpLogFile()
 	{
-		double log_lineData[20];
+		double log_lineData[40];
 		String line = mpFile_LogData_RAW[mpFile_Streaming_Line_Current];
 		for (int i = 0; i < columnIdx_Log - 1; i++)
 		{
