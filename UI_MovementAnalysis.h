@@ -138,7 +138,7 @@ public:
 									 * IMU_Config_Column_Width[5];
 
 		float verti_Disp_Px_Offset = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Val")
-			* IMU_Config_Column_Width[5];
+			* IMU_Config_Column_Width[5] / 2;
 
 		// ADJUST INDICATOR POSITION - HORIZ DISP
 		CoM_Disp_INDIC_VAL_H.setBounds(
@@ -285,7 +285,7 @@ public:
 		//JointAngles[0].attachToComponent(&stsAnim_joint[1], false);	
 
 		// Madgwick Gyr Error
-		gyrMeasError.setRange(0.01, 100);
+		gyrMeasError.setRange(2.1833, 40);
 		gyrMeasError.setValue(40);
 		gyrMeasError.setColour(gyrMeasError.backgroundColourId, Colours::blue);
 		gyrMeasError.setColour(gyrMeasError.trackColourId, Colours::yellow);
@@ -306,7 +306,7 @@ public:
 		CoM_Disp_INDIC_VAL_H.setColour(CoM_Disp_INDIC_VAL_H.backgroundColourId, Colours::yellow);
 
 		// VERTICAL
-		CoM_Disp_Bounds_V.setRange(0, 1);
+		CoM_Disp_Bounds_V.setRange(0, 2);
 		CoM_Disp_Bounds_V.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
 		CoM_Disp_Bounds_V.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
 		CoM_Disp_Bounds_V.setColour(CoM_Disp_Bounds_V.trackColourId, Colours::yellow);

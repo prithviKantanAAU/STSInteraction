@@ -3,7 +3,6 @@
 #include "OSC_Class.h"
 #include "SensorInfo.h"
 #include "MusicControl.h"
-#include "complementaryFilter.h"
 #include "quaternionFilters.h"
 #include "GaitParam_Single.h"
 #include "BiQuad.h"
@@ -65,9 +64,12 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
+	
 	short numMovementParams = 23;
+	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
+	
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
 	MusicControl musicControl;
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
@@ -253,26 +255,6 @@ public:
 		}
 	};
 
-	// Timed Callback
-	//void callback()
-	//{
-	//	ticksElapsed++;
-	//	if (dataInput_Mode != 2)
-	//	{
-	//		computeAngles();
-	//		updateSTSPhase();
-	//		computeJerkParams(0, "Trunk Jerk - Ang");
-	//		computeJerkParams(1, "Thigh Jerk - Ang");
-	//		computeJerkParams(2, "Shank Jerk - Ang");
-	//		computeCoM_Disp_Vel();
-	//		triOsc_Update();
-	//	}
-
-	//	else stream_mpLogFile();
-	//	//   triOsc_Update();
-	//	musicControl.updateFBVariables(movementParams, numMovementParams);
-	//}
-
 	// Buffers for present line of each sensor type - Row = Trunk, Thigh, Shank // Col = Axis
 	float acc_Buf[3][3];
 	float gyr_Buf[3][3];
@@ -357,17 +339,6 @@ public:
 		}
 	}
 
-	double fetch_MP_Value(String mpName)
-	{
-		for (int i = 0; i < numMovementParams; i++)
-		{
-			if (movementParams[i].name == mpName)
-			{
-				return movementParams[i].value;
-			}
-		}
-	}
-
 	// Calculate IMU Orientations and Joint Angles
 	void computeAngles()
 	{
@@ -448,15 +419,8 @@ public:
 			- *(qFilt->getQ() + 2) * *(qFilt->getQ() + 2) + *(qFilt->getQ() + 3)
 			* *(qFilt->getQ() + 3));
 
-		*roll *= RAD_TO_DEG;
-		*yaw *= RAD_TO_DEG;
-		*yaw -= 8.5;
-		*pitch *= RAD_TO_DEG;
-		*pitch -= 90;
-
-		*roll = isnan(*roll) ? 0 : *roll;
-		*pitch = isnan(*pitch) ? 0 : *pitch;
-		*yaw = isnan(*yaw) ? 0 : *yaw;
+		*roll *= RAD_TO_DEG;	*yaw *= RAD_TO_DEG;		*yaw -= 8.5;	*pitch *= RAD_TO_DEG;	*pitch -= 90;
+		*roll = isnan(*roll) ? 0 : *roll;		*pitch = isnan(*pitch) ? 0 : *pitch;		*yaw = isnan(*yaw) ? 0 : *yaw;
 	}
 
 	void computeJerkParams(int locationIdx, String jerkParamName)
@@ -573,55 +537,55 @@ public:
 		if(!updateSTSPhase_CheckTransition_POS());
 		updateSTSPhase_CheckTransition_NEG();
 		store_MP_Value("STS Phase", STS_Phase);
-
-		// SHUFFLE PHASE
-		STS_Phase_isChanged = (STS_Phase != STS_Phase_z1) ? true : false;
-		STS_Phase_z1 = STS_Phase;
 	}
 
 	bool updateSTSPhase_CheckTransition_POS()
 	{
 		bool conditions[4] = { false, false, false, false };
 
+		float trunk_AP = getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Val");
+		float thigh_AP = getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Val");
+		float shank_AP = getMPVal_fromArray(movementParams, "Orientation Shank AP", "Val");
+
 		switch (STS_Phase)
 		{
 		case 0:				// FROM STEADY SITTING
-			conditions[0] = (movementParams[0].value > thresh_Stand_trunk_AP);
-			conditions[1] = (movementParams[1].value > range_horiz[0])
-							&& ((movementParams[1].value < range_horiz[1]));
+			conditions[0] = (trunk_AP > thresh_Stand_trunk_AP);
+			conditions[1] = (thigh_AP > range_horiz[0])
+							&& ((thigh_AP < range_horiz[1]));
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 1:				// FROM STAND ONSET
-			conditions[0] = (movementParams[1].value > range_horiz[1]);
+			conditions[0] = (thigh_AP > range_horiz[1]);
 			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 2:				// FROM SEAT OFF
-			conditions[0] = (movementParams[0].value < range_vert[1]);
-			conditions[1] = (movementParams[1].value > range_vert[0])
-							&& ((movementParams[1].value < range_vert[1]));
+			conditions[0] = (trunk_AP < range_vert[1]);
+			conditions[1] = (thigh_AP > range_vert[0])
+							&& ((thigh_AP < range_vert[1]));
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 3:				// FROM STEADY STANDING
-			conditions[0] = (movementParams[1].value < range_vert[0]);
+			conditions[0] = (thigh_AP < range_vert[0]);
 			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 4:				// FROM SIT ONSET
-			conditions[0] = (movementParams[1].value > range_horiz[0])
-							&& ((movementParams[1].value < range_horiz[1]));
+			conditions[0] = (thigh_AP > range_horiz[0])
+							&& ((thigh_AP < range_horiz[1]));
 			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 5:				// FROM SEAT ON
-			conditions[0] = (movementParams[0].value < thresh_Stand_trunk_AP);
-			conditions[1] = (movementParams[1].value > range_horiz[0])
-							&& ((movementParams[1].value < range_horiz[1]));
+			conditions[0] = (trunk_AP < thresh_Stand_trunk_AP);
+			conditions[1] = (thigh_AP > range_horiz[0])
+							&& ((thigh_AP < range_horiz[1]));
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
@@ -630,6 +594,12 @@ public:
 		if (conditions[0] && conditions[1] && conditions[2] && conditions[3])
 		{
 			STS_Phase = (STS_Phase + 1) % 6;
+
+			if (STS_Phase == 0)
+			{
+				// INCREMENT REPETITIONS
+			}
+
 			return true;
 		}
 		else return false;
@@ -639,6 +609,10 @@ public:
 	{
 		bool conditions[4] = { false, false, false, false };
 
+		float trunk_AP = getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Val");
+		float thigh_AP = getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Val");
+		float shank_AP = getMPVal_fromArray(movementParams, "Orientation Shank AP", "Val");
+
 		switch (STS_Phase)
 		{
 		case 0:				// FROM STEADY SITTING
@@ -648,15 +622,15 @@ public:
 			conditions[3] = false;
 			break;
 		case 1:				// FROM STAND ONSET
-			conditions[0] = (movementParams[0].value < thresh_Stand_trunk_AP);
-			conditions[1] = (movementParams[1].value > range_horiz[0])
-							&& ((movementParams[1].value < range_horiz[1]));
+			conditions[0] = (trunk_AP < thresh_Stand_trunk_AP);
+			conditions[1] = (thigh_AP > range_horiz[0])
+							&& ((thigh_AP < range_horiz[1]));
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 2:				// FROM SEAT OFF
-			conditions[0] = (movementParams[1].value > range_horiz[0])
-							&& ((movementParams[1].value < range_horiz[1]));
+			conditions[0] = (thigh_AP > range_horiz[0])
+							&& ((thigh_AP < range_horiz[1]));
 			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
@@ -668,14 +642,14 @@ public:
 			conditions[3] = false;
 			break;
 		case 4:				// FROM SIT ONSET
-			conditions[0] = (movementParams[1].value > range_vert[0])
-							&& ((movementParams[1].value < range_vert[1]));
+			conditions[0] = (thigh_AP > range_vert[0])
+							&& ((thigh_AP < range_vert[1]));
 			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
 			break;
 		case 5:				// FROM SEAT ON
-			conditions[0] = (movementParams[1].value > range_horiz[1]);
+			conditions[0] = (thigh_AP > range_horiz[1]);
 			conditions[1] = true;
 			conditions[2] = true;
 			conditions[3] = true;
@@ -806,14 +780,15 @@ public:
 		for (int i = 0; i < columnIdx_Log - 1; i++)
 			store_MP_Value(columnNames_Log[i], log_lineData[i]);
 
-		voice_isTrigger = shuffleArray_voiceTrig(voiceCue.getVoiceTriggerSignal(fetch_MP_Value("Tri Osc")));
+		voice_isTrigger = shuffleArray_voiceTrig(voiceCue.getVoiceTriggerSignal(
+							getMPVal_fromArray(movementParams,"Tri Osc","Val")));
 		mpFile_Streaming_Progress = mpFile_Streaming_Line_Current / (double)mpFile_Streaming_Lines_Total;
 		mpFile_Streaming_Line_Current = (mpFile_Streaming_Line_Current + 1) % mpFile_Streaming_Lines_Total;
 	}
 
 	static float getMPVal_fromArray(MovementParameter mpArray[], String mpName, String valType)
 	{
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 30; i++)
 		{
 			if (mpArray[i].name == mpName)
 			{

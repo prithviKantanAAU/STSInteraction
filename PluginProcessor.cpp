@@ -136,16 +136,17 @@ void StsinteractionAudioProcessor::writeLine_Recording_MPLog(MovementParameter m
         
         if (movementAnalysis.sensorInfo.isOnline[i])
         {
-            line += String(movementAnalysis.sensors_OSCReceivers[i].acc_Buf[0]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].acc_Buf[1]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].acc_Buf[2]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr_Buf[0]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr_Buf[1]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].gyr_Buf[2]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].mag_Buf[0]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].mag_Buf[1]) + ",";
-            line += String(movementAnalysis.sensors_OSCReceivers[i].mag_Buf[2]);
-            fprintf(imuRaw_Log[i], mpLog_FormatSpec.c_str(), line);
+            line += String(movementAnalysis.acc_Buf[i][0]) + ",";
+            line += String(movementAnalysis.acc_Buf[i][1]) + ",";
+            line += String(movementAnalysis.acc_Buf[i][2]) + ",";
+            line += String(movementAnalysis.gyr_Buf[i][0]) + ",";
+            line += String(movementAnalysis.gyr_Buf[i][1]) + ",";
+            line += String(movementAnalysis.gyr_Buf[i][2]) + ",";
+            line += String(movementAnalysis.mag_Buf[i][0]) + ",";
+            line += String(movementAnalysis.mag_Buf[i][1]) + ",";
+            line += String(movementAnalysis.mag_Buf[i][2]);
+
+            fprintf(imuRaw_Log[movementAnalysis.locationsOnline[i]], mpLog_FormatSpec.c_str(), line);
         }
     }
 }
