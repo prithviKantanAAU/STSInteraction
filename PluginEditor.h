@@ -320,12 +320,6 @@ private:
 		for (int i = 0; i < mAnalysisPtr->numOperationModes; i++)
 			ui_movementAnalysis.operationMode.addItem(mAnalysisPtr->OperationModes[i], i + 1);
 		ui_movementAnalysis.operationMode.setSelectedId(mAnalysisPtr->operationMode_Present);
-
-		// Orientation Detection Algorithm - Madgwick / 6DOF Complementary Filter
-		ui_movementAnalysis.orientationAlgo.addListener(this);
-		for (int i = 0; i < mAnalysisPtr->numOrientationAlgos; i++)
-			ui_movementAnalysis.orientationAlgo.addItem(mAnalysisPtr->OrientationAlgos[i], i + 1);
-		ui_movementAnalysis.orientationAlgo.setSelectedId(mAnalysisPtr->orientAlgo_Present);
 		
 		// MP Log Playback
 		mpLogStream_Configure_Button_Behaviors();
@@ -340,7 +334,10 @@ private:
 			};
 
 			ui_movementAnalysis.IMU_Mount_Side[i].addListener(this);
+			ui_movementAnalysis.IMU_Mount_Side[i].setSelectedId(mAnalysisPtr->IMU_Mount_Side[i]);
+
 			ui_movementAnalysis.IMU_Polarity[i].addListener(this);
+			ui_movementAnalysis.IMU_Polarity[i].setSelectedId(mAnalysisPtr->IMU_Polarity[i]);
 
 			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMinValue(mpArrayPtr[i].minVal);
 			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMaxValue(mpArrayPtr[i].maxVal);
@@ -788,7 +785,8 @@ private:
 		// HANDLE FWD BUTTON PRESS
 		if (ui_movementAnalysis.mpLog_File_FWD.isDown())
 			mAnalysisPtr->mpFile_Streaming_Line_Current = (mAnalysisPtr->mpFile_Streaming_Line_Current + 20)
-			% mAnalysisPtr->mpFile_Streaming_Lines_Total;
+			//% mAnalysisPtr->mpFile_Streaming_Lines_Total;
+			% mAnalysisPtr->imuLogFile_Streaming_Lines_Total[0];
 
 		// HANDLE RWD BUTTON PRESS
 		if (ui_movementAnalysis.mpLog_File_RWD.isDown())

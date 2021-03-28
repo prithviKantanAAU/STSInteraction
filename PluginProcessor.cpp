@@ -64,17 +64,6 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 	{
 		movementAnalysis.updateSensorStatus();
 	}
-
-	if (pulsesElapsed % 25000 == 0)
-	{
-		if (movementAnalysis.orientAlgo_Present == 2)
-		{
-			for (int i = 0; i < 3; i++)
-				movementAnalysis.compFilters[i].trunk_CalibrateRest(
-					movementAnalysis.sensors_OSCReceivers[movementAnalysis.locationsOnline[i]].acc_Buf
-				);
-		}
-	}
 }
 
 void StsinteractionAudioProcessor::start_Recording_MPLog()

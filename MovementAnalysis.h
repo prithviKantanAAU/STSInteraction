@@ -9,11 +9,9 @@
 #include "BiQuad.h"
 #include "medianFilter.h"
 #include "VoiceCue_Settings.h"
-
 #define M_PI           3.14159265358979323846  /* pi */
 #define RAD_TO_DEG		180 / M_PI
 #define DEG_TO_RAD		M_PI / 180.0
-
 
 class MovementAnalysis
 {
@@ -73,10 +71,8 @@ public:
 	OSCReceiverUDP_Sensor sensors_OSCReceivers[3];
 	MusicControl musicControl;
 	QuaternionFilter quaternionFilters[3];				// 0 = Trunk // 1 = Thigh // 2 = Shank
-	ComplementaryFilter compFilters[3];
 	MovementParameter movementParams[40];
 	VoiceCues voiceCue;
-	bool voice_isTrigger = false;
 
 	// EULER ANGLE POST-SMOOTHING FILTERS
 	MedianFilter eulerMedianFilt[3][2];
@@ -137,14 +133,13 @@ public:
 			}
 		}
 	}
-
-	short numOrientationAlgos = 2;
-	short orientAlgo_Present = 1;
-	String OrientationAlgos[5] = { "Madgwick","ACCGYR CompFilt" };
+	
+	// Operation Modes - Sensor v/s Slider
 	short numOperationModes = 2;
 	short operationMode_Present = 1;
 	String OperationModes[5] = { "Slider Simulation","Sensor" };
 	
+	// Data Input Modes - Sensor v/s File
 	short dataInput_Mode = 0;
 	String dataInput_Mode_Names[5] =
 	{
@@ -156,8 +151,10 @@ public:
 	// MP Streaming Helper Variables
 	File mpFile_Streaming;
 	String mpFile_LogData_RAW[200000];
-
+	String imuFile_LogData_RAW[200000][3];
+	double imuFile_LogData_LINE[3][9];		
 	long mpFile_Streaming_Lines_Total = 0;
+	long imuLogFile_Streaming_Lines_Total[3] = { 0,0,0 };
 	int mpFile_Streaming_Columns_Total = 0;
 	long mpFile_Streaming_Line_Current = 0;
 	int mpFile_Streaming_map_Col_to_MP[20];
@@ -177,8 +174,6 @@ public:
 	short STS_Phase = 0;
 	short STS_Phase_z1 = 0;
 	bool STS_Phase_isChanged = false;
-
-	// DETECTION THRESHOLDS
 	float thresh_Stand_trunk_AP = 10;
 	float range_horiz[2] = { -130, -50 };
 	float range_vert[2] = {-30,30};
@@ -189,8 +184,8 @@ public:
 	float orientation_Deg_Yaw[3] = { 0.0, 0, 0.0 };				// Yaw
 	
 	// IMU Axis and Invert
-	short IMU_Mount_Side[3] = {1,1,1};
-	short IMU_Polarity[3] = { 1,1,1 };
+	short IMU_Mount_Side[3] = {1,2,2};
+	short IMU_Polarity[3] = { 1,1,2 };
 
 	// Joint Hyperextend Thresholds
 	float jointAngles_thresh_Hyper[3] = { 0.0, 0.0, 0.0 };
@@ -214,6 +209,7 @@ public:
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
 	long ticksElapsed = 0;
+	bool voice_isTrigger = false;
 	bool voice_trig_SusArray[4] = { false,false,false,false };
 	bool shuffleArray_voiceTrig(bool newVal)
 	{
@@ -258,22 +254,93 @@ public:
 	};
 
 	// Timed Callback
+	//void callback()
+	//{
+	//	ticksElapsed++;
+	//	if (dataInput_Mode != 2)
+	//	{
+	//		computeAngles();
+	//		updateSTSPhase();
+	//		computeJerkParams(0, "Trunk Jerk - Ang");
+	//		computeJerkParams(1, "Thigh Jerk - Ang");
+	//		computeJerkParams(2, "Shank Jerk - Ang");
+	//		computeCoM_Disp_Vel();
+	//		triOsc_Update();
+	//	}
+
+	//	else stream_mpLogFile();
+	//	//   triOsc_Update();
+	//	musicControl.updateFBVariables(movementParams, numMovementParams);
+	//}
+
+	// Buffers for present line of each sensor type - Row = Trunk, Thigh, Shank // Col = Axis
+	float acc_Buf[3][3];
+	float gyr_Buf[3][3];
+	float mag_Buf[3][3];
+
+	void populateIMUBuffers()
+	{
+		if (dataInput_Mode != 2)				// TAKE INPUT FROM SENSOR OSC OBJECT
+		{
+			// FIGURE OUT INDEX OF EACH IMU LOCATION - TRUNK THIGH SHANK SENSOR INDEX
+			for (int i = 0; i < 3; i++) locationsOnline[i] = -1;
+			sensorInfo.check_areSensorsOnline(locationsOnline);
+
+			for (int i = 0; i < 3; i++)
+			{
+				// SET BUFFERS TO ZERO IF NO SENSOR ONLINE AT THAT LOCATION
+				if (locationsOnline[i] == -1)
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						acc_Buf[i][j] = 0;
+						gyr_Buf[i][j] = 0;
+						mag_Buf[i][j] = 0;
+					}
+				}
+
+				// TAKE INPUT FROM SENSORS IF ONLINE AT THAT LOCATION
+				else
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						acc_Buf[i][j] = sensors_OSCReceivers[locationsOnline[i]].acc_Buf[j];
+						gyr_Buf[i][j] = sensors_OSCReceivers[locationsOnline[i]].gyr_Buf[j];
+						mag_Buf[i][j] = sensors_OSCReceivers[locationsOnline[i]].mag_Buf[j];
+					}
+				}
+			}
+		}
+
+		else                                    // TAKE INPUT FROM LOG FILE
+		{
+			stream_imuLogFile();
+
+			for (int i = 0; i < 3; i++)			// FOR EACH BODY SEGMENT
+			{
+				for (int j = 0; j < 3; j++)		// FOR EACH AXIS
+				{
+					acc_Buf[i][j] = imuFile_LogData_LINE[i][j];
+					gyr_Buf[i][j] = imuFile_LogData_LINE[i][3 + j];
+					mag_Buf[i][j] = imuFile_LogData_LINE[i][6 + j];
+				}
+			}
+		}
+	}
+
 	void callback()
 	{
 		ticksElapsed++;
-		if (dataInput_Mode != 2)
-		{
-			computeAngles();
-			updateSTSPhase();
-			computeJerkParams(0, "Trunk Jerk - Ang");
-			computeJerkParams(1, "Thigh Jerk - Ang");
-			computeJerkParams(2, "Shank Jerk - Ang");
-			computeCoM_Disp_Vel();
-			triOsc_Update();
-		}
 
-		else stream_mpLogFile();
-		//   triOsc_Update();
+		populateIMUBuffers();
+		computeAngles();
+		updateSTSPhase();
+		computeJerkParams(0, "Trunk Jerk - Ang");
+		computeJerkParams(1, "Thigh Jerk - Ang");
+		computeJerkParams(2, "Shank Jerk - Ang");
+		computeCoM_Disp_Vel();
+		triOsc_Update();
+
 		musicControl.updateFBVariables(movementParams, numMovementParams);
 	}
 
@@ -352,28 +419,12 @@ public:
 
 	void computeIMUOrientations()
 	{
-		// FIGURE OUT INDEX OF EACH IMU LOCATION - TRUNK THIGH SHANK SENSOR INDEX
-		for (int i = 0; i < 3; i++) locationsOnline[i] = -1;
-		sensorInfo.check_areSensorsOnline(locationsOnline);
-		
-		// FIND ORIENTATION OF ALL SENSORS
+		// GET QUATERNION OF ALL SENSORS
 		for (int i = 0; i < 3; i++)
-		{
-			if (locationsOnline[i] == -1) orientation_Deg[i] = 0;			// Set to zero if offline
-
-			else 
-			{
-				if (orientAlgo_Present == 1)									// Madgwick
-					getOrientation_Quaternion(
-						sensors_OSCReceivers[locationsOnline[i]].acc_Buf,
-						sensors_OSCReceivers[locationsOnline[i]].gyr_Buf,
-						sensors_OSCReceivers[locationsOnline[i]].mag_Buf,
-						&quaternionFilters[i],
+			getOrientation_Quaternion(acc_Buf[i],gyr_Buf[i],mag_Buf[i],	&quaternionFilters[i],
 						(IMU_Mount_Side[i] == 1) ? &orientation_Deg[i] : &orientation_Deg_ML[i],
 						(IMU_Mount_Side[i] == 1) ? &orientation_Deg_ML[i] : &orientation_Deg[i],
 						&orientation_Deg_Yaw[i]);
-			}
-		}
 	}
 
 	void getOrientation_Quaternion(float *accBuf, float *gyrBuf,
@@ -413,9 +464,9 @@ public:
 		if (locationsOnline[locationIdx] != -1)
 		{
 			// ANGULAR TRUNK JERK
-			float gyrX = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[0];
-			float gyrY = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[1];
-			float gyrZ = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[2];
+			float gyrX = gyr_Buf[locationIdx][0];
+			float gyrY = gyr_Buf[locationIdx][1];
+			float gyrZ = gyr_Buf[locationIdx][2];
 
 			float angAcc_X = gyrX - forJerk_Gyr_z1[locationIdx][0];
 			float angAcc_Y = gyrY - forJerk_Gyr_z1[locationIdx][1];
@@ -647,6 +698,40 @@ public:
 		}
 	}
 
+	bool open_mpLogDir_IMU_Raw(String path)
+	{
+		File imuLog_RAW[3];
+		String paths[3] =
+		{
+			path + "\\Raw IMU Data - Trunk.csv",
+			path + "\\Raw IMU Data - Thigh.csv",
+			path + "\\Raw IMU Data - Shank.csv",
+		};
+
+		bool isFileOpened = false;
+		String line = "";
+
+		for (int i = 0; i < 3; i++)					// FOR EACH LOG FILE
+		{
+			imuLogFile_Streaming_Lines_Total[i] = 0;
+
+			imuLog_RAW[i] = File(paths[i]);
+			juce::FileInputStream imuLogStream(imuLog_RAW[i]);
+			
+			if (imuLogStream.openedOk())
+			{
+				isFileOpened = true;
+				while (!imuLogStream.isExhausted())
+				{
+					imuFile_LogData_RAW[imuLogFile_Streaming_Lines_Total[i]][i] = imuLogStream.readNextLine();
+					imuLogFile_Streaming_Lines_Total[i]++;
+				}
+			}
+		}
+
+		return isFileOpened;
+	}
+
 	bool open_mpLogFile_forStream(String path)
 	{
 		mpFile_Streaming = File(path);
@@ -662,7 +747,6 @@ public:
 		columnIdx_Log = 0;
 		mpFile_Streaming_Lines_Total = 0;
 
-		int mpFile_Streaming_Bytes_Total = mpStream.getTotalLength();
 		while (lineRem != "")
 		{
 			columnNames_Log[columnIdx_Log] = lineRem.upToFirstOccurrenceOf(",", false, true);
@@ -687,6 +771,26 @@ public:
 		}
 
 		return true;
+	}
+
+	void stream_imuLogFile()
+	{
+		String line = "";
+
+		for (int i = 0; i < 3; i++)
+		{
+			line = imuFile_LogData_RAW[mpFile_Streaming_Line_Current][i];
+			line = (line == "") ? "0,0,0,0,0,0,0,0,0" : line;
+
+			for (int j = 0; j < 9; j++)
+			{
+				imuFile_LogData_LINE[i][j] = line.upToFirstOccurrenceOf(",", false, true).getDoubleValue();
+				line = line.fromFirstOccurrenceOf(",", false, true);
+			}
+		}
+
+		mpFile_Streaming_Progress = mpFile_Streaming_Line_Current / (double)imuLogFile_Streaming_Lines_Total[0];
+		mpFile_Streaming_Line_Current = (mpFile_Streaming_Line_Current + 1) % imuLogFile_Streaming_Lines_Total[0];
 	}
 
 	void stream_mpLogFile()

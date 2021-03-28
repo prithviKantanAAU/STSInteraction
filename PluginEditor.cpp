@@ -45,11 +45,6 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		mAnalysisPtr->operationMode_Present = box->getSelectedId();
 	}
 
-	if (box == &ui_movementAnalysis.orientationAlgo)
-	{
-		mAnalysisPtr->orientAlgo_Present = box->getSelectedId();
-	}
-
 	if (box == &ui_musicControl.tonic)
 		musInfoCompPtr->idx_tonic_Present = box->getSelectedId() - 1;
 
@@ -188,17 +183,18 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 	{
 		String filePath = "";
 		String extension = "MP Log.csv";
-		FileChooser logChooser("Please select a valid log file:",
-			File::getSpecialLocation(File::userHomeDirectory), extension);
+		FileChooser logChooser("Please select a valid log folder.",
+			File::getSpecialLocation(File::currentApplicationFile), extension);
 
 		switch (mAnalysisPtr->dataInput_Mode)
 		{
 		case 0:
-			if (logChooser.browseForFileToOpen())
+			if (logChooser.browseForDirectory())
 			{
 				File logFile(logChooser.getResult());
 				filePath = logFile.getFullPathName();
-				if (mAnalysisPtr->open_mpLogFile_forStream(filePath))
+				//if (mAnalysisPtr->open_mpLogFile_forStream(filePath))
+				if (mAnalysisPtr->open_mpLogDir_IMU_Raw(filePath))
 				{
 					mAnalysisPtr->dataInput_Mode = 1;
 					ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(true);

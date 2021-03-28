@@ -200,12 +200,10 @@ public:
 			// 0 - MOUNTING SIDE
 			for (int j = 0; j < IMU_Mount_Side_Options_NUM; j++)
 				IMU_Mount_Side[i].addItem(IMU_Mount_Side_Options[j], j + 1);
-			IMU_Mount_Side[i].setSelectedId(1);
 
 			// 1 - IMU POLARITY
 			for (int k = 0; k < IMU_Polarity_Options_NUM; k++)
 				IMU_Polarity[i].addItem(IMU_Polarity_Options[k], k + 1);
-			IMU_Polarity[i].setSelectedId(1);
 
 			// 2 - IMU STATUS INDICATOR - NO CONFIG NEEDED
 
