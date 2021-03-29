@@ -255,29 +255,44 @@ private:
 	// Add Mapping Matrix Controls
 	void addControls_MappingMatrix()
 	{
-		for (int i = 0; i < 40; i++)		// Columns
+		for (int m = 0; m < 40; m++)
 		{
-			addAndMakeVisible(ui_mappingMatrix.labels_movementParams[i]);
-			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[i]);
-			addAndMakeVisible(ui_mappingMatrix.mapping_Function[i]);
-			addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[i]);
-			addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[i]);
-			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][0]);
-			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][0]);
-			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][1]);
-			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][1]);
-
-			for (int j = 0; j < 40; j++)	// Rows
+			if (mpArrayPtr[m].isVisible)
 			{
-				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
-				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[i][j]);
-				addAndMakeVisible(ui_mappingMatrix.mp_minThresh[i]);
+				addAndMakeVisible(ui_mappingMatrix.labels_movementParams[m]);
+				addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][0]);
+				addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][1]);
+				addAndMakeVisible(ui_mappingMatrix.mp_minThresh[m]);
+			}
+		}
+
+		for (int a = 0; a < 40; a++)
+		{
+			if (apArrayPtr[a].isVisible)
+			{
+				addAndMakeVisible(ui_mappingMatrix.labels_audioParams[a]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_Function[a]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[a]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[a]);
+				addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][0]);
+				addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][1]);
+			}
+		}
+
+		for (int m = 0; m < 40; m++)
+		{
+			for (int a = 0; a < 40; a++)
+			{
+				if (mpArrayPtr[m].isVisible && apArrayPtr[a].isVisible)
+				{
+					addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[m][a]);
+					addAndMakeVisible(ui_mappingMatrix.mapping_Strength[m][a]);
+				}
 			}
 		}
 
 		addAndMakeVisible(ui_mappingMatrix.preset_Save);
 		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad);
-		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad_LAB);
 		addAndMakeVisible(ui_mappingMatrix.preset_Name);
 	}
 

@@ -28,7 +28,7 @@ public:
 		// JOINT ANGLES
 		movementParams[6].initialize(-40, 180, "Angle Hip");
 		movementParams[7].initialize(-40, 180, "Angle Knee");
-		movementParams[8].initialize(-40, 0, "Angle Ankle");
+		movementParams[8].initialize(-40, 40, "Angle Ankle");
 
 		// JOINT HYPEREXTENSION
 		movementParams[9].initialize(0, 1, "Hyperextend Hip");
@@ -58,12 +58,69 @@ public:
 		// TRIANGLE OSCILLATOR
 		movementParams[22].initialize(0, 1, "Tri Osc");
 
+		populateDispIndex_MP();
 		setupReceivers();
 		eulerSmoothing_INIT();
 
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
+
+	void setDispIndex_MP(String mpName, short dispIndex)
+	{
+		for (int i = 0; i < numMovementParams; i++)
+		{
+			if (movementParams[i].name == mpName)
+			{
+				movementParams[i].dispIdx = dispIndex;
+				break;
+			}
+		}
+	}
+
+	void populateDispIndex_MP()
+	{
+		// SEGMENT ORIENTATION
+		setDispIndex_MP("Orientation Trunk AP", 0);
+		setDispIndex_MP("Orientation Thigh AP", 0);
+		setDispIndex_MP("Orientation Shank AP", 0);
+		setDispIndex_MP("Orientation Trunk ML", 1);
+		setDispIndex_MP("Orientation Thigh ML", 1);
+		setDispIndex_MP("Orientation Shank ML", 1);
+
+		// JOINT ANGLES
+		setDispIndex_MP("Angle Hip", 2);
+		setDispIndex_MP("Angle Knee", 2);
+		setDispIndex_MP("Angle Ankle", 2);
+
+		// JOINT HYPEREXTENSION
+		setDispIndex_MP("Hyperextend Hip", 3);
+		setDispIndex_MP("Hyperextend Knee", 3);
+
+		// JOINT ANGULAR VELOCITY
+		setDispIndex_MP("Ang Velocity Knee", 4);
+		setDispIndex_MP("Ang Velocity Hip", 4);
+		setDispIndex_MP("Ang Velocity Ankle", 4);
+
+		// STS MOVEMENT PHASE CLASSIFICATIONS
+		setDispIndex_MP("STS Phase", 5);
+
+		// CoM NORMALIZED DISPLACEMENTS
+		setDispIndex_MP("Horiz Disp", 6);
+		setDispIndex_MP("Verti Disp", 6);
+
+		// CoM NORMALIZED VELOCITY
+		setDispIndex_MP("Horiz Vel", 7);
+		setDispIndex_MP("Verti Vel", 7);
+
+		// ANGULAR JERK MEASURES
+		setDispIndex_MP("Trunk Jerk - Ang", 8);
+		setDispIndex_MP("Thigh Jerk - Ang", 8);
+		setDispIndex_MP("Shank Jerk - Ang", 8);
+
+		// TRIANGLE OSCILLATOR
+		setDispIndex_MP("Tri Osc",9);
+	}
 	
 	short numMovementParams = 23;
 	
@@ -425,33 +482,30 @@ public:
 
 	void computeJerkParams(int locationIdx, String jerkParamName)
 	{
-		if (locationsOnline[locationIdx] != -1)
+		// ANGULAR TRUNK JERK
+		float gyrX = gyr_Buf[locationIdx][0];
+		float gyrY = gyr_Buf[locationIdx][1];
+		float gyrZ = gyr_Buf[locationIdx][2];
+
+		float angAcc_X = gyrX - forJerk_Gyr_z1[locationIdx][0];
+		float angAcc_Y = gyrY - forJerk_Gyr_z1[locationIdx][1];
+		float angAcc_Z = gyrZ - forJerk_Gyr_z1[locationIdx][2];
+
+		float angAcc_X_z1 = forJerk_Gyr_z1[locationIdx][0] - forJerk_Gyr_z2[locationIdx][0];
+		float angAcc_Y_z1 = forJerk_Gyr_z1[locationIdx][1] - forJerk_Gyr_z2[locationIdx][1];
+		float angAcc_Z_z1 = forJerk_Gyr_z1[locationIdx][2] - forJerk_Gyr_z2[locationIdx][2];
+
+		float angJerk_X = fabs(angAcc_X - angAcc_X_z1);
+		float angJerk_Y = fabs(angAcc_Y - angAcc_Y_z1);
+		float angJerk_Z = fabs(angAcc_Z - angAcc_Z_z1);
+
+		float scalarJerk_ANG = sqrt(angJerk_X * angJerk_X + angJerk_Y * angJerk_Y + angJerk_Z * angJerk_Z);
+		store_MP_Value(jerkParamName, scalarJerk_ANG);
+
+		for (int i = 0; i < 3; i++)											// SHUFFLE DELAYS
 		{
-			// ANGULAR TRUNK JERK
-			float gyrX = gyr_Buf[locationIdx][0];
-			float gyrY = gyr_Buf[locationIdx][1];
-			float gyrZ = gyr_Buf[locationIdx][2];
-
-			float angAcc_X = gyrX - forJerk_Gyr_z1[locationIdx][0];
-			float angAcc_Y = gyrY - forJerk_Gyr_z1[locationIdx][1];
-			float angAcc_Z = gyrZ - forJerk_Gyr_z1[locationIdx][2];
-
-			float angAcc_X_z1 = forJerk_Gyr_z1[locationIdx][0] - forJerk_Gyr_z2[locationIdx][0];
-			float angAcc_Y_z1 = forJerk_Gyr_z1[locationIdx][1] - forJerk_Gyr_z2[locationIdx][1];
-			float angAcc_Z_z1 = forJerk_Gyr_z1[locationIdx][2] - forJerk_Gyr_z2[locationIdx][2];
-
-			float angJerk_X = fabs(angAcc_X - angAcc_X_z1);
-			float angJerk_Y = fabs(angAcc_Y - angAcc_Y_z1);
-			float angJerk_Z = fabs(angAcc_Z - angAcc_Z_z1);
-
-			float scalarJerk_ANG = sqrt(angJerk_X * angJerk_X + angJerk_Y * angJerk_Y + angJerk_Z * angJerk_Z);
-			store_MP_Value(jerkParamName, scalarJerk_ANG);
-
-			for (int i = 0; i < 3; i++)											// SHUFFLE DELAYS
-			{
-				forJerk_Gyr_z2[locationIdx][i] = forJerk_Gyr_z1[locationIdx][i];
-				forJerk_Gyr_z1[locationIdx][i] = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[i];
-			}
+			forJerk_Gyr_z2[locationIdx][i] = forJerk_Gyr_z1[locationIdx][i];
+			forJerk_Gyr_z1[locationIdx][i] = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[i];
 		}
 	}
 
@@ -761,6 +815,19 @@ public:
 				imuFile_LogData_LINE[i][j] = line.upToFirstOccurrenceOf(",", false, true).getDoubleValue();
 				line = line.fromFirstOccurrenceOf(",", false, true);
 			}
+		}
+
+		// AUTO INCREASE AND DECREASE BETA TO COMPENSATE INITIAL DRIFT
+		switch (mpFile_Streaming_Line_Current)
+		{
+		case 1:
+			for (int i = 0; i < 3; i++) quaternionFilters[i].updateBeta(40);
+			break;
+		case 200:
+			for (int i = 0; i < 3; i++) quaternionFilters[i].updateBeta(2.1833);
+			break;
+		default:
+			break;
 		}
 
 		mpFile_Streaming_Progress = mpFile_Streaming_Line_Current / (double)imuLogFile_Streaming_Lines_Total[0];

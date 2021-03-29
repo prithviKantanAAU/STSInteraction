@@ -10,6 +10,7 @@ public:
 	double minVal = 0;
 	double maxVal = 1;
 	bool isVisible = false;
+	short dispIdx = -1;
 
 	double thresh_min_NORM = 0;
 
@@ -19,6 +20,11 @@ public:
 		minVal = mini;
 		maxVal = maxi;
 		isVisible = isVis;
+	}
+
+	void setDispIdx(short dispIndex)
+	{
+		dispIdx = dispIndex;
 	}
 
 	void storeValue(double newVal)

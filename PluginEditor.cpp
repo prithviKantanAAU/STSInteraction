@@ -147,25 +147,25 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 		ui_sensorCon.toggleVisible(true);
 		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
-		ui_mappingMatrix.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false,mpArrayPtr,apArrayPtr);
 		break;
 	case 1:												// Movement Tab
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(true, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
-		ui_mappingMatrix.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
 		break;
 	case 2:												// Music Tab
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(true);
-		ui_mappingMatrix.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
 		break;
 	case 3:												// Mapping Matrix
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
-		ui_mappingMatrix.toggleVisible(true);
+		ui_mappingMatrix.toggleVisible(true, mpArrayPtr, apArrayPtr);
 		break;
 	}
 }

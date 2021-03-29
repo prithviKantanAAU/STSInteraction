@@ -37,12 +37,52 @@ public:
 		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, true);
 		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
 		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
-		feedbackVariables[16].initialize("WarningBell", 0, 1, 1, 0, 1, 0, 1, 4, true);
+		feedbackVariables[16].initialize("WarningBell", 0, 1, 0, 0, 1, 0, 1, 1, true);
 		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
+
+		populateDispIndex_AP();
 	};
 	~MusicControl() 
 	{
 	};
+
+	void setDispIndex_AP(String apName, short dispIndex)
+	{
+		for (int i = 0; i < numFbVariables; i++)
+		{
+			if (feedbackVariables[i].name == apName)
+			{
+				feedbackVariables[i].dispIdx = dispIndex; 
+				break;
+			}
+		}
+	}
+
+	void populateDispIndex_AP()
+	{
+		setDispIndex_AP("Perc Tr", 0);
+		setDispIndex_AP("Mel Tr", 0);
+		setDispIndex_AP("Chord Tr", 0);
+		setDispIndex_AP("Perc2 Tr", 0);
+		setDispIndex_AP("Gtr Tr", 0);
+		setDispIndex_AP("WarningBell", 0);
+		
+		setDispIndex_AP("Mel Fr", 1);
+		setDispIndex_AP("Chord Fr", 1);
+
+		setDispIndex_AP("Dynamics", 2);
+		setDispIndex_AP("Djmb Shrp", 2);
+		setDispIndex_AP("Mrmb Shrp", 2);
+		setDispIndex_AP("Gtr Dyn", 2);
+
+		setDispIndex_AP("Vowel", 3);
+		setDispIndex_AP("Gtr Stf", 3);
+		setDispIndex_AP("Voice Fric", 3);
+		
+		setDispIndex_AP("Detune", 4);
+		setDispIndex_AP("Pan", 4);
+		setDispIndex_AP("Pitch Warp", 4);
+	}
 
 	// FAUST OBJECT
 	bool isMusicDSP_On = false;

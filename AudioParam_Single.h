@@ -14,6 +14,7 @@ public:
 	short mapFunc = 1;
 	short quantLevels_2raisedTo = -1;
 	short numSynthControls = 1;
+	short dispIdx = -1;
 	// 1 = Instrument Trigger
 	// 2 = Freq
 	// 3 = Sound Effect
@@ -34,6 +35,11 @@ public:
 		numSynthControls = nSynthCtrls;
 		parameterType = paramType;
 		isVisible = isVis;
+	}
+
+	void setDispIdx(short dispIndex)
+	{
+		dispIdx = dispIndex;
 	}
 
 	FeedbackVariable()
