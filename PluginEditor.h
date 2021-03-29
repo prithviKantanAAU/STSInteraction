@@ -262,7 +262,7 @@ private:
 				addAndMakeVisible(ui_mappingMatrix.labels_movementParams[m]);
 				addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][0]);
 				addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][1]);
-				addAndMakeVisible(ui_mappingMatrix.mp_minThresh[m]);
+				addAndMakeVisible(ui_mappingMatrix.normRange_MP[m]);
 			}
 		}
 
@@ -276,6 +276,7 @@ private:
 				addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[a]);
 				addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][0]);
 				addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][1]);
+				addAndMakeVisible(ui_mappingMatrix.normRange_AP[a]);
 			}
 		}
 
@@ -582,9 +583,16 @@ private:
 					ui_mappingMatrix.labels_movementParams[i].textColourId, Colours::red
 				);
 
-			ui_mappingMatrix.mp_minThresh[i].onValueChange = [this, i]
+			ui_mappingMatrix.normRange_MP[i].onValueChange = [this, i]
 			{
-				mpArrayPtr[i].thresh_min_NORM = ui_mappingMatrix.mp_minThresh[i].getValue();
+				mpArrayPtr[i].rangeNorm_MIN = ui_mappingMatrix.normRange_MP[i].getMinValue();
+				mpArrayPtr[i].rangeNorm_MAX = ui_mappingMatrix.normRange_MP[i].getMaxValue();
+			};
+
+			ui_mappingMatrix.normRange_AP[i].onValueChange = [this, i]
+			{
+				apArrayPtr[i].rangeNorm_MIN = ui_mappingMatrix.normRange_AP[i].getMinValue();
+				apArrayPtr[i].rangeNorm_MAX = ui_mappingMatrix.normRange_AP[i].getMaxValue();
 			};
 
 			for (int j = 0; j < musControlPtr->numFbVariables; j++)

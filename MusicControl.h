@@ -147,10 +147,16 @@ public:
 					if (mappingMatrix[j][i])
 					{
 						mapVal_Indiv = (mpArray[j].value - mpArray[j].minVal)
-							/ (mpArray[j].maxVal - mpArray[j].minVal);
-						if (mapVal_Indiv < mpArray[j].thresh_min_NORM) mapVal_Indiv = 0;
-						fbVar_Value_Temp += mapVal_Indiv * mappingStrength[j][i] / mappingStrength_AbsSum;
+							/ (mpArray[j].maxVal - mpArray[j].minVal) * mappingStrength[j][i];
 
+						// HANDLE NORMALIZED MP BOUNDING
+						if (mapVal_Indiv <= mpArray[j].rangeNorm_MIN) mapVal_Indiv = 0;
+						if (mapVal_Indiv >= mpArray[j].rangeNorm_MAX) mapVal_Indiv = 1;
+
+						mapVal_Indiv = (mapVal_Indiv - mpArray[j].rangeNorm_MIN) /
+										(mpArray[j].rangeNorm_MAX - mpArray[j].rangeNorm_MIN);
+
+						fbVar_Value_Temp += mapVal_Indiv / mappingStrength_AbsSum;
 					}
 				}
 
@@ -195,65 +201,50 @@ public:
 	{
 		short mapFuncIdx = feedbackVariables[fbVar_Idx].mapFunc;
 
+		// INVERT POLARITY IF NEEDED
 		if (feedbackVariables[fbVar_Idx].polarity == 2) *val = 1 - *val;
+
+		float orig_Range = (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
+		float orig_MinVal = feedbackVariables[fbVar_Idx].minVal;
+
+		float norm_Range = feedbackVariables[fbVar_Idx].rangeNorm_MAX - feedbackVariables[fbVar_Idx].rangeNorm_MIN;
+		float norm_MinVal = feedbackVariables[fbVar_Idx].rangeNorm_MIN;
+
+		float new_Min = orig_MinVal + norm_MinVal * orig_Range;
+		float new_Max = new_Min + norm_Range * orig_Range;
+		float new_Range = new_Max - new_Min;
 
 		switch (mapFuncIdx)
 		{
 		case 1:
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 2:
 			*val = pow(*val, 1.5);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 3:
 			*val = pow(*val, 2);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 4:
 			*val = pow(*val, 0.75);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 5:
 			*val = pow(*val, 0.5);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 6:
 			*val = exp((*val - 0.5) * 12) / (1 + exp((*val - 0.5) * 12));
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 7:
-			if (fabs(*val - 0.5) > 0.04)
-			{
-				bool isUnder = *val < 0.5;
-				if (isUnder)
-				{
-					*val = pow(*val, 15);
-					*val = (jlimit(-50.0, 50.0, log(*val / (1 - *val))) + 50) / 100.0;
-				}
-				else
-				{
-					double val_Inter = *val - 2 * (*val - 0.5);
-					val_Inter = pow(val_Inter, 15);
-					val_Inter = (jlimit(-50.0, 50.0, log(val_Inter / (1 - val_Inter))) + 50) / 100.0;
-					*val = val_Inter + 2 * (0.5 - val_Inter);
-				}
-			}
-			else *val = 0.5;
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		}
 
-		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo,
-			(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal));
+		*val = new_Min + *val * (new_Max - new_Min);
 
+		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo, new_Range, new_Min);
 
-		*val += feedbackVariables[fbVar_Idx].minVal;
-
-		feedbackVariables[fbVar_Idx].value = *val;
+		feedbackVariables[fbVar_Idx].value = jlimit(new_Min, new_Max, (float)*val);
 	}
 
-	double quantizeParam(float currentParamValue, int quantLevels_2raisedTo, float range)
+	double quantizeParam(float currentParamValue, int quantLevels_2raisedTo, float range, float min_Final)
 	{
 		float quantizedParam = 0;
 		if (quantLevels_2raisedTo < 1)
@@ -261,6 +252,7 @@ public:
 
 		else
 		{
+			currentParamValue -= min_Final;
 			int numQuantizationSteps = pow(2, quantLevels_2raisedTo);
 			float quantizationStepSize = range / (float)numQuantizationSteps;
 
@@ -275,7 +267,7 @@ public:
 					diff = currentParamValue - currentStepForTest;
 				}
 			}
-			if (stepFound) quantizedParam = currentParamValue - diff;
+			if (stepFound) quantizedParam = currentParamValue - diff + min_Final;
 			return quantizedParam;
 		}
 	};

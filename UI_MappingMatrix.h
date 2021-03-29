@@ -27,7 +27,8 @@ class UI_MappingMatrix
 	Label labels_audioParams[40];
 	ToggleButton mapping_Matrix[40][40];
 	Slider mapping_Strength[40][40];
-	Slider mp_minThresh[40];
+	Slider normRange_MP[40];
+	Slider normRange_AP[40];
 	ComboBox mapping_Function[40];
 	ComboBox mapping_Polarity[40];
 	ComboBox mapping_QuantLevels[40];
@@ -66,11 +67,21 @@ class UI_MappingMatrix
 			labels_movementParams[i].setJustificationType(Justification::centred);
 			labels_audioParams[i].setJustificationType(Justification::centred);
 
-			mp_minThresh[i].setRange(0, 1);
-			mp_minThresh[i].setValue(0);
-			mp_minThresh[i].setColour(mp_minThresh[i].trackColourId, Colours::yellow);
-			mp_minThresh[i].setColour(mp_minThresh[i].backgroundColourId, Colours::blue);
-			mp_minThresh[i].setTextBoxStyle(Slider::NoTextBox,false,10,10);
+			normRange_MP[i].setRange(0, 1);
+			normRange_MP[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			normRange_MP[i].setMinValue(0);
+			normRange_MP[i].setMaxValue(1);
+			normRange_MP[i].setColour(normRange_MP[i].trackColourId, Colours::yellow);
+			normRange_MP[i].setColour(normRange_MP[i].backgroundColourId, Colours::blue);
+			normRange_MP[i].setTextBoxStyle(Slider::NoTextBox,false,10,10);
+
+			normRange_AP[i].setRange(0, 1);
+			normRange_AP[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			normRange_AP[i].setMinValue(0);
+			normRange_AP[i].setMaxValue(1);
+			normRange_AP[i].setColour(normRange_AP[i].trackColourId, Colours::yellow);
+			normRange_AP[i].setColour(normRange_AP[i].backgroundColourId, Colours::blue);
+			normRange_AP[i].setTextBoxStyle(Slider::NoTextBox, false, 10, 10);
 		}
 
 		preset_Name.setJustification(Justification::centred);
@@ -128,7 +139,7 @@ class UI_MappingMatrix
 						if (a == 0)
 						{
 							lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
-							lineString += String(mp_minThresh[l - 2 * num_MP - 1].getValue(), 2) + ",";
+							lineString += String(normRange_MP[l - 2 * num_MP - 1].getValue(), 2) + ",";
 						}
 					}
 
@@ -419,7 +430,7 @@ class UI_MappingMatrix
 			{
 				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],sendNotificationSync);
 				mapping_Strength[j][i].setValue(loadedPreset->mappingStrength[j][i]);
-				mp_minThresh[j].setValue(loadedPreset->mappingThresh[j]);
+				normRange_MP[j].setValue(loadedPreset->mappingThresh[j]);
 			}
 			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
 			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);
@@ -436,7 +447,7 @@ class UI_MappingMatrix
 				labels_movementParams[m].setVisible(on);
 				movementParams_Value[m][0].setVisible(on);
 				movementParams_Value[m][1].setVisible(on);
-				mp_minThresh[m].setVisible(on);
+				normRange_MP[m].setVisible(on);
 			}
 		}
 
@@ -450,6 +461,7 @@ class UI_MappingMatrix
 				mapping_QuantLevels[a].setVisible(on);
 				audioParams_Value[a][0].setVisible(on);
 				audioParams_Value[a][1].setVisible(on);
+				normRange_AP[a].setVisible(on);
 			}
 		}
 
@@ -540,7 +552,7 @@ class UI_MappingMatrix
 					matrix_startPointY + gap_interRow * num_MP_populated,
 					110, 25);
 
-				mp_minThresh[dispSeq_MP[i]].setBounds(
+				normRange_MP[dispSeq_MP[i]].setBounds(
 					mp_startPointX - 3,
 					matrix_startPointY + gap_interRow * num_MP_populated + 20,
 					width_Value + 7,
@@ -605,6 +617,13 @@ class UI_MappingMatrix
 					matrix_startPointY + num_MP_Visible * gap_interRow + 125,
 					gap_interCol * 0.95,
 					25
+				);
+
+				normRange_AP[dispSeq_AP[k]].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 5,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 175,
+					gap_interCol * 0.95 - 3,
+					10
 				);
 
 				num_AP_populated += 1;

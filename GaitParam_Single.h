@@ -14,6 +14,9 @@ public:
 
 	double thresh_min_NORM = 0;
 
+	float rangeNorm_MIN = 0;
+	float rangeNorm_MAX = 1;
+
 	void initialize(float mini, float maxi, String mpName, bool isVis = true)
 	{
 		name = mpName;
@@ -31,6 +34,12 @@ public:
 	{
 		if (!isnan(newVal))
 		value = jlimit(minVal, maxVal, newVal);
+	}
+
+	void setRangeNorm(float mini, float maxi)
+	{
+		rangeNorm_MIN = mini;
+		rangeNorm_MAX = maxi;
 	}
 
 	MovementParameter() {};

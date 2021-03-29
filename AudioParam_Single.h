@@ -22,6 +22,9 @@ public:
 	short parameterType = 1;
 	bool isVisible = false;
 
+	float rangeNorm_MIN = 0;
+	float rangeNorm_MAX = 1;
+
 	void initialize(String apName, float mini, float maxi, float defVal, short pol, short mapF, short numQuantLevels,
 					short nSynthCtrls, short paramType, bool isVis)
 	{
@@ -40,6 +43,12 @@ public:
 	void setDispIdx(short dispIndex)
 	{
 		dispIdx = dispIndex;
+	}
+
+	void setRangeNorm(float mini, float maxi)
+	{
+		rangeNorm_MIN = mini;
+		rangeNorm_MAX = maxi;
 	}
 
 	FeedbackVariable()
