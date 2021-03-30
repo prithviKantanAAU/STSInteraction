@@ -21,14 +21,14 @@ public:
 		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",false);
 		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
 		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
-		movementParams[3].initialize(0, 40, "Orientation Trunk ML",false);
+		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
 		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
 		// JOINT ANGLES
 		movementParams[6].initialize(-40, 180, "Angle Hip");
 		movementParams[7].initialize(-40, 180, "Angle Knee");
-		movementParams[8].initialize(-40, 40, "Angle Ankle");
+		movementParams[8].initialize(-40, 40, "Angle Ankle",false);
 
 		// JOINT HYPEREXTENSION
 		movementParams[9].initialize(0, 1, "Hyperextend Hip");
@@ -37,7 +37,7 @@ public:
 		// JOINT ANGULAR VELOCITY
 		movementParams[11].initialize(0, 3, "Ang Velocity Knee");
 		movementParams[12].initialize(0, 3, "Ang Velocity Hip");
-		movementParams[13].initialize(0, 3, "Ang Velocity Ankle");
+		movementParams[13].initialize(0, 3, "Ang Velocity Ankle",false);
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		movementParams[14].initialize(-1, 6, "STS Phase");
@@ -47,8 +47,8 @@ public:
 		movementParams[16].initialize(0.36, 0.92, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
-		movementParams[17].initialize(0, 3, "Horiz Vel");
-		movementParams[18].initialize(0, 3, "Verti Vel");
+		movementParams[17].initialize(0, 0.3, "Horiz Vel");
+		movementParams[18].initialize(0, 0.45, "Verti Vel");
 
 		// ANGULAR JERK MEASURES
 		movementParams[19].initialize(0, 100, "Trunk Jerk - Ang",false);
@@ -61,6 +61,7 @@ public:
 		populateDispIndex_MP();
 		setupReceivers();
 		eulerSmoothing_INIT();
+		LPF_Init();
 
 		musicControl.numMovementParams = numMovementParams;
 	};
@@ -140,6 +141,25 @@ public:
 	short eulerSmoothing_Order = 6;
 	short eulerSmoothing_Fc = 49;
 	double eulerSmoothing_Q = 0.7;
+
+	// ANGULAR VELOCITY, CoM VELOCITY BIQUADS
+	BiQuad LPF_JointAngularVel[3];
+	BiQuad LPF_CoM_Vel[2];
+
+	void LPF_Init()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			LPF_JointAngularVel[i].flushDelays();
+			LPF_JointAngularVel[i].calculateLPFCoeffs(7, 0.7, 100);
+		}
+
+		for (int j = 0; j < 2; j++)
+		{
+			LPF_CoM_Vel[j].flushDelays();
+			LPF_CoM_Vel[j].calculateLPFCoeffs(7, 0.7, 100);
+		}
+	}
 
 	void eulerSmoothing_INIT()
 	{
@@ -433,12 +453,11 @@ public:
 		store_MP_Value("Hyperextend Knee", (jointAngles_Deg[1] <= jointAngles_thresh_Hyper[1]) ? 1 : 0);
 
 		// COMPUTE JOINT ANGULAR VELOCITY
-		jointAngularVel_DegPerSec[0] = fabs(jointAngles_Deg[0] - jointAngles_Deg_Z1[0]);
-		jointAngularVel_DegPerSec[1] = fabs(jointAngles_Deg[1] - jointAngles_Deg_Z1[1]);
-		jointAngularVel_DegPerSec[2] = fabs(jointAngles_Deg[2] - jointAngles_Deg_Z1[2]);
-		jointAngles_Deg_Z1[0] = jointAngles_Deg[0];
-		jointAngles_Deg_Z1[1] = jointAngles_Deg[1];
-		jointAngles_Deg_Z1[2] = jointAngles_Deg[2];
+		for (int i = 0; i < 3; i++)
+		{
+			jointAngularVel_DegPerSec[i] = LPF_JointAngularVel[i].doBiQuad(fabs(jointAngles_Deg[i] - jointAngles_Deg_Z1[i]),0);
+			jointAngles_Deg_Z1[i] = jointAngles_Deg[i];
+		}
 
 		store_MP_Value("Ang Velocity Hip", jointAngularVel_DegPerSec[0]);
 		store_MP_Value("Ang Velocity Knee", jointAngularVel_DegPerSec[1]);
@@ -575,8 +594,8 @@ public:
 
 		// CALCULATE NORMALIZED CoM Velocity
 
-		float horiz_Vel_AP = fabs(horiz_Disp_AP - CoM_Horiz_AP_z1) * 100;
-		float vert_Vel = fabs(vert_Disp - CoM_Vert_z1) * 100;
+		float horiz_Vel_AP = LPF_CoM_Vel[0].doBiQuad(fabs(horiz_Disp_AP - CoM_Horiz_AP_z1) * 100,0);
+		float vert_Vel = LPF_CoM_Vel[1].doBiQuad(fabs(vert_Disp - CoM_Vert_z1) * 100,0);
 
 		CoM_Horiz_AP_z1 = horiz_Disp_AP;
 		CoM_Vert_z1 = vert_Disp;

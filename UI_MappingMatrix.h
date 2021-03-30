@@ -430,7 +430,7 @@ class UI_MappingMatrix
 			{
 				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],sendNotificationSync);
 				mapping_Strength[j][i].setValue(loadedPreset->mappingStrength[j][i]);
-				normRange_MP[j].setValue(loadedPreset->mappingThresh[j]);
+				//normRange_MP[j].setValue(loadedPreset->mappingThresh[j]);
 			}
 			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
 			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);
@@ -622,7 +622,7 @@ class UI_MappingMatrix
 				normRange_AP[dispSeq_AP[k]].setBounds(
 					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 5,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 175,
-					gap_interCol * 0.95 - 3,
+					width_Value_AP * 1.2,
 					10
 				);
 
