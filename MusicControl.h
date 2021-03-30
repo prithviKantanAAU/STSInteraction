@@ -39,6 +39,7 @@ public:
 		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
 		feedbackVariables[16].initialize("WarningBell", 0, 1, 0, 0, 1, 0, 1, 1, true);
 		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
+		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
 
 		populateDispIndex_AP();
 	};
@@ -69,6 +70,7 @@ public:
 		
 		setDispIndex_AP("Mel Fr", 1);
 		setDispIndex_AP("Chord Fr", 1);
+		setDispIndex_AP("Gtr Fr", 1);
 
 		setDispIndex_AP("Dynamics", 2);
 		setDispIndex_AP("Djmb Shrp", 2);
@@ -88,7 +90,7 @@ public:
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 18;
+	short numFbVariables = 19;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES
@@ -278,7 +280,7 @@ public:
 		fbVar_finalArray[0] = *val;
 
 		// MEL FREQ
-		if (feedbackVariables[fbVar_Idx].name == "Mel Fr")
+		if (feedbackVariables[fbVar_Idx].name == "Mel Fr" || feedbackVariables[fbVar_Idx].name == "Gtr Fr")
 		{
 			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
 				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
