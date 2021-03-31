@@ -603,6 +603,7 @@ private:
 				ui_mappingMatrix.mapping_Matrix[i][j].onStateChange = [this, i, j]
 				{
 					musControlPtr->mappingMatrix[i][j] = ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
+					mpArrayPtr[i].inRange = ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
 					ui_mappingMatrix.mapping_Strength[i][j].setVisible(ui_mappingMatrix.mapping_Matrix[i][j].getToggleState());
 				};
 

@@ -60,6 +60,7 @@ class UI_MappingMatrix
     {
 		for (int i = 0; i < 40; i++)
 		{
+			movementParams_Value[i][0].setColour(movementParams_Value[i][0].textColourId, Colours::black);
 			movementParams_Value[i][0].setColour(movementParams_Value[i][0].backgroundColourId, Colours::yellow);
 			movementParams_Value[i][1].setColour(movementParams_Value[i][1].backgroundColourId, Colours::blue);
 			audioParams_Value[i][0].setColour(audioParams_Value[i][0].backgroundColourId, Colours::yellow);
@@ -139,7 +140,7 @@ class UI_MappingMatrix
 						if (a == 0)
 						{
 							lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
-							lineString += String(normRange_MP[l - 2 * num_MP - 1].getValue(), 2) + ",";
+							lineString += String(normRange_MP[l - 2 * num_MP - 1].getMinValue(), 2) + ",";
 						}
 					}
 
@@ -657,7 +658,13 @@ class UI_MappingMatrix
 		int num_MP_populated = 0;
 		int num_AP_populated = 0;
 
-		for (int i = 0; i < numMP; i++) { if (mpArray[i].isVisible) num_MP_Visible += 1; }
+		for (int i = 0; i < numMP; i++) { 
+			if (mpArray[i].isVisible)
+			{
+				num_MP_Visible += 1;
+				movementParams_Value[i][0].setText(String(mpArray[i].value, 1), dontSendNotification);
+			}
+		}
 		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
 
 		int matrix_Width = 0.75 * interfaceWidth;
@@ -683,8 +690,7 @@ class UI_MappingMatrix
 				width_Lab2 = width_Value - width_Lab1;
 
 				Colour colour_mpVal;
-				bool colorCondition = mpArray[dispSeq_MP[i]].value > (mpArray[dispSeq_MP[i]].minVal
-					+ mpArray[dispSeq_MP[i]].thresh_min_NORM * (mpArray[dispSeq_MP[i]].maxVal - mpArray[dispSeq_MP[i]].minVal));
+				bool colorCondition = mpArray[dispSeq_MP[i]].inRange;
 				colour_mpVal = colorCondition ? Colours::yellow : Colours::orange;
 				movementParams_Value[dispSeq_MP[i]][0].setColour(movementParams_Value[dispSeq_MP[i]][0].backgroundColourId, colour_mpVal);
 

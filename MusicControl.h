@@ -40,6 +40,8 @@ public:
 		feedbackVariables[16].initialize("WarningBell", 0, 1, 0, 0, 1, 0, 1, 1, true);
 		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
 		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
+		feedbackVariables[19].initialize("Sin1 F", 10, 400, 10, 1, 3, 0, 1, 4, true);
+		feedbackVariables[20].initialize("Sin2 F", 10, 800, 10, 1, 3, 0, 1, 4, true);
 
 		populateDispIndex_AP();
 	};
@@ -84,13 +86,16 @@ public:
 		setDispIndex_AP("Detune", 4);
 		setDispIndex_AP("Pan", 4);
 		setDispIndex_AP("Pitch Warp", 4);
+
+		setDispIndex_AP("Sin1 F", 5);
+		setDispIndex_AP("Sin2 F", 5);
 	}
 
 	// FAUST OBJECT
 	bool isMusicDSP_On = false;
 
-	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 19;
+	FeedbackVariable feedbackVariables[40];
+	short numFbVariables = 21;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES
@@ -152,8 +157,15 @@ public:
 							/ (mpArray[j].maxVal - mpArray[j].minVal) * mappingStrength[j][i];
 
 						// HANDLE NORMALIZED MP BOUNDING
-						if (mapVal_Indiv <= mpArray[j].rangeNorm_MIN) mapVal_Indiv = 0;
-						if (mapVal_Indiv >= mpArray[j].rangeNorm_MAX) mapVal_Indiv = 1;
+						mpArray[j].inRange = true;
+
+						if (mapVal_Indiv <= mpArray[j].rangeNorm_MIN) {
+							mapVal_Indiv = 0; mpArray[j].inRange = false;
+						}
+						
+						if (mapVal_Indiv >= mpArray[j].rangeNorm_MAX) { 
+							mapVal_Indiv = 1; mpArray[j].inRange = false;
+						}
 
 						mapVal_Indiv = (mapVal_Indiv - mpArray[j].rangeNorm_MIN) /
 										(mpArray[j].rangeNorm_MAX - mpArray[j].rangeNorm_MIN);

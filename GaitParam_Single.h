@@ -6,14 +6,14 @@ class MovementParameter
 public:
 
 	String name = "Placeholder";
-	double value = 0;		
+	double value = 0;
 	double minVal = 0;
 	double maxVal = 1;
 	bool isVisible = false;
 	short dispIdx = -1;
 
 	double thresh_min_NORM = 0;
-
+	bool inRange = false;
 	float rangeNorm_MIN = 0;
 	float rangeNorm_MAX = 1;
 

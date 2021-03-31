@@ -96,9 +96,23 @@ public:
 
 		double indicator_offset_Px = 0;
 
+		double ap_Array[3] =
+		{
+			MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk AP", "Val"),
+			MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Thigh AP", "Val"),
+			MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Shank AP", "Val"),
+		};
+
+		double ml_Array[3] =
+		{
+			MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk ML", "Val"),
+			MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Thigh ML", "Val"),
+			MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Shank ML", "Val"),
+		};
+
 		for (int i = 0; i < 3; i++)
 		{
-			indicator_offset_Px = (mpArray[i].value - (-90)) / 180.0 * IMU_Config_Column_Width[5];
+			indicator_offset_Px = (ap_Array[i] - (-90)) / 180.0 * IMU_Config_Column_Width[5];
 			// ADJUST INDICATOR POSITION - AP
 			IMU_segmentAngles_AP_Indicator[i].setBounds(
 				IMU_Config_Column_StartPos[5] + indicator_offset_Px,
@@ -107,7 +121,7 @@ public:
 				indicatorHeight
 			);
 			
-			indicator_offset_Px = (mpArray[i + 3].value) / 90.0 * IMU_Config_Column_Width[8];
+			indicator_offset_Px = (ml_Array[i]) / 90.0 * IMU_Config_Column_Width[8];
 			// ADJUST INDICATOR POSITION - ML
 			IMU_segmentAngles_ML_Indicator[i].setBounds(
 				IMU_Config_Column_StartPos[8] + indicator_offset_Px,
