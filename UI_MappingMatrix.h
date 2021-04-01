@@ -107,7 +107,7 @@ class UI_MappingMatrix
 			String formatSpecifier = "%s,\n";
 
 			// SPECIFY TOTAL LINES
-			int numLines = 1 + num_MP + num_MP + num_MP + 3 + 8;
+			int numLines = 1 + num_MP + num_MP + 3 + 8;
 
 			String lineString = "";
 			String lineHeader = "";
@@ -135,28 +135,28 @@ class UI_MappingMatrix
 						lineString += String(mapping_Strength[l - num_MP - 1][a].getValue(), 2) + ",";
 					}
 
-					if (l >= num_MP + 1 + num_MP && l < num_MP + num_MP + num_MP + 1)	// MAPPING THRESH
-					{
-						if (a == 0)
-						{
-							lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
-							lineString += String(normRange_MP[l - 2 * num_MP - 1].getMinValue(), 2) + ",";
-						}
-					}
+					//if (l >= num_MP + 1 + num_MP && l < num_MP + num_MP + num_MP + 1)	// MAPPING THRESH
+					//{
+					//	if (a == 0)
+					//	{
+					//		lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
+					//		lineString += String(normRange_MP[l - 2 * num_MP - 1].getMinValue(), 2) + ",";
+					//	}
+					//}
 
-					if (l == 3 * num_MP + 1)											// MAPPING FUNCTION IDX
+					if (l == 2 * num_MP + 1)											// MAPPING FUNCTION IDX
 					{
 						lineHeader = "Map Func Idx";
 						lineString += String(mapping_Function[a].getSelectedId()) + ",";
 					}
 
-					if (l == 3 * num_MP + 2)											// MAPPING POLARITY
+					if (l == 2 * num_MP + 2)											// MAPPING POLARITY
 					{
 						lineHeader = "Polarity";
 						lineString += String(mapping_Polarity[a].getSelectedId()) + ",";
 					}
 
-					if (l == 3 * num_MP + 3)											// MAPPING QUANT BITS
+					if (l == 2 * num_MP + 3)											// MAPPING QUANT BITS
 					{
 						lineHeader = "Quant Bits";
 						lineString += String(mapping_QuantLevels[a].getSelectedId() - 1) + ",";
@@ -164,31 +164,31 @@ class UI_MappingMatrix
 
 					if (a == 0)
 					{
-						if (l == 3 * num_MP + 4)										// OSC BPM
+						if (l == 2 * num_MP + 4)										// OSC BPM
 						{
 							lineHeader = "OSC_BPM";
 							lineString = String(dataHolder_oscBPM, 4);
 						}
 
-						if (l == 3 * num_MP + 5)										// VOICE CUE ON
+						if (l == 2 * num_MP + 5)										// VOICE CUE ON
 						{
 							lineHeader = "VoiceCue_ON";
 							lineString = dataHolder_voiceCue_ON ? "1" : "0";
 						}
 
-						if (l == 3 * num_MP + 6)										// TIMING FINE
+						if (l == 2 * num_MP + 6)										// TIMING FINE
 						{
 							lineHeader = "VoiceCue_TimingFine";
 							lineString = String(dataHolder_voiceCue_timingFine,2);
 						}
 
-						if (l == 3 * num_MP + 7)										// VOICE CUE LEVEL
+						if (l == 2 * num_MP + 7)										// VOICE CUE LEVEL
 						{
 							lineHeader = "VoiceCue_LeveldB";
 							lineString = String(dataHolder_voiceCue_voldB,2);
 						}
 
-						if (l == 3 * num_MP + 8)										// VOICE CUE LENGTH
+						if (l == 2 * num_MP + 8)										// VOICE CUE LENGTH
 						{
 							lineHeader = "VoiceCue_Length";
 							lineString = String(dataHolder_voiceCue_Length);
@@ -197,19 +197,19 @@ class UI_MappingMatrix
 
 					if (a < 3)
 					{
-						if (l == 3 * num_MP + 9)										// IS INTERVAL ENABLED
+						if (l == 2 * num_MP + 9)										// IS INTERVAL ENABLED
 						{
 							lineHeader = "VoiceCue_isIntervalEnabled";
 							lineString += dataHolder_voiceCue_isIntervalEnabled[a] ? "1," : "0,";
 						}
 
-						if (l == 3 * num_MP + 10)										// IS INTERVAL POSITIVE CROSS
+						if (l == 2 * num_MP + 10)										// IS INTERVAL POSITIVE CROSS
 						{
 							lineHeader = "VoiceCue_isIntervalPos";
 							lineString += dataHolder_voiceCue_isPos[a] ? "1," : "0,";
 						}
 
-						if (l == 3 * num_MP + 11)										// CUE LOCATION
+						if (l == 2 * num_MP + 11)										// CUE LOCATION
 						{
 							lineHeader = "VoiceCue_intervalLocation";
 							lineString += String(dataHolder_voiceCue_location[a],2) + ",";
@@ -318,14 +318,14 @@ class UI_MappingMatrix
 					}
 				}
 
-				if (line_header == "mapThr_" + mpArray[i].name)			// MAPPING MATRIX THR ROWS
-				{
-					for (int j = 0; j < num_AP; j++)
-					{
-							presetContainer->mappingThresh[i] =
-								line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
-					}
-				}
+				//if (line_header == "mapThr_" + mpArray[i].name)			// MAPPING MATRIX THR ROWS
+				//{
+				//	for (int j = 0; j < num_AP; j++)
+				//	{
+				//			presetContainer->mappingThresh[i] =
+				//				line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+				//	}
+				//}
 			}
 
 			if (line_header == "Map Func Idx")
@@ -621,7 +621,7 @@ class UI_MappingMatrix
 				);
 
 				normRange_AP[dispSeq_AP[k]].setBounds(
-					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 5,
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 175,
 					width_Value_AP * 1.2,
 					10
@@ -721,14 +721,14 @@ class UI_MappingMatrix
 				width_Lab2 = width_Value_AP - width_Lab1;
 
 				audioParams_Value[dispSeq_AP[i]][0].setBounds(
-					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 10,
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 5,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 150,
 					width_Lab1,
 					20
 				);
 
 				audioParams_Value[dispSeq_AP[i]][1].setBounds(
-					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + width_Lab1 + 10,
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + width_Lab1 + 5,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 150,
 					width_Lab2,
 					20

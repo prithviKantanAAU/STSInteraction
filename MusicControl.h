@@ -37,11 +37,11 @@ public:
 		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, false);
 		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
 		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
-		feedbackVariables[16].initialize("WarningBell", 0, 1, 0, 0, 1, 0, 1, 1, true);
+		feedbackVariables[16].initialize("Bell Tr", 0, 1, 0, 0, 1, 0, 1, 1, true);
 		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
 		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
 		feedbackVariables[19].initialize("Sin1 F", 10, 400, 10, 1, 3, 0, 1, 4, true);
-		feedbackVariables[20].initialize("Sin2 F", 10, 800, 10, 1, 3, 0, 1, 4, true);
+		feedbackVariables[20].initialize("Sin2 F", 10, 1600, 10, 1, 3, 0, 1, 4, true);
 
 		populateDispIndex_AP();
 	};
@@ -68,7 +68,7 @@ public:
 		setDispIndex_AP("Chord Tr", 0);
 		setDispIndex_AP("Perc2 Tr", 0);
 		setDispIndex_AP("Gtr Tr", 0);
-		setDispIndex_AP("WarningBell", 0);
+		setDispIndex_AP("Bell Tr", 0);
 		
 		setDispIndex_AP("Mel Fr", 1);
 		setDispIndex_AP("Chord Fr", 1);

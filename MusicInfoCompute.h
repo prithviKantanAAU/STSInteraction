@@ -38,14 +38,15 @@ public:
 		1, 2, 3, 4, 5, 6, 7, 8
 	};
 
-	short numChordTypes = 5;
+	short numChordTypes = 6;
 	String chordTypes_Names[10] =
 	{
 		"Normal",
 		"Sevenths",
 		"Sixths",
 		"Ninths",
-		"Sus4"
+		"Sus4",
+		"Unison"
 	};
 
 	int chordTypes_DegreeIntervals[10][4] =
@@ -54,7 +55,8 @@ public:
 		{0, 2, 4, 6},
 		{0, 2, 4, 5},
 		{0, 2, 4, 8},
-		{0, 2, 3, 4}
+		{0, 2, 3, 4},
+		{0, 0, 7, 7}
 	};
 
 	// COMPLETE REMAINING SCLES

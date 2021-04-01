@@ -43,8 +43,8 @@ public:
 		movementParams[14].initialize(-1, 6, "STS Phase");
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(0.23, 0.48, "Horiz Disp");
-		movementParams[16].initialize(0.36, 0.92, "Verti Disp");
+		movementParams[15].initialize(0.29, 0.51, "Horiz Disp");
+		movementParams[16].initialize(0.36, 0.98, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.3, "Horiz Vel");
@@ -215,7 +215,7 @@ public:
 	
 	// Operation Modes - Sensor v/s Slider
 	short numOperationModes = 2;
-	short operationMode_Present = 1;
+	short operationMode_Present = 2;
 	String OperationModes[5] = { "Slider Simulation","Sensor" };
 	
 	// Data Input Modes - Sensor v/s File

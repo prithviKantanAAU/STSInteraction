@@ -405,8 +405,8 @@ private:
 		}
 
 		// CoM H
-		ui_movementAnalysis.CoM_Disp_Bounds_H.setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Min"));
 		ui_movementAnalysis.CoM_Disp_Bounds_H.setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Max"));
+		ui_movementAnalysis.CoM_Disp_Bounds_H.setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Min"));
 		ui_movementAnalysis.CoM_Disp_Bounds_H.onValueChange = [this]
 		{
 			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Horiz Disp",
@@ -414,8 +414,8 @@ private:
 				ui_movementAnalysis.CoM_Disp_Bounds_H.getMaxValue());
 		};
 
-		ui_movementAnalysis.CoM_Disp_Bounds_V.setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Min"));
 		ui_movementAnalysis.CoM_Disp_Bounds_V.setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Max"));
+		ui_movementAnalysis.CoM_Disp_Bounds_V.setMinValue((double)mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Min"));
 		ui_movementAnalysis.CoM_Disp_Bounds_V.onValueChange = [this]
 		{
 			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Verti Disp",
