@@ -79,6 +79,9 @@ public:
 	Label CoM_Disp_Bounds_V_MAX;
 	Label CoM_Disp_INDIC_VAL_V;
 
+	TextButton cal_CoM_SIT;
+	TextButton cal_CoM_STAND;
+
 	// MP LOG STREAMING CONTROLS
 	Label dataInput_Mode_Status;
 	TextButton mpLog_File_Load_Unload;
@@ -326,6 +329,13 @@ public:
 		CoM_Disp_Bounds_V.setColour(CoM_Disp_Bounds_V.trackColourId, Colours::yellow);
 		CoM_Disp_Bounds_V.setColour(CoM_Disp_Bounds_V.backgroundColourId, Colours::blue);
 		CoM_Disp_INDIC_VAL_V.setColour(CoM_Disp_INDIC_VAL_V.backgroundColourId, Colours::yellow);
+
+		// CALIBRATE CoM
+		cal_CoM_SIT.setButtonText("Calibrate Sit");
+		cal_CoM_SIT.setColour(cal_CoM_SIT.buttonColourId, Colours::blue);
+
+		cal_CoM_STAND.setButtonText("Calibrate Stand");
+		cal_CoM_STAND.setColour(cal_CoM_STAND.buttonColourId, Colours::blue);
 	}
 
 	void toggleVisible(bool on, short dataInputMode)
@@ -401,6 +411,8 @@ public:
 			}
 		}
 		stsAnim_CoM_Indicator.setVisible(on);
+		cal_CoM_SIT.setVisible(on);
+		cal_CoM_STAND.setVisible(on);
 	}
 
 	void setLayout()
@@ -617,6 +629,20 @@ public:
 			IMU_Config_Column_StartPos[6],
 			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 4 + 170,
 			IMU_Config_Column_Width[6],
+			IMU_Config_Row_Height
+		);
+
+		cal_CoM_SIT.setBounds(
+			IMU_Config_Column_StartPos[5],
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 5 + 150,
+			IMU_Config_Column_Width[5],
+			IMU_Config_Row_Height
+		);
+
+		cal_CoM_STAND.setBounds(
+			IMU_Config_Column_StartPos[5],
+			IMU_Config_StartY + IMU_Config_Row_Offset * 2 * 5 + 180,
+			IMU_Config_Column_Width[5],
 			IMU_Config_Row_Height
 		);
 

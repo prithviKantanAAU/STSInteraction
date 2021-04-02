@@ -41,6 +41,7 @@ public:
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		movementParams[14].initialize(-1, 6, "STS Phase");
+		movementParams[23].initialize(0, 1, "Up Progress");
 		
 		// CoM NORMALIZED DISPLACEMENTS
 		movementParams[15].initialize(0.29, 0.51, "Horiz Disp");
@@ -105,6 +106,7 @@ public:
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		setDispIndex_MP("STS Phase", 5);
+		setDispIndex_MP("Up Progress", 5);
 
 		// CoM NORMALIZED DISPLACEMENTS
 		setDispIndex_MP("Horiz Disp", 6);
@@ -123,7 +125,7 @@ public:
 		setDispIndex_MP("Tri Osc",9);
 	}
 	
-	short numMovementParams = 23;
+	short numMovementParams = 24;
 	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
@@ -398,6 +400,7 @@ public:
 		computeJerkParams(1, "Thigh Jerk - Ang");
 		computeJerkParams(2, "Shank Jerk - Ang");
 		computeCoM_Disp_Vel();
+		computeProgress();
 		triOsc_Update();
 
 		musicControl.updateFBVariables(movementParams, numMovementParams);
@@ -602,6 +605,25 @@ public:
 
 		store_MP_Value("Horiz Vel", horiz_Vel_AP);
 		store_MP_Value("Verti Vel", vert_Vel);
+	}
+
+	void computeProgress()
+	{
+		float upProgress = 0;
+
+		float CoM_H_MIN = getMPVal_fromArray(movementParams, "Horiz Disp", "Min");
+		float CoM_H_MAX = getMPVal_fromArray(movementParams, "Horiz Disp", "Max");
+		float CoM_H_VAL = getMPVal_fromArray(movementParams, "Horiz Disp", "Val");
+		float CoM_V_MIN = getMPVal_fromArray(movementParams, "Verti Disp", "Min");
+		float CoM_V_MAX = getMPVal_fromArray(movementParams, "Verti Disp", "Max");
+		float CoM_V_VAL = getMPVal_fromArray(movementParams, "Verti Disp", "Val");
+
+		float norm_Prog_H = (CoM_H_VAL - CoM_H_MIN) / (CoM_H_MAX - CoM_H_MIN);
+		float norm_Prog_V = (CoM_V_VAL - CoM_V_MIN) / (CoM_V_MAX - CoM_V_MIN);
+
+		upProgress = 1.0 / 1.414 * sqrt(pow(norm_Prog_H,2) + pow(norm_Prog_V, 2));
+
+		store_MP_Value("Up Progress", upProgress);
 	}
 
 	void updateSTSPhase()

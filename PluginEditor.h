@@ -201,6 +201,8 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MIN);
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MAX);
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_INDIC_VAL_V);
+		addAndMakeVisible(ui_movementAnalysis.cal_CoM_SIT);
+		addAndMakeVisible(ui_movementAnalysis.cal_CoM_STAND);
 
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
@@ -439,6 +441,26 @@ private:
 				ui_movementAnalysis.record_MovementLog.setColour(
 					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::red);
 			}
+		};
+		
+		// CALIBRATE SIT
+		ui_movementAnalysis.cal_CoM_SIT.onClick = [this]
+		{
+			float CoM_H_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Val");
+			float CoM_V_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Val");
+
+			ui_movementAnalysis.CoM_Disp_Bounds_H.setMinValue(CoM_H_Pos);
+			ui_movementAnalysis.CoM_Disp_Bounds_V.setMinValue(CoM_V_Pos - 0.03);
+		};
+
+		// CALIBRATE STAND
+		ui_movementAnalysis.cal_CoM_STAND.onClick = [this]
+		{
+			float CoM_H_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Val");
+			float CoM_V_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Val");
+
+			ui_movementAnalysis.CoM_Disp_Bounds_H.setMaxValue(CoM_H_Pos + 0.03);
+			ui_movementAnalysis.CoM_Disp_Bounds_V.setMaxValue(CoM_V_Pos);
 		};
 	}
 	
