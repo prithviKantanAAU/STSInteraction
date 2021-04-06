@@ -259,44 +259,39 @@ private:
 	{
 		for (int m = 0; m < 40; m++)
 		{
-			if (mpArrayPtr[m].isVisible)
-			{
-				addAndMakeVisible(ui_mappingMatrix.labels_movementParams[m]);
-				addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][0]);
-				addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][1]);
-				addAndMakeVisible(ui_mappingMatrix.normRange_MP[m]);
-			}
+			addAndMakeVisible(ui_mappingMatrix.labels_movementParams[m]);
+			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][0]);
+			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][1]);
+			addAndMakeVisible(ui_mappingMatrix.normRange_MP[m]);
 		}
 
 		for (int a = 0; a < 40; a++)
 		{
-			if (apArrayPtr[a].isVisible)
-			{
-				addAndMakeVisible(ui_mappingMatrix.labels_audioParams[a]);
-				addAndMakeVisible(ui_mappingMatrix.mapping_Function[a]);
-				addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[a]);
-				addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[a]);
-				addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][0]);
-				addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][1]);
-				addAndMakeVisible(ui_mappingMatrix.normRange_AP[a]);
-			}
+			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[a]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_Function[a]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[a]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[a]);
+			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][0]);
+			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][1]);
+			addAndMakeVisible(ui_mappingMatrix.normRange_AP[a]);
 		}
 
 		for (int m = 0; m < 40; m++)
 		{
 			for (int a = 0; a < 40; a++)
 			{
-				if (mpArrayPtr[m].isVisible && apArrayPtr[a].isVisible)
-				{
-					addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[m][a]);
-					addAndMakeVisible(ui_mappingMatrix.mapping_Strength[m][a]);
-				}
+				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[m][a]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[m][a]);
 			}
 		}
 
 		addAndMakeVisible(ui_mappingMatrix.preset_Save);
 		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad);
 		addAndMakeVisible(ui_mappingMatrix.preset_Name);
+		addAndMakeVisible(ui_mappingMatrix.mp_isVisible);
+		addAndMakeVisible(ui_mappingMatrix.mp_isHidden);
+		addAndMakeVisible(ui_mappingMatrix.ap_isVisible);
+		addAndMakeVisible(ui_mappingMatrix.ap_isHidden);
 	}
 
 	// Initialize Sensor Config Tab Elements
@@ -712,6 +707,11 @@ private:
 			ui_mappingMatrix.populatePresets(mapPresetPtr,mpArrayPtr,apArrayPtr);
 			ui_mappingMatrix.preset_Name.setText("");
 		};
+
+		ui_mappingMatrix.mp_isVisible.addListener(this);
+		ui_mappingMatrix.mp_isHidden.addListener(this);
+		ui_mappingMatrix.ap_isVisible.addListener(this);
+		ui_mappingMatrix.ap_isHidden.addListener(this);
 	}
 
 	// Update Sensor Config Tab Elements
@@ -884,6 +884,28 @@ private:
 			mpArrayPtr,
 			apArrayPtr
 		);
+	}
+
+	void mappingMatrix_resetLayout()
+	{
+		ui_mappingMatrix.mp_isVisible.clear();
+		ui_mappingMatrix.mp_isHidden.clear();
+		ui_mappingMatrix.ap_isVisible.clear();
+		ui_mappingMatrix.ap_isHidden.clear();
+
+		ui_mappingMatrix.setLayout(interface_Width, interface_Height, mAnalysisPtr->numMovementParams,
+			musControlPtr->numFbVariables, mpArrayPtr, apArrayPtr);
+
+		ui_mappingMatrix.toggleVisible(true, mpArrayPtr, apArrayPtr);
+
+		ui_mappingMatrix.mp_isVisible.addItem("VISIBLE MP", 100);	
+		ui_mappingMatrix.mp_isVisible.setSelectedId(100);
+		ui_mappingMatrix.mp_isHidden.addItem("HIDDEN MP", 100);		
+		ui_mappingMatrix.mp_isHidden.setSelectedId(100);
+		ui_mappingMatrix.ap_isVisible.addItem("VISIBLE AP", 100);	
+		ui_mappingMatrix.ap_isVisible.setSelectedId(100);
+		ui_mappingMatrix.ap_isHidden.addItem("HIDDEN AP", 100);		
+		ui_mappingMatrix.ap_isHidden.setSelectedId(100);
 	}
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessorEditor)

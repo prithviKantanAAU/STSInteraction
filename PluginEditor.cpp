@@ -107,6 +107,46 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 				mAnalysisPtr->IMU_Polarity[i] = box->getSelectedId();
 		}
 	}
+
+	if (box == &ui_mappingMatrix.mp_isVisible)
+	{
+		if (box->getSelectedId() <= mAnalysisPtr->numMovementParams)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			mpArrayPtr[box->getSelectedId() - 1].isVisible = false;
+			mappingMatrix_resetLayout();
+		}
+	}
+
+	if (box == &ui_mappingMatrix.mp_isHidden)
+	{
+		if (box->getSelectedId() <= mAnalysisPtr->numMovementParams)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			mpArrayPtr[box->getSelectedId() - 1].isVisible = true;
+			mappingMatrix_resetLayout();
+		}
+	}
+
+	if (box == &ui_mappingMatrix.ap_isVisible)
+	{
+		if (box->getSelectedId() <= musControlPtr->numFbVariables)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			apArrayPtr[box->getSelectedId() - 1].isVisible = false;
+			mappingMatrix_resetLayout();
+		}
+	}
+
+	if (box == &ui_mappingMatrix.ap_isHidden)
+	{
+		if (box->getSelectedId() <= musControlPtr->numFbVariables)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			apArrayPtr[box->getSelectedId() - 1].isVisible = true;
+			mappingMatrix_resetLayout();
+		}
+	}
 }
 
 void StsinteractionAudioProcessorEditor::timerCallback()

@@ -39,6 +39,12 @@ class UI_MappingMatrix
 	int num_MP = 0;
 	int num_AP = 0;
 
+	// CHANGE LAYOUT
+	ComboBox mp_isVisible;
+	ComboBox mp_isHidden;
+	ComboBox ap_isVisible;
+	ComboBox ap_isHidden;
+
 	// PRESETS
 	TextButton preset_Save;
 	ComboBox preset_ListLoad;
@@ -87,6 +93,16 @@ class UI_MappingMatrix
 
 		preset_Name.setJustification(Justification::centred);
 		preset_Save.setButtonText("Save as Preset");
+
+		mp_isVisible.setColour(mp_isVisible.backgroundColourId, Colours::green);
+		mp_isHidden.setColour(mp_isHidden.backgroundColourId, Colours::red);
+		ap_isVisible.setColour(ap_isVisible.backgroundColourId, Colours::green);
+		ap_isHidden.setColour(ap_isHidden.backgroundColourId, Colours::red);
+
+		mp_isVisible.addItem("VISIBLE MP", 100);	mp_isVisible.setSelectedId(100);
+		mp_isHidden.addItem("HIDDEN MP", 100);		mp_isHidden.setSelectedId(100);
+		ap_isVisible.addItem("VISIBLE AP", 100);	ap_isVisible.setSelectedId(100);
+		ap_isHidden.addItem("HIDDEN AP", 100);		ap_isHidden.setSelectedId(100);
     }
 
 	void saveAsPreset(MovementParameter mpArray[], FeedbackVariable apArray[])
@@ -481,6 +497,11 @@ class UI_MappingMatrix
 		preset_Save.setVisible(on);
 		preset_ListLoad.setVisible(on);
 		preset_Name.setVisible(on);
+
+		mp_isVisible.setVisible(on);
+		mp_isHidden.setVisible(on);
+		ap_isVisible.setVisible(on);
+		ap_isHidden.setVisible(on);
     }
     
 	int dispSeq_MP[40], num_MP_Visible = 0, dispPos_MP_present = 0;
@@ -492,9 +513,37 @@ class UI_MappingMatrix
 		// INITIAL DECLARATION AND ASSIGNMENTS
 		num_MP = numMP;		num_AP = numAP;
 
+		num_MP_Visible = 0;
+		num_AP_Visible = 0;
+		dispPos_MP_present = 0;
+		dispPos_AP_present = 0;
+
 		// FIND NUMBER OF VISIBLE PARAMETERS, DISPLAY POSITIONS
-		for (int i = 0; i < numMP; i++) { if (mpArray[i].isVisible) num_MP_Visible += 1; }
-		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible)  num_AP_Visible += 1; }
+		for (int i = 0; i < numMP; i++) 
+		{ 
+			if (mpArray[i].isVisible)
+			{
+				mp_isVisible.addItem(mpArray[i].name, i + 1);
+				num_MP_Visible += 1;
+			}
+			else
+			{
+				mp_isHidden.addItem(mpArray[i].name, i + 1);
+			}
+		}
+		
+		for (int i = 0; i < numAP; i++) 
+		{ 
+			if (fbVars[i].isVisible)
+			{
+				ap_isVisible.addItem(fbVars[i].name, i + 1);
+				num_AP_Visible += 1;
+			}
+			else
+			{
+				ap_isHidden.addItem(fbVars[i].name, i + 1);
+			}
+		}
 
 		int numDispGrp_MP = 10;
 		int numDispGrp_AP = 10;
@@ -531,6 +580,11 @@ class UI_MappingMatrix
 			}
 		}
 
+		mp_isVisible.setBounds(interfaceWidth / 2 - 300, 0, 150, 30);
+		mp_isHidden.setBounds(interfaceWidth / 2 - 130, 0, 150, 30);
+		ap_isVisible.setBounds(interfaceWidth / 2 + 40, 0, 150, 30);
+		ap_isHidden.setBounds(interfaceWidth / 2 + 210, 0, 150, 30);
+
 		int matrix_Width = 0.75 * interfaceWidth;
 		int matrix_Height = 0.65 * interfaceHeight;
 
@@ -540,6 +594,8 @@ class UI_MappingMatrix
 
 		int gap_interRow = matrix_Height / num_MP_Visible;
 		int gap_interCol = matrix_Width / num_AP_Visible;
+
+		width_Value_AP = 50.0 / 63.0 * gap_interCol;
 
 		int num_MP_populated = 0;
 		int num_AP_populated = 0;
