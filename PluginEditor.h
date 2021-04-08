@@ -171,9 +171,10 @@ private:
 			addAndMakeVisible(ui_movementAnalysis.simulation_OrientAngles_LAB[i]);
 		}
 
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			addAndMakeVisible(ui_movementAnalysis.JointAngles[j]);
+			addAndMakeVisible(ui_movementAnalysis.JointAngles_Indicators[j]);
 			addAndMakeVisible(ui_movementAnalysis.JointVelocities[j]);
 
 			addAndMakeVisible(ui_movementAnalysis.Joint_Range_AP[j]);
@@ -187,7 +188,22 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.gyrMeasError);
 		addAndMakeVisible(ui_movementAnalysis.record_MovementLog);
 		addAndMakeVisible(ui_movementAnalysis.operationMode);
-		addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
+		//addAndMakeVisible(ui_movementAnalysis.orientationAlgo);
+
+		// CoM BOUND SLIDERS
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_Lab);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_MIN);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_MAX);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_INDIC_VAL_H);
+
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_Lab);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MIN);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MAX);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_INDIC_VAL_V);
+		addAndMakeVisible(ui_movementAnalysis.cal_CoM_SIT);
+		addAndMakeVisible(ui_movementAnalysis.cal_CoM_STAND);
 
 		// STS VISUALIZER
 		for (int i = 0; i < 4; i++)
@@ -195,10 +211,10 @@ private:
 
 		for (int j = 0; j < 20; j++)
 		{
-			addAndMakeVisible(ui_movementAnalysis.stsAnim_trunk[j]);
-			addAndMakeVisible(ui_movementAnalysis.stsAnim_thigh[j]);
-			addAndMakeVisible(ui_movementAnalysis.stsAnim_shank[j]);
+			for (int k = 0; k < 3; k++)
+			addAndMakeVisible(ui_movementAnalysis.stsAnim_Segments[k][j]);
 		}
+		addAndMakeVisible(ui_movementAnalysis.stsAnim_CoM_Indicator);
 	}
 
 	// Add Music Control Controls
@@ -242,30 +258,41 @@ private:
 	// Add Mapping Matrix Controls
 	void addControls_MappingMatrix()
 	{
-		for (int i = 0; i < 20; i++)		// Columns
+		for (int m = 0; m < 40; m++)
 		{
-			addAndMakeVisible(ui_mappingMatrix.labels_movementParams[i]);
-			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[i]);
-			addAndMakeVisible(ui_mappingMatrix.mapping_Function[i]);
-			addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[i]);
-			addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[i]);
-			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][0]);
-			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][0]);
-			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[i][1]);
-			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[i][1]);
+			addAndMakeVisible(ui_mappingMatrix.labels_movementParams[m]);
+			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][0]);
+			addAndMakeVisible(ui_mappingMatrix.movementParams_Value[m][1]);
+			addAndMakeVisible(ui_mappingMatrix.normRange_MP[m]);
+		}
 
-			for (int j = 0; j < 20; j++)	// Rows
+		for (int a = 0; a < 40; a++)
+		{
+			addAndMakeVisible(ui_mappingMatrix.labels_audioParams[a]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_Function[a]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_Polarity[a]);
+			addAndMakeVisible(ui_mappingMatrix.mapping_QuantLevels[a]);
+			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][0]);
+			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][1]);
+			addAndMakeVisible(ui_mappingMatrix.normRange_AP[a]);
+		}
+
+		for (int m = 0; m < 40; m++)
+		{
+			for (int a = 0; a < 40; a++)
 			{
-				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[i][j]);
-				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[i][j]);
-				addAndMakeVisible(ui_mappingMatrix.mp_minThresh[i]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_Matrix[m][a]);
+				addAndMakeVisible(ui_mappingMatrix.mapping_Strength[m][a]);
 			}
 		}
 
 		addAndMakeVisible(ui_mappingMatrix.preset_Save);
 		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad);
-		addAndMakeVisible(ui_mappingMatrix.preset_ListLoad_LAB);
 		addAndMakeVisible(ui_mappingMatrix.preset_Name);
+		addAndMakeVisible(ui_mappingMatrix.mp_isVisible);
+		addAndMakeVisible(ui_mappingMatrix.mp_isHidden);
+		addAndMakeVisible(ui_mappingMatrix.ap_isVisible);
+		addAndMakeVisible(ui_mappingMatrix.ap_isHidden);
 	}
 
 	// Initialize Sensor Config Tab Elements
@@ -307,12 +334,6 @@ private:
 		for (int i = 0; i < mAnalysisPtr->numOperationModes; i++)
 			ui_movementAnalysis.operationMode.addItem(mAnalysisPtr->OperationModes[i], i + 1);
 		ui_movementAnalysis.operationMode.setSelectedId(mAnalysisPtr->operationMode_Present);
-
-		// Orientation Detection Algorithm - Madgwick / 6DOF Complementary Filter
-		ui_movementAnalysis.orientationAlgo.addListener(this);
-		for (int i = 0; i < mAnalysisPtr->numOrientationAlgos; i++)
-			ui_movementAnalysis.orientationAlgo.addItem(mAnalysisPtr->OrientationAlgos[i], i + 1);
-		ui_movementAnalysis.orientationAlgo.setSelectedId(mAnalysisPtr->orientAlgo_Present);
 		
 		// MP Log Playback
 		mpLogStream_Configure_Button_Behaviors();
@@ -327,7 +348,10 @@ private:
 			};
 
 			ui_movementAnalysis.IMU_Mount_Side[i].addListener(this);
+			ui_movementAnalysis.IMU_Mount_Side[i].setSelectedId(mAnalysisPtr->IMU_Mount_Side[i]);
+
 			ui_movementAnalysis.IMU_Polarity[i].addListener(this);
+			ui_movementAnalysis.IMU_Polarity[i].setSelectedId(mAnalysisPtr->IMU_Polarity[i]);
 
 			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMinValue(mpArrayPtr[i].minVal);
 			ui_movementAnalysis.IMU_range_segmentAngles_AP[i].setMaxValue(mpArrayPtr[i].maxVal);
@@ -362,21 +386,57 @@ private:
 			}
 		};
 
-		// Hip, Knee Limits
-		for (int i = 0; i < 2; i++)
+		// Hip Angle
+		ui_movementAnalysis.Joint_Range_AP[0].setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Angle Hip", "Max"));
+		ui_movementAnalysis.Joint_Range_AP[0].setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Angle Hip", "Min"));
+		ui_movementAnalysis.Joint_Range_AP[0].setValue(mAnalysisPtr->jointAngles_thresh_MaxFlex[0]);
+		ui_movementAnalysis.Joint_Range_AP[0].onValueChange = [this]
 		{
-			ui_movementAnalysis.Joint_Range_AP[i].setMinValue(mpArrayPtr[6 + i].minVal);
-			ui_movementAnalysis.Joint_Range_AP[i].setMaxValue(mpArrayPtr[6 + i].maxVal);
-			ui_movementAnalysis.Joint_Range_AP[i].setValue(mAnalysisPtr->jointAngles_thresh_Hyper[i]);
+			mAnalysisPtr->setBounds_MP(mpArrayPtr,"Angle Hip", ui_movementAnalysis.Joint_Range_AP[0].getMinValue(),
+				ui_movementAnalysis.Joint_Range_AP[0].getMaxValue());
+			mAnalysisPtr->jointAngles_thresh_MaxFlex[0] = ui_movementAnalysis.Joint_Range_AP[0].getValue();
+		};
 
-			ui_movementAnalysis.Joint_Range_AP[i].onValueChange = [this, i]
-			{
-				mpArrayPtr[6 + i].minVal = ui_movementAnalysis.Joint_Range_AP[i].getMinValue();
-				mAnalysisPtr->jointAngles_thresh_Hyper[i] = ui_movementAnalysis.Joint_Range_AP[i].getValue();
-				mpArrayPtr[6 + i].maxVal = ui_movementAnalysis.Joint_Range_AP[i].getMaxValue();
-			};
+		// Knee Angle
+		ui_movementAnalysis.Joint_Range_AP[1].setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Angle Knee", "Max"));
+		ui_movementAnalysis.Joint_Range_AP[1].setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Angle Knee", "Min"));
+		ui_movementAnalysis.Joint_Range_AP[1].setValue(mAnalysisPtr->jointAngles_thresh_MaxFlex[1]);
+		ui_movementAnalysis.Joint_Range_AP[1].onValueChange = [this]
+		{
+			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Angle Knee", ui_movementAnalysis.Joint_Range_AP[1].getMinValue(),
+				ui_movementAnalysis.Joint_Range_AP[1].getMaxValue());
+			mAnalysisPtr->jointAngles_thresh_MaxFlex[1] = ui_movementAnalysis.Joint_Range_AP[1].getValue();
+		};
 
-		}
+		// Ankle Angle
+		ui_movementAnalysis.Joint_Range_AP[2].setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Angle Ankle", "Min"));
+		ui_movementAnalysis.Joint_Range_AP[2].setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Angle Ankle", "Max"));
+		ui_movementAnalysis.Joint_Range_AP[2].setValue(mAnalysisPtr->jointAngles_thresh_MaxFlex[2]);
+		ui_movementAnalysis.Joint_Range_AP[2].onValueChange = [this]
+		{
+			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Angle Ankle", ui_movementAnalysis.Joint_Range_AP[2].getMinValue(),
+				ui_movementAnalysis.Joint_Range_AP[2].getMaxValue());
+			mAnalysisPtr->jointAngles_thresh_MaxFlex[1] = ui_movementAnalysis.Joint_Range_AP[2].getValue();
+		};
+
+		// CoM H
+		ui_movementAnalysis.CoM_Disp_Bounds_H.setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Max"));
+		ui_movementAnalysis.CoM_Disp_Bounds_H.setMinValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Min"));
+		ui_movementAnalysis.CoM_Disp_Bounds_H.onValueChange = [this]
+		{
+			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Horiz Disp",
+				ui_movementAnalysis.CoM_Disp_Bounds_H.getMinValue(),
+				ui_movementAnalysis.CoM_Disp_Bounds_H.getMaxValue());
+		};
+
+		ui_movementAnalysis.CoM_Disp_Bounds_V.setMaxValue(mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Max"));
+		ui_movementAnalysis.CoM_Disp_Bounds_V.setMinValue((double)mAnalysisPtr->getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Min"));
+		ui_movementAnalysis.CoM_Disp_Bounds_V.onValueChange = [this]
+		{
+			mAnalysisPtr->setBounds_MP(mpArrayPtr, "Verti Disp",
+				ui_movementAnalysis.CoM_Disp_Bounds_V.getMinValue(),
+				ui_movementAnalysis.CoM_Disp_Bounds_V.getMaxValue());
+		};
 
 		ui_movementAnalysis.record_MovementLog.onClick = [this]
 		{
@@ -394,6 +454,26 @@ private:
 				ui_movementAnalysis.record_MovementLog.setColour(
 					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::red);
 			}
+		};
+		
+		// CALIBRATE SIT
+		ui_movementAnalysis.cal_CoM_SIT.onClick = [this]
+		{
+			float CoM_H_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Val");
+			float CoM_V_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Val");
+
+			ui_movementAnalysis.CoM_Disp_Bounds_H.setMinValue(CoM_H_Pos);
+			ui_movementAnalysis.CoM_Disp_Bounds_V.setMinValue(CoM_V_Pos - 0.03);
+		};
+
+		// CALIBRATE STAND
+		ui_movementAnalysis.cal_CoM_STAND.onClick = [this]
+		{
+			float CoM_H_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Horiz Disp", "Val");
+			float CoM_V_Pos = MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Verti Disp", "Val");
+
+			ui_movementAnalysis.CoM_Disp_Bounds_H.setMaxValue(CoM_H_Pos + 0.03);
+			ui_movementAnalysis.CoM_Disp_Bounds_V.setMaxValue(CoM_V_Pos);
 		};
 	}
 	
@@ -538,9 +618,16 @@ private:
 					ui_mappingMatrix.labels_movementParams[i].textColourId, Colours::red
 				);
 
-			ui_mappingMatrix.mp_minThresh[i].onValueChange = [this, i]
+			ui_mappingMatrix.normRange_MP[i].onValueChange = [this, i]
 			{
-				mpArrayPtr[i].thresh_min_NORM = ui_mappingMatrix.mp_minThresh[i].getValue();
+				mpArrayPtr[i].rangeNorm_MIN = ui_mappingMatrix.normRange_MP[i].getMinValue();
+				mpArrayPtr[i].rangeNorm_MAX = ui_mappingMatrix.normRange_MP[i].getMaxValue();
+			};
+
+			ui_mappingMatrix.normRange_AP[i].onValueChange = [this, i]
+			{
+				apArrayPtr[i].rangeNorm_MIN = ui_mappingMatrix.normRange_AP[i].getMinValue();
+				apArrayPtr[i].rangeNorm_MAX = ui_mappingMatrix.normRange_AP[i].getMaxValue();
 			};
 
 			for (int j = 0; j < musControlPtr->numFbVariables; j++)
@@ -551,6 +638,7 @@ private:
 				ui_mappingMatrix.mapping_Matrix[i][j].onStateChange = [this, i, j]
 				{
 					musControlPtr->mappingMatrix[i][j] = ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
+					mpArrayPtr[i].inRange = ui_mappingMatrix.mapping_Matrix[i][j].getToggleState();
 					ui_mappingMatrix.mapping_Strength[i][j].setVisible(ui_mappingMatrix.mapping_Matrix[i][j].getToggleState());
 				};
 
@@ -637,6 +725,11 @@ private:
 			ui_mappingMatrix.populatePresets(mapPresetPtr,mpArrayPtr,apArrayPtr);
 			ui_mappingMatrix.preset_Name.setText("");
 		};
+
+		ui_mappingMatrix.mp_isVisible.addListener(this);
+		ui_mappingMatrix.mp_isHidden.addListener(this);
+		ui_mappingMatrix.ap_isVisible.addListener(this);
+		ui_mappingMatrix.ap_isHidden.addListener(this);
 	}
 
 	// Update Sensor Config Tab Elements
@@ -704,30 +797,42 @@ private:
 		ui_movementAnalysis.update_Indicators_SensorOrientation(mpArrayPtr);
 
 		// JOINT ANGLE DISPLAYS
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			ui_movementAnalysis.JointAngles[j].setText(
-				String(mpArrayPtr[6 + j].value, 2)
+				String(mAnalysisPtr->jointAngles_Deg[j], 2)
 				, dontSendNotification
 			);
 
 			ui_movementAnalysis.JointVelocities[j].setText(
-				String(mpArrayPtr[9 - j].value, 2)
+				String(mAnalysisPtr->jointAngularVel_DegPerSec[j], 2)
 				, dontSendNotification
 			);
 
-			ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText(
-				((j == 0) ? "HIP     " : "KNEE   ") + String(mpArrayPtr[6 + j].minVal,2),
-				dontSendNotification
-			);
-
-			ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
-				String(mpArrayPtr[6 + j].maxVal, 2),
-				dontSendNotification
-			);
+			switch (j)
+			{
+			case 0:
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText("HIP     " +
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Hip", "Min"),2),dontSendNotification);
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Hip", "Max"), 2), dontSendNotification);
+				break;
+			case 1:
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText("KNEE    " +
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Knee", "Min"), 2), dontSendNotification);
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Knee", "Max"), 2), dontSendNotification);
+				break;
+			case 2:
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][0].setText("ANKLE   " +
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Ankle", "Min"), 2), dontSendNotification);
+				ui_movementAnalysis.Joint_Range_AP_MovementRanges[j][1].setText(
+					String(MovementAnalysis::getMPVal_fromArray(mpArrayPtr, "Angle Ankle", "Max"), 2), dontSendNotification);
+				break;
+			}
 
 			ui_movementAnalysis.Joint_Range_AP_HyperExtendThresh[j].setText(
-				"HYP THRESH: " + String(mAnalysisPtr->jointAngles_thresh_Hyper[j], 2),
+				"MAX FLEX: " + String(mAnalysisPtr->jointAngles_thresh_MaxFlex[j], 2),
 				dontSendNotification
 			);
 		}
@@ -744,7 +849,8 @@ private:
 		// HANDLE FWD BUTTON PRESS
 		if (ui_movementAnalysis.mpLog_File_FWD.isDown())
 			mAnalysisPtr->mpFile_Streaming_Line_Current = (mAnalysisPtr->mpFile_Streaming_Line_Current + 20)
-			% mAnalysisPtr->mpFile_Streaming_Lines_Total;
+			//% mAnalysisPtr->mpFile_Streaming_Lines_Total;
+			% mAnalysisPtr->imuLogFile_Streaming_Lines_Total[0];
 
 		// HANDLE RWD BUTTON PRESS
 		if (ui_movementAnalysis.mpLog_File_RWD.isDown())
@@ -796,6 +902,28 @@ private:
 			mpArrayPtr,
 			apArrayPtr
 		);
+	}
+
+	void mappingMatrix_resetLayout()
+	{
+		ui_mappingMatrix.mp_isVisible.clear();
+		ui_mappingMatrix.mp_isHidden.clear();
+		ui_mappingMatrix.ap_isVisible.clear();
+		ui_mappingMatrix.ap_isHidden.clear();
+
+		ui_mappingMatrix.setLayout(interface_Width, interface_Height, mAnalysisPtr->numMovementParams,
+			musControlPtr->numFbVariables, mpArrayPtr, apArrayPtr);
+
+		ui_mappingMatrix.toggleVisible(true, mpArrayPtr, apArrayPtr);
+
+		ui_mappingMatrix.mp_isVisible.addItem("VISIBLE MP", 100);	
+		ui_mappingMatrix.mp_isVisible.setSelectedId(100);
+		ui_mappingMatrix.mp_isHidden.addItem("HIDDEN MP", 100);		
+		ui_mappingMatrix.mp_isHidden.setSelectedId(100);
+		ui_mappingMatrix.ap_isVisible.addItem("VISIBLE AP", 100);	
+		ui_mappingMatrix.ap_isVisible.setSelectedId(100);
+		ui_mappingMatrix.ap_isHidden.addItem("HIDDEN AP", 100);		
+		ui_mappingMatrix.ap_isHidden.setSelectedId(100);
 	}
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (StsinteractionAudioProcessorEditor)

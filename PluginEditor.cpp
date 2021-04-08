@@ -45,11 +45,6 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 		mAnalysisPtr->operationMode_Present = box->getSelectedId();
 	}
 
-	if (box == &ui_movementAnalysis.orientationAlgo)
-	{
-		mAnalysisPtr->orientAlgo_Present = box->getSelectedId();
-	}
-
 	if (box == &ui_musicControl.tonic)
 		musInfoCompPtr->idx_tonic_Present = box->getSelectedId() - 1;
 
@@ -112,6 +107,46 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 				mAnalysisPtr->IMU_Polarity[i] = box->getSelectedId();
 		}
 	}
+
+	if (box == &ui_mappingMatrix.mp_isVisible)
+	{
+		if (box->getSelectedId() <= mAnalysisPtr->numMovementParams)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			mpArrayPtr[box->getSelectedId() - 1].isVisible = false;
+			mappingMatrix_resetLayout();
+		}
+	}
+
+	if (box == &ui_mappingMatrix.mp_isHidden)
+	{
+		if (box->getSelectedId() <= mAnalysisPtr->numMovementParams)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			mpArrayPtr[box->getSelectedId() - 1].isVisible = true;
+			mappingMatrix_resetLayout();
+		}
+	}
+
+	if (box == &ui_mappingMatrix.ap_isVisible)
+	{
+		if (box->getSelectedId() <= musControlPtr->numFbVariables)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			apArrayPtr[box->getSelectedId() - 1].isVisible = false;
+			mappingMatrix_resetLayout();
+		}
+	}
+
+	if (box == &ui_mappingMatrix.ap_isHidden)
+	{
+		if (box->getSelectedId() <= musControlPtr->numFbVariables)
+		{
+			ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
+			apArrayPtr[box->getSelectedId() - 1].isVisible = true;
+			mappingMatrix_resetLayout();
+		}
+	}
 }
 
 void StsinteractionAudioProcessorEditor::timerCallback()
@@ -152,25 +187,25 @@ void StsinteractionAudioProcessorEditor::switchTab(int currentTab)
 		ui_sensorCon.toggleVisible(true);
 		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
-		ui_mappingMatrix.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false,mpArrayPtr,apArrayPtr);
 		break;
 	case 1:												// Movement Tab
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(true, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
-		ui_mappingMatrix.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
 		break;
 	case 2:												// Music Tab
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(true);
-		ui_mappingMatrix.toggleVisible(false);
+		ui_mappingMatrix.toggleVisible(false, mpArrayPtr, apArrayPtr);
 		break;
 	case 3:												// Mapping Matrix
 		ui_sensorCon.toggleVisible(false);
 		ui_movementAnalysis.toggleVisible(false, mAnalysisPtr->dataInput_Mode);
 		ui_musicControl.toggleVisible(false);
-		ui_mappingMatrix.toggleVisible(true);
+		ui_mappingMatrix.toggleVisible(true, mpArrayPtr, apArrayPtr);
 		break;
 	}
 }
@@ -188,17 +223,18 @@ void StsinteractionAudioProcessorEditor::mpLogStream_Configure_Button_Behaviors(
 	{
 		String filePath = "";
 		String extension = "MP Log.csv";
-		FileChooser logChooser("Please select a valid log file:",
-			File::getSpecialLocation(File::userHomeDirectory), extension);
+		FileChooser logChooser("Please select a valid log folder.",
+			File::getSpecialLocation(File::currentApplicationFile), extension);
 
 		switch (mAnalysisPtr->dataInput_Mode)
 		{
 		case 0:
-			if (logChooser.browseForFileToOpen())
+			if (logChooser.browseForDirectory())
 			{
 				File logFile(logChooser.getResult());
 				filePath = logFile.getFullPathName();
-				if (mAnalysisPtr->open_mpLogFile_forStream(filePath))
+				//if (mAnalysisPtr->open_mpLogFile_forStream(filePath))
+				if (mAnalysisPtr->open_mpLogDir_IMU_Raw(filePath))
 				{
 					mAnalysisPtr->dataInput_Mode = 1;
 					ui_movementAnalysis.mpLog_File_Play_Pause.setVisible(true);

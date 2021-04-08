@@ -12,9 +12,9 @@ class MusicControl
 public:
 	MusicControl()
 	{
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 40; i++)
 		{
-			for (int j = 0; j < 20; j++)
+			for (int j = 0; j < 40; j++)
 				mappingStrength[i][j] = 1.0;
 		}
 		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -33,22 +33,69 @@ public:
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 2, 0, 1, 3, true);
 		feedbackVariables[10].initialize("Vowel", 0, 2, 0, 1, 2, 0, 1, 4, true);
 		feedbackVariables[11].initialize("Gtr Tr", 0, 200, 1, 0, 1, 4, 1, 1, true);
-		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, true);
-		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, true);
+		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, false);
+		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, false);
 		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
 		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
-		feedbackVariables[16].initialize("WarningBell", 0, 1, 1, 0, 1, 0, 1, 4, true);
+		feedbackVariables[16].initialize("Bell Tr", 0, 1, 0, 0, 1, 0, 1, 1, true);
 		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
+		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
+		feedbackVariables[19].initialize("Sin1 F", 10, 400, 10, 1, 3, 0, 1, 4, true);
+		feedbackVariables[20].initialize("Sin2 F", 10, 1600, 10, 1, 3, 0, 1, 4, true);
+
+		populateDispIndex_AP();
 	};
 	~MusicControl() 
 	{
 	};
 
+	void setDispIndex_AP(String apName, short dispIndex)
+	{
+		for (int i = 0; i < numFbVariables; i++)
+		{
+			if (feedbackVariables[i].name == apName)
+			{
+				feedbackVariables[i].dispIdx = dispIndex; 
+				break;
+			}
+		}
+	}
+
+	void populateDispIndex_AP()
+	{
+		setDispIndex_AP("Perc Tr", 0);
+		setDispIndex_AP("Mel Tr", 0);
+		setDispIndex_AP("Chord Tr", 0);
+		setDispIndex_AP("Perc2 Tr", 0);
+		setDispIndex_AP("Gtr Tr", 0);
+		setDispIndex_AP("Bell Tr", 0);
+		
+		setDispIndex_AP("Mel Fr", 1);
+		setDispIndex_AP("Chord Fr", 1);
+		setDispIndex_AP("Gtr Fr", 1);
+
+		setDispIndex_AP("Dynamics", 2);
+		setDispIndex_AP("Djmb Shrp", 2);
+		setDispIndex_AP("Mrmb Shrp", 2);
+		setDispIndex_AP("Gtr Dyn", 2);
+
+		setDispIndex_AP("Vowel", 3);
+		setDispIndex_AP("Gtr Stf", 3);
+		setDispIndex_AP("Voice Fric", 3);
+		
+		setDispIndex_AP("Detune", 4);
+		setDispIndex_AP("Pan", 4);
+		setDispIndex_AP("Pitch Warp", 4);
+
+		setDispIndex_AP("Sin1 F", 5);
+		setDispIndex_AP("Sin2 F", 5);
+	}
+
 	// FAUST OBJECT
 	bool isMusicDSP_On = false;
 
-	FeedbackVariable feedbackVariables[20];
-	short numFbVariables = 18;
+	FeedbackVariable feedbackVariables[40];
+	short numFbVariables = 21;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES
@@ -71,14 +118,14 @@ public:
 	};
 
 	// MAPPING MATRIX
-	bool mappingMatrix[20][20] = { false };
-	float mappingStrength[20][20];
+	bool mappingMatrix[40][40] = { false };
+	float mappingStrength[40][40];
 	void updateMappingMatrix(short row, short col, bool onOff)
 	{
 		mappingMatrix[row][col] = onOff;
 	}
 
-	double fbVar_FinalVals[20][4] = { 
+	double fbVar_FinalVals[40][4] = { 
 		{0,0,0,0}
 	};
 
@@ -107,10 +154,23 @@ public:
 					if (mappingMatrix[j][i])
 					{
 						mapVal_Indiv = (mpArray[j].value - mpArray[j].minVal)
-							/ (mpArray[j].maxVal - mpArray[j].minVal);
-						if (mapVal_Indiv < mpArray[j].thresh_min_NORM) mapVal_Indiv = 0;
-						fbVar_Value_Temp += mapVal_Indiv * mappingStrength[j][i] / mappingStrength_AbsSum;
+							/ (mpArray[j].maxVal - mpArray[j].minVal) * mappingStrength[j][i];
 
+						// HANDLE NORMALIZED MP BOUNDING
+						mpArray[j].inRange = true;
+
+						if (mapVal_Indiv <= mpArray[j].rangeNorm_MIN) {
+							mapVal_Indiv = 0; mpArray[j].inRange = false;
+						}
+						
+						if (mapVal_Indiv >= mpArray[j].rangeNorm_MAX) { 
+							mapVal_Indiv = 1; mpArray[j].inRange = false;
+						}
+
+						mapVal_Indiv = (mapVal_Indiv - mpArray[j].rangeNorm_MIN) /
+										(mpArray[j].rangeNorm_MAX - mpArray[j].rangeNorm_MIN);
+
+						fbVar_Value_Temp += mapVal_Indiv / mappingStrength_AbsSum;
 					}
 				}
 
@@ -155,65 +215,50 @@ public:
 	{
 		short mapFuncIdx = feedbackVariables[fbVar_Idx].mapFunc;
 
+		// INVERT POLARITY IF NEEDED
 		if (feedbackVariables[fbVar_Idx].polarity == 2) *val = 1 - *val;
+
+		float orig_Range = (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
+		float orig_MinVal = feedbackVariables[fbVar_Idx].minVal;
+
+		float norm_Range = feedbackVariables[fbVar_Idx].rangeNorm_MAX - feedbackVariables[fbVar_Idx].rangeNorm_MIN;
+		float norm_MinVal = feedbackVariables[fbVar_Idx].rangeNorm_MIN;
+
+		float new_Min = orig_MinVal + norm_MinVal * orig_Range;
+		float new_Max = new_Min + norm_Range * orig_Range;
+		float new_Range = new_Max - new_Min;
 
 		switch (mapFuncIdx)
 		{
 		case 1:
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 2:
 			*val = pow(*val, 1.5);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 3:
 			*val = pow(*val, 2);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 4:
 			*val = pow(*val, 0.75);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 5:
 			*val = pow(*val, 0.5);
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 6:
 			*val = exp((*val - 0.5) * 12) / (1 + exp((*val - 0.5) * 12));
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		case 7:
-			if (fabs(*val - 0.5) > 0.04)
-			{
-				bool isUnder = *val < 0.5;
-				if (isUnder)
-				{
-					*val = pow(*val, 15);
-					*val = (jlimit(-50.0, 50.0, log(*val / (1 - *val))) + 50) / 100.0;
-				}
-				else
-				{
-					double val_Inter = *val - 2 * (*val - 0.5);
-					val_Inter = pow(val_Inter, 15);
-					val_Inter = (jlimit(-50.0, 50.0, log(val_Inter / (1 - val_Inter))) + 50) / 100.0;
-					*val = val_Inter + 2 * (0.5 - val_Inter);
-				}
-			}
-			else *val = 0.5;
-			*val *= (feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 			break;
 		}
 
-		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo,
-			(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal));
+		*val = new_Min + *val * (new_Max - new_Min);
 
+		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo, new_Range, new_Min);
 
-		*val += feedbackVariables[fbVar_Idx].minVal;
-
-		feedbackVariables[fbVar_Idx].value = *val;
+		feedbackVariables[fbVar_Idx].value = jlimit(new_Min, new_Max, (float)*val);
 	}
 
-	double quantizeParam(float currentParamValue, int quantLevels_2raisedTo, float range)
+	double quantizeParam(float currentParamValue, int quantLevels_2raisedTo, float range, float min_Final)
 	{
 		float quantizedParam = 0;
 		if (quantLevels_2raisedTo < 1)
@@ -221,6 +266,7 @@ public:
 
 		else
 		{
+			currentParamValue -= min_Final;
 			int numQuantizationSteps = pow(2, quantLevels_2raisedTo);
 			float quantizationStepSize = range / (float)numQuantizationSteps;
 
@@ -235,7 +281,7 @@ public:
 					diff = currentParamValue - currentStepForTest;
 				}
 			}
-			if (stepFound) quantizedParam = currentParamValue - diff;
+			if (stepFound) quantizedParam = currentParamValue - diff + min_Final;
 			return quantizedParam;
 		}
 	};
@@ -246,7 +292,7 @@ public:
 		fbVar_finalArray[0] = *val;
 
 		// MEL FREQ
-		if (feedbackVariables[fbVar_Idx].name == "Mel Fr")
+		if (feedbackVariables[fbVar_Idx].name == "Mel Fr" || feedbackVariables[fbVar_Idx].name == "Gtr Fr")
 		{
 			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
 				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);

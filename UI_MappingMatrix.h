@@ -23,20 +23,27 @@ class UI_MappingMatrix
 	// Add SetVisible to ToggleVisible() here
 	// Set position in SetLayout() here
 
-	Label labels_movementParams[20];
-	Label labels_audioParams[20];
-	ToggleButton mapping_Matrix[20][20];
-	Slider mapping_Strength[20][20];
-	Slider mp_minThresh[20];
-	ComboBox mapping_Function[20];
-	ComboBox mapping_Polarity[20];
-	ComboBox mapping_QuantLevels[20];
-	Label movementParams_Value[20][2];		// 0 = Filled // 1 = Unfilled
-	Label audioParams_Value[20][2];
+	Label labels_movementParams[40];
+	Label labels_audioParams[40];
+	ToggleButton mapping_Matrix[40][40];
+	Slider mapping_Strength[40][40];
+	Slider normRange_MP[40];
+	Slider normRange_AP[40];
+	ComboBox mapping_Function[40];
+	ComboBox mapping_Polarity[40];
+	ComboBox mapping_QuantLevels[40];
+	Label movementParams_Value[40][2];		// 0 = Filled // 1 = Unfilled
+	Label audioParams_Value[40][2];
 	float width_Value = 90;
 	float width_Value_AP = 50;
 	int num_MP = 0;
 	int num_AP = 0;
+
+	// CHANGE LAYOUT
+	ComboBox mp_isVisible;
+	ComboBox mp_isHidden;
+	ComboBox ap_isVisible;
+	ComboBox ap_isHidden;
 
 	// PRESETS
 	TextButton preset_Save;
@@ -57,8 +64,9 @@ class UI_MappingMatrix
     
     void configure()
     {
-		for (int i = 0; i < 20; i++)
+		for (int i = 0; i < 40; i++)
 		{
+			movementParams_Value[i][0].setColour(movementParams_Value[i][0].textColourId, Colours::black);
 			movementParams_Value[i][0].setColour(movementParams_Value[i][0].backgroundColourId, Colours::yellow);
 			movementParams_Value[i][1].setColour(movementParams_Value[i][1].backgroundColourId, Colours::blue);
 			audioParams_Value[i][0].setColour(audioParams_Value[i][0].backgroundColourId, Colours::yellow);
@@ -66,15 +74,35 @@ class UI_MappingMatrix
 			labels_movementParams[i].setJustificationType(Justification::centred);
 			labels_audioParams[i].setJustificationType(Justification::centred);
 
-			mp_minThresh[i].setRange(0, 1);
-			mp_minThresh[i].setValue(0);
-			mp_minThresh[i].setColour(mp_minThresh[i].trackColourId, Colours::yellow);
-			mp_minThresh[i].setColour(mp_minThresh[i].backgroundColourId, Colours::blue);
-			mp_minThresh[i].setTextBoxStyle(Slider::NoTextBox,false,10,10);
+			normRange_MP[i].setRange(0, 1);
+			normRange_MP[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			normRange_MP[i].setMinValue(0);
+			normRange_MP[i].setMaxValue(1);
+			normRange_MP[i].setColour(normRange_MP[i].trackColourId, Colours::yellow);
+			normRange_MP[i].setColour(normRange_MP[i].backgroundColourId, Colours::blue);
+			normRange_MP[i].setTextBoxStyle(Slider::NoTextBox,false,10,10);
+
+			normRange_AP[i].setRange(0, 1);
+			normRange_AP[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			normRange_AP[i].setMinValue(0);
+			normRange_AP[i].setMaxValue(1);
+			normRange_AP[i].setColour(normRange_AP[i].trackColourId, Colours::yellow);
+			normRange_AP[i].setColour(normRange_AP[i].backgroundColourId, Colours::blue);
+			normRange_AP[i].setTextBoxStyle(Slider::NoTextBox, false, 10, 10);
 		}
 
 		preset_Name.setJustification(Justification::centred);
 		preset_Save.setButtonText("Save as Preset");
+
+		mp_isVisible.setColour(mp_isVisible.backgroundColourId, Colours::green);
+		mp_isHidden.setColour(mp_isHidden.backgroundColourId, Colours::red);
+		ap_isVisible.setColour(ap_isVisible.backgroundColourId, Colours::green);
+		ap_isHidden.setColour(ap_isHidden.backgroundColourId, Colours::red);
+
+		mp_isVisible.addItem("VISIBLE MP", 100);	mp_isVisible.setSelectedId(100);
+		mp_isHidden.addItem("HIDDEN MP", 100);		mp_isHidden.setSelectedId(100);
+		ap_isVisible.addItem("VISIBLE AP", 100);	ap_isVisible.setSelectedId(100);
+		ap_isHidden.addItem("HIDDEN AP", 100);		ap_isHidden.setSelectedId(100);
     }
 
 	void saveAsPreset(MovementParameter mpArray[], FeedbackVariable apArray[])
@@ -95,7 +123,7 @@ class UI_MappingMatrix
 			String formatSpecifier = "%s,\n";
 
 			// SPECIFY TOTAL LINES
-			int numLines = 1 + num_MP + num_MP + num_MP + 3 + 8;
+			int numLines = 1 + num_MP + num_MP + 3 + 8;
 
 			String lineString = "";
 			String lineHeader = "";
@@ -123,28 +151,28 @@ class UI_MappingMatrix
 						lineString += String(mapping_Strength[l - num_MP - 1][a].getValue(), 2) + ",";
 					}
 
-					if (l >= num_MP + 1 + num_MP && l < num_MP + num_MP + num_MP + 1)	// MAPPING THRESH
-					{
-						if (a == 0)
-						{
-							lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
-							lineString += String(mp_minThresh[l - 2 * num_MP - 1].getValue(), 2) + ",";
-						}
-					}
+					//if (l >= num_MP + 1 + num_MP && l < num_MP + num_MP + num_MP + 1)	// MAPPING THRESH
+					//{
+					//	if (a == 0)
+					//	{
+					//		lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
+					//		lineString += String(normRange_MP[l - 2 * num_MP - 1].getMinValue(), 2) + ",";
+					//	}
+					//}
 
-					if (l == 3 * num_MP + 1)											// MAPPING FUNCTION IDX
+					if (l == 2 * num_MP + 1)											// MAPPING FUNCTION IDX
 					{
 						lineHeader = "Map Func Idx";
 						lineString += String(mapping_Function[a].getSelectedId()) + ",";
 					}
 
-					if (l == 3 * num_MP + 2)											// MAPPING POLARITY
+					if (l == 2 * num_MP + 2)											// MAPPING POLARITY
 					{
 						lineHeader = "Polarity";
 						lineString += String(mapping_Polarity[a].getSelectedId()) + ",";
 					}
 
-					if (l == 3 * num_MP + 3)											// MAPPING QUANT BITS
+					if (l == 2 * num_MP + 3)											// MAPPING QUANT BITS
 					{
 						lineHeader = "Quant Bits";
 						lineString += String(mapping_QuantLevels[a].getSelectedId() - 1) + ",";
@@ -152,31 +180,31 @@ class UI_MappingMatrix
 
 					if (a == 0)
 					{
-						if (l == 3 * num_MP + 4)										// OSC BPM
+						if (l == 2 * num_MP + 4)										// OSC BPM
 						{
 							lineHeader = "OSC_BPM";
 							lineString = String(dataHolder_oscBPM, 4);
 						}
 
-						if (l == 3 * num_MP + 5)										// VOICE CUE ON
+						if (l == 2 * num_MP + 5)										// VOICE CUE ON
 						{
 							lineHeader = "VoiceCue_ON";
 							lineString = dataHolder_voiceCue_ON ? "1" : "0";
 						}
 
-						if (l == 3 * num_MP + 6)										// TIMING FINE
+						if (l == 2 * num_MP + 6)										// TIMING FINE
 						{
 							lineHeader = "VoiceCue_TimingFine";
 							lineString = String(dataHolder_voiceCue_timingFine,2);
 						}
 
-						if (l == 3 * num_MP + 7)										// VOICE CUE LEVEL
+						if (l == 2 * num_MP + 7)										// VOICE CUE LEVEL
 						{
 							lineHeader = "VoiceCue_LeveldB";
 							lineString = String(dataHolder_voiceCue_voldB,2);
 						}
 
-						if (l == 3 * num_MP + 8)										// VOICE CUE LENGTH
+						if (l == 2 * num_MP + 8)										// VOICE CUE LENGTH
 						{
 							lineHeader = "VoiceCue_Length";
 							lineString = String(dataHolder_voiceCue_Length);
@@ -185,19 +213,19 @@ class UI_MappingMatrix
 
 					if (a < 3)
 					{
-						if (l == 3 * num_MP + 9)										// IS INTERVAL ENABLED
+						if (l == 2 * num_MP + 9)										// IS INTERVAL ENABLED
 						{
 							lineHeader = "VoiceCue_isIntervalEnabled";
 							lineString += dataHolder_voiceCue_isIntervalEnabled[a] ? "1," : "0,";
 						}
 
-						if (l == 3 * num_MP + 10)										// IS INTERVAL POSITIVE CROSS
+						if (l == 2 * num_MP + 10)										// IS INTERVAL POSITIVE CROSS
 						{
 							lineHeader = "VoiceCue_isIntervalPos";
 							lineString += dataHolder_voiceCue_isPos[a] ? "1," : "0,";
 						}
 
-						if (l == 3 * num_MP + 11)										// CUE LOCATION
+						if (l == 2 * num_MP + 11)										// CUE LOCATION
 						{
 							lineHeader = "VoiceCue_intervalLocation";
 							lineString += String(dataHolder_voiceCue_location[a],2) + ",";
@@ -306,14 +334,14 @@ class UI_MappingMatrix
 					}
 				}
 
-				if (line_header == "mapThr_" + mpArray[i].name)			// MAPPING MATRIX THR ROWS
-				{
-					for (int j = 0; j < num_AP; j++)
-					{
-							presetContainer->mappingThresh[i] =
-								line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
-					}
-				}
+				//if (line_header == "mapThr_" + mpArray[i].name)			// MAPPING MATRIX THR ROWS
+				//{
+				//	for (int j = 0; j < num_AP; j++)
+				//	{
+				//			presetContainer->mappingThresh[i] =
+				//				line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+				//	}
+				//}
 			}
 
 			if (line_header == "Map Func Idx")
@@ -419,7 +447,7 @@ class UI_MappingMatrix
 			{
 				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],sendNotificationSync);
 				mapping_Strength[j][i].setValue(loadedPreset->mappingStrength[j][i]);
-				mp_minThresh[j].setValue(loadedPreset->mappingThresh[j]);
+				//normRange_MP[j].setValue(loadedPreset->mappingThresh[j]);
 			}
 			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
 			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);
@@ -427,43 +455,135 @@ class UI_MappingMatrix
 		}
 	}
     
-    void toggleVisible(bool on)
+    void toggleVisible(bool on, MovementParameter mpArray[], FeedbackVariable apArray[])
     {
-		for (int i = 0; i < 20; i++)		// Columns
+		for (int m = 0; m < 40; m++)
 		{
-			labels_movementParams[i].setVisible(on);
-			labels_audioParams[i].setVisible(on);
-			mapping_Function[i].setVisible(on);
-			mapping_Polarity[i].setVisible(on);
-			mapping_QuantLevels[i].setVisible(on);
-			movementParams_Value[i][0].setVisible(on);
-			movementParams_Value[i][1].setVisible(on);
-			audioParams_Value[i][0].setVisible(on);
-			audioParams_Value[i][1].setVisible(on);
-			for (int j = 0; j < 20; j++)	// Rows
+			if (mpArray[m].isVisible)
 			{
-				mapping_Matrix[i][j].setVisible(on);
-				mapping_Strength[i][j].setVisible(on && mapping_Matrix[i][j].getToggleState());
-				mp_minThresh[i].setVisible(on);
+				labels_movementParams[m].setVisible(on);
+				movementParams_Value[m][0].setVisible(on);
+				movementParams_Value[m][1].setVisible(on);
+				normRange_MP[m].setVisible(on);
+			}
+		}
+
+		for (int a = 0; a < 40; a++)
+		{
+			if (apArray[a].isVisible)
+			{
+				labels_audioParams[a].setVisible(on);
+				mapping_Function[a].setVisible(on);
+				mapping_Polarity[a].setVisible(on);
+				mapping_QuantLevels[a].setVisible(on);
+				audioParams_Value[a][0].setVisible(on);
+				audioParams_Value[a][1].setVisible(on);
+				normRange_AP[a].setVisible(on);
+			}
+		}
+
+		for (int m = 0; m < 40; m++)
+		{
+			for (int a = 0; a < 40; a++)
+			{
+				if (mpArray[m].isVisible && apArray[a].isVisible)
+				{
+					mapping_Matrix[m][a].setVisible(on);
+					mapping_Strength[m][a].setVisible(on && mapping_Matrix[m][a].getToggleState());
+				}
 			}
 		}
 
 		preset_Save.setVisible(on);
 		preset_ListLoad.setVisible(on);
 		preset_Name.setVisible(on);
+
+		mp_isVisible.setVisible(on);
+		mp_isHidden.setVisible(on);
+		ap_isVisible.setVisible(on);
+		ap_isHidden.setVisible(on);
     }
     
+	int dispSeq_MP[40], num_MP_Visible = 0, dispPos_MP_present = 0;
+	int dispSeq_AP[40], num_AP_Visible = 0, dispPos_AP_present = 0;
+
     void setLayout(int interfaceWidth, int interfaceHeight, int numMP, int numAP,
 	MovementParameter mpArray[], FeedbackVariable fbVars[])
     {
-		num_MP = numMP;
-		num_AP = numAP;
+		// INITIAL DECLARATION AND ASSIGNMENTS
+		num_MP = numMP;		num_AP = numAP;
 
-		int num_MP_Visible = 0;
-		int num_AP_Visible = 0;
+		num_MP_Visible = 0;
+		num_AP_Visible = 0;
+		dispPos_MP_present = 0;
+		dispPos_AP_present = 0;
 
-		for (int i = 0; i < numMP; i++) { if (mpArray[i].isVisible) num_MP_Visible += 1; }
-		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
+		// FIND NUMBER OF VISIBLE PARAMETERS, DISPLAY POSITIONS
+		for (int i = 0; i < numMP; i++) 
+		{ 
+			if (mpArray[i].isVisible)
+			{
+				mp_isVisible.addItem(mpArray[i].name, i + 1);
+				num_MP_Visible += 1;
+			}
+			else
+			{
+				mp_isHidden.addItem(mpArray[i].name, i + 1);
+			}
+		}
+		
+		for (int i = 0; i < numAP; i++) 
+		{ 
+			if (fbVars[i].isVisible)
+			{
+				ap_isVisible.addItem(fbVars[i].name, i + 1);
+				num_AP_Visible += 1;
+			}
+			else
+			{
+				ap_isHidden.addItem(fbVars[i].name, i + 1);
+			}
+		}
+
+		int numDispGrp_MP = 10;
+		int numDispGrp_AP = 10;
+
+		// CREATE DISPLAY SEQUENCE OF MPS
+		// ITERATE OVER DISPLAY POSITION GRP (UNIQUE)
+		for (int dg_mp = 0; dg_mp < numDispGrp_MP; dg_mp++)		
+		{
+			// ITERATE OVER MPs
+			for (int m = 0; m < num_MP; m++)					
+			{
+				// CHECK IF DISPLAY POSITION GRP MATCHES MP DISP POS GRP
+				if (mpArray[m].isVisible && mpArray[m].dispIdx == dg_mp)	
+				{
+					dispSeq_MP[dispPos_MP_present] = m;
+					dispPos_MP_present++;
+				}
+			}
+		}
+
+		// CREATE DISPLAY SEQUENCE OF APS
+		// ITERATE OVER DISPLAY POSITION GRP (UNIQUE)
+		for (int dg_ap = 0; dg_ap < numDispGrp_AP; dg_ap++)
+		{
+			// ITERATE OVER APs
+			for (int a = 0; a < num_MP; a++)
+			{
+				// CHECK IF DISPLAY POSITION GRP MATCHES MP DISP POS GRP
+				if (fbVars[a].isVisible && fbVars[a].dispIdx == dg_ap)
+				{
+					dispSeq_AP[dispPos_AP_present] = a;
+					dispPos_AP_present++;
+				}
+			}
+		}
+
+		mp_isVisible.setBounds(interfaceWidth / 2 - 300, 0, 150, 30);
+		mp_isHidden.setBounds(interfaceWidth / 2 - 130, 0, 150, 30);
+		ap_isVisible.setBounds(interfaceWidth / 2 + 40, 0, 150, 30);
+		ap_isHidden.setBounds(interfaceWidth / 2 + 210, 0, 150, 30);
 
 		int matrix_Width = 0.75 * interfaceWidth;
 		int matrix_Height = 0.65 * interfaceHeight;
@@ -475,37 +595,39 @@ class UI_MappingMatrix
 		int gap_interRow = matrix_Height / num_MP_Visible;
 		int gap_interCol = matrix_Width / num_AP_Visible;
 
+		width_Value_AP = 50.0 / 63.0 * gap_interCol;
+
 		int num_MP_populated = 0;
 		int num_AP_populated = 0;
 
-		for (int i = 0; i < numMP; i++)
+		for (int i = 0; i < num_MP_Visible; i++)
 		{
-			if (mpArray[i].isVisible)
+			if (mpArray[dispSeq_MP[i]].isVisible)
 			{
-				labels_movementParams[i].setBounds(
+				labels_movementParams[dispSeq_MP[i]].setBounds(
 					matrix_startPointX - 110,
 					matrix_startPointY + gap_interRow * num_MP_populated,
 					110, 25);
 
-				mp_minThresh[i].setBounds(
+				normRange_MP[dispSeq_MP[i]].setBounds(
 					mp_startPointX - 3,
 					matrix_startPointY + gap_interRow * num_MP_populated + 20,
 					width_Value + 7,
 					10
 				);
 
-				for (int j = 0; j < numAP; j++)
+				for (int j = 0; j < num_AP_Visible; j++)
 				{
-					if (fbVars[j].isVisible)
+					if (fbVars[dispSeq_AP[j]].isVisible)
 					{
-						mapping_Matrix[i][j].setBounds(
+						mapping_Matrix[dispSeq_MP[i]][dispSeq_AP[j]].setBounds(
 							matrix_startPointX + gap_interCol * num_AP_populated,
 							matrix_startPointY + gap_interRow * num_MP_populated,
 							25,
 							25
 						);
 
-						mapping_Strength[i][j].setBounds(
+						mapping_Strength[dispSeq_MP[i]][dispSeq_AP[j]].setBounds(
 							matrix_startPointX + gap_interCol * num_AP_populated + 20,
 							matrix_startPointY + gap_interRow * num_MP_populated - 7,
 							50,
@@ -522,36 +644,43 @@ class UI_MappingMatrix
 
 		num_AP_populated = 0;
 
-		for (int k = 0; k < numAP; k++)
+		for (int k = 0; k < num_AP_Visible; k++)
 		{
-			if (fbVars[k].isVisible)
+			if (fbVars[dispSeq_AP[k]].isVisible)
 			{
-				mapping_Function[k].setBounds(
+				mapping_Function[dispSeq_AP[k]].setBounds(
 					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 20,
 					gap_interCol * 0.95,
 					25
 				);
 
-				mapping_Polarity[k].setBounds(
+				mapping_Polarity[dispSeq_AP[k]].setBounds(
 					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 60,
 					gap_interCol * 0.95,
 					25
 				);
 
-				mapping_QuantLevels[k].setBounds(
+				mapping_QuantLevels[dispSeq_AP[k]].setBounds(
 					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 100,
 					gap_interCol * 0.95,
 					25
 				);
 
-				labels_audioParams[k].setBounds(
+				labels_audioParams[dispSeq_AP[k]].setBounds(
 					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 125,
 					gap_interCol * 0.95,
 					25
+				);
+
+				normRange_AP[dispSeq_AP[k]].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 175,
+					width_Value_AP * 1.2,
+					10
 				);
 
 				num_AP_populated += 1;
@@ -585,7 +714,13 @@ class UI_MappingMatrix
 		int num_MP_populated = 0;
 		int num_AP_populated = 0;
 
-		for (int i = 0; i < numMP; i++) { if (mpArray[i].isVisible) num_MP_Visible += 1; }
+		for (int i = 0; i < numMP; i++) { 
+			if (mpArray[i].isVisible)
+			{
+				num_MP_Visible += 1;
+				movementParams_Value[i][0].setText(String(mpArray[i].value, 1), dontSendNotification);
+			}
+		}
 		for (int i = 0; i < numAP; i++) { if (fbVars[i].isVisible) num_AP_Visible += 1; }
 
 		int matrix_Width = 0.75 * interfaceWidth;
@@ -602,27 +737,27 @@ class UI_MappingMatrix
 		float mp_startPointX = matrix_startPointX - 110 - width_Value;
 		float ap_startPointY = matrix_startPointY + numMP * gap_interRow + 100 + 30;
 
-		for (int i = 0; i < numMP; i++)
+		for (int i = 0; i < num_MP_Visible; i++)
 		{
-			if (mpArray[i].isVisible)
+			if (mpArray[dispSeq_MP[i]].isVisible)
 			{
-				width_Lab1 = (mpArray[i].value - mpArray[i].minVal) / (mpArray[i].maxVal - mpArray[i].minVal) * width_Value;
+				width_Lab1 = (mpArray[dispSeq_MP[i]].value - mpArray[dispSeq_MP[i]].minVal) 
+							/ (mpArray[dispSeq_MP[i]].maxVal - mpArray[dispSeq_MP[i]].minVal) * width_Value;
 				width_Lab2 = width_Value - width_Lab1;
 
 				Colour colour_mpVal;
-				bool colorCondition = mpArray[i].value > (mpArray[i].minVal
-					+ mpArray[i].thresh_min_NORM * (mpArray[i].maxVal - mpArray[i].minVal));
+				bool colorCondition = mpArray[dispSeq_MP[i]].inRange;
 				colour_mpVal = colorCondition ? Colours::yellow : Colours::orange;
-				movementParams_Value[i][0].setColour(movementParams_Value[i][0].backgroundColourId, colour_mpVal);
+				movementParams_Value[dispSeq_MP[i]][0].setColour(movementParams_Value[dispSeq_MP[i]][0].backgroundColourId, colour_mpVal);
 
-				movementParams_Value[i][0].setBounds(
+				movementParams_Value[dispSeq_MP[i]][0].setBounds(
 					mp_startPointX,
 					matrix_startPointY + gap_interRow * num_MP_populated,
 					width_Lab1,
 					20
 				);
 
-				movementParams_Value[i][1].setBounds(
+				movementParams_Value[dispSeq_MP[i]][1].setBounds(
 					mp_startPointX + width_Lab1,
 					matrix_startPointY + gap_interRow * num_MP_populated,
 					width_Lab2,
@@ -633,22 +768,23 @@ class UI_MappingMatrix
 			}
 		}
 
-		for (int i = 0; i < numAP; i++)
+		for (int i = 0; i < num_AP_Visible; i++)
 		{
-			if (fbVars[i].isVisible)
+			if (fbVars[dispSeq_AP[i]].isVisible)
 			{
-				width_Lab1 = (fbVars[i].value - fbVars[i].minVal) / (fbVars[i].maxVal - fbVars[i].minVal) * width_Value_AP;
+				width_Lab1 = (fbVars[dispSeq_AP[i]].value - fbVars[dispSeq_AP[i]].minVal) 
+					/ (fbVars[dispSeq_AP[i]].maxVal - fbVars[dispSeq_AP[i]].minVal) * width_Value_AP;
 				width_Lab2 = width_Value_AP - width_Lab1;
 
-				audioParams_Value[i][0].setBounds(
-					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 10,
+				audioParams_Value[dispSeq_AP[i]][0].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 5,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 150,
 					width_Lab1,
 					20
 				);
 
-				audioParams_Value[i][1].setBounds(
-					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + width_Lab1 + 10,
+				audioParams_Value[dispSeq_AP[i]][1].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + width_Lab1 + 5,
 					matrix_startPointY + num_MP_Visible * gap_interRow + 150,
 					width_Lab2,
 					20
