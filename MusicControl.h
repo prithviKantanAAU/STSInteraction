@@ -42,6 +42,8 @@ public:
 		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 3, 0, 1, 4, true);
 		feedbackVariables[19].initialize("Sin1 F", 10, 400, 10, 1, 3, 0, 1, 4, true);
 		feedbackVariables[20].initialize("Sin2 F", 10, 1600, 10, 1, 3, 0, 1, 4, true);
+		feedbackVariables[21].initialize("Sin3 F", 10, 1600, 10, 1, 3, 0, 1, 4, true);
+		feedbackVariables[22].initialize("Prox", 0, 1, 1, 1, 2, 0, 1, 3, true);
 
 		populateDispIndex_AP();
 	};
@@ -86,16 +88,18 @@ public:
 		setDispIndex_AP("Detune", 4);
 		setDispIndex_AP("Pan", 4);
 		setDispIndex_AP("Pitch Warp", 4);
+		setDispIndex_AP("Prox", 4);
 
 		setDispIndex_AP("Sin1 F", 5);
 		setDispIndex_AP("Sin2 F", 5);
+		setDispIndex_AP("Sin3 F", 5);
 	}
 
 	// FAUST OBJECT
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[40];
-	short numFbVariables = 21;
+	short numFbVariables = 23;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES

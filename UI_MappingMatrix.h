@@ -775,6 +775,7 @@ class UI_MappingMatrix
 				width_Lab1 = (fbVars[dispSeq_AP[i]].value - fbVars[dispSeq_AP[i]].minVal) 
 					/ (fbVars[dispSeq_AP[i]].maxVal - fbVars[dispSeq_AP[i]].minVal) * width_Value_AP;
 				width_Lab2 = width_Value_AP - width_Lab1;
+				width_Lab2 += (int)(width_Value_AP - width_Lab1 - width_Lab2);
 
 				audioParams_Value[dispSeq_AP[i]][0].setBounds(
 					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3 + 5,
