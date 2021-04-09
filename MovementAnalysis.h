@@ -26,9 +26,9 @@ public:
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
 		// JOINT ANGLES
-		movementParams[6].initialize(-40, 180, "Angle Hip");
-		movementParams[7].initialize(-40, 180, "Angle Knee");
-		movementParams[8].initialize(-40, 40, "Angle Ankle",false);
+		movementParams[6].initialize(-10, 180, "Angle Hip");
+		movementParams[7].initialize(-10, 180, "Angle Knee");
+		movementParams[8].initialize(-10, 40, "Angle Ankle");
 
 		// JOINT HYPEREXTENSION
 		movementParams[9].initialize(0, 1, "Extend Hip");
@@ -125,7 +125,7 @@ public:
 		setDispIndex_MP("Tri Osc",9);
 	}
 	
-	short numMovementParams = 24;
+	short numMovementParams = 23;
 	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };

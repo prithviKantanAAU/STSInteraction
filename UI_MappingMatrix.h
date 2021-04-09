@@ -272,7 +272,8 @@ class UI_MappingMatrix
 							FeedbackVariable apArray[])
 	{
 		juce::FileInputStream inputStream(currentFile); // [2]
-		short apOrder_inFile[20] = {-1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1};
+		short apOrder_inFile[40] = {-1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1,
+									-1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1, -1,-1,-1,-1,-1 };
 		short apOrder_writeIdx = 0;
 
 		if (!inputStream.openedOk())
@@ -293,7 +294,7 @@ class UI_MappingMatrix
 				{
 					presentAP = line_Rem.upToFirstOccurrenceOf(",", false, true);
 					
-					for (int a = 0; a < 20; a++)
+					for (int a = 0; a < 40; a++)
 					{
 						if (presentAP == apArray[a].name)
 						{
