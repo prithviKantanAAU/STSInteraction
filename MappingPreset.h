@@ -13,7 +13,10 @@ public:
 				mappingMatrix[i][j] = false;
 				mappingStrength[i][j] = 1.0;
 			}
-			mappingThresh[i] = 0;
+			mappingThresh_MP_Min[i] = 0;
+			mappingThresh_AP_Min[i] = 0;
+			mappingThresh_MP_Max[i] = 1;
+			mappingThresh_AP_Max[i] = 1;
 		}
 	};
 
@@ -29,7 +32,10 @@ public:
 	{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
 	short num_quantBits[40] =
 	{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-	float mappingThresh[40];
+	float mappingThresh_MP_Min[40];
+	float mappingThresh_MP_Max[40];
+	float mappingThresh_AP_Min[40];
+	float mappingThresh_AP_Max[40];
 
 	// VOICE - DATA HOLDERS
 	float dataHolder_oscBPM = 1;

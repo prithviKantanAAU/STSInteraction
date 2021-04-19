@@ -46,6 +46,14 @@ class UI_MappingMatrix
 	ComboBox ap_isHidden;
 
 	// PRESETS
+	String lineHeaders_Main[40];
+	int num_lineHeaders = 0;
+	int num_linesTotal = 0;
+	int numRows_inHeader[40];
+	int numCols_inRow[40];
+	String rowData[1000];
+	String rowHeaders[1000];
+
 	TextButton preset_Save;
 	ComboBox preset_ListLoad;
 	Label  preset_ListLoad_LAB;
@@ -105,12 +113,125 @@ class UI_MappingMatrix
 		ap_isHidden.addItem("HIDDEN AP", 100);		ap_isHidden.setSelectedId(100);
     }
 
+	void configurePresetFields()
+	{
+		// INITIALIZE ARRAY CONTENTS
+		for (int i = 0; i < 40; i++)
+		{
+			lineHeaders_Main[i] = "";
+			numRows_inHeader[i] = 0;
+			numCols_inRow[i] = 0;
+		};
+
+		for (int j = 0; j < 1000; j++)
+		{
+			rowData[j] = "";
+		}
+
+		// AP Name Row
+		lineHeaders_Main[0] = "AP Names";
+		numRows_inHeader[0] = 1;
+		numCols_inRow[0] = num_AP;
+
+		// Mapping Matrix Booleans
+		lineHeaders_Main[1] = "isMap_";
+		numRows_inHeader[1] = num_MP;
+		numCols_inRow[1] = num_AP;
+
+		// Mapping Strength
+		lineHeaders_Main[2] = "mapStr_";
+		numRows_inHeader[2] = num_MP;
+		numCols_inRow[2] = num_AP;
+
+		// Mapping Function Index
+		lineHeaders_Main[3] = "Map Func Idx";
+		numRows_inHeader[3] = 1;
+		numCols_inRow[3] = num_AP;
+
+		// Mapping Polarity
+		lineHeaders_Main[4] = "Polarity";
+		numRows_inHeader[4] = 1;
+		numCols_inRow[4] = num_AP;
+
+		// Quantization Bits
+		lineHeaders_Main[5] = "Quant Bits";
+		numRows_inHeader[5] = 1;
+		numCols_inRow[5] = num_AP;
+
+		// Oscillator BPM
+		lineHeaders_Main[6] = "OSC_BPM";
+		numRows_inHeader[6] = 1;
+		numCols_inRow[6] = 1;
+
+		// Voice Cue ON
+		lineHeaders_Main[7] = "VoiceCue_ON";
+		numRows_inHeader[7] = 1;
+		numCols_inRow[7] = 1;
+
+		// Voice Cue - Timing (Fine)
+		lineHeaders_Main[8] = "VoiceCue_TimingFine";
+		numRows_inHeader[8] = 1;
+		numCols_inRow[8] = 1;
+
+		// Voice Cue - Level (dB)
+		lineHeaders_Main[9] = "VoiceCue_LeveldB";
+		numRows_inHeader[9] = 1;
+		numCols_inRow[9] = 1;
+
+		// Voice Cue - Length
+		lineHeaders_Main[10] = "VoiceCue_Length";
+		numRows_inHeader[10] = 1;
+		numCols_inRow[10] = 1;
+
+		// Voice Cue - Is Interval Enabled?
+		lineHeaders_Main[11] = "VoiceCue_isIntervalEnabled";
+		numRows_inHeader[11] = 1;
+		numCols_inRow[11] = 3;
+
+		// Voice Cue - Interval Location
+		lineHeaders_Main[12] = "VoiceCue_intervalLocation";
+		numRows_inHeader[12] = 1;
+		numCols_inRow[12] = 3;
+
+		// Map Threshold - AP - Min
+		lineHeaders_Main[13] = "mapThresh_AP_Min";
+		numRows_inHeader[13] = 1;
+		numCols_inRow[13] = num_AP;
+
+		// Map Threshold - AP - Max
+		lineHeaders_Main[14] = "mapThresh_AP_Max";
+		numRows_inHeader[14] = 1;
+		numCols_inRow[14] = num_AP;
+
+		// Map Threshold - MP
+		lineHeaders_Main[15] = "mapThresh_MP_";
+		numRows_inHeader[15] = num_MP;
+		numCols_inRow[15] = 2;
+
+		// Find Num Line Headers
+		for (int i = 0; i < 40; i++)
+		{
+			if (lineHeaders_Main[i] != "")
+			{
+				num_lineHeaders += 1;
+				num_linesTotal += numRows_inHeader[i];
+			}		
+		};
+	}
+
+	// STEPS TO ADD NEW DATA TO PRESET
+	// 1 - Add info in configurePresetFields() function
+	// 2 - Add Data Population Specifics
+	// 3 - Add Data Reading Specifics
+
 	void saveAsPreset(MovementParameter mpArray[], FeedbackVariable apArray[])
 	{
 		if (preset_Name.getText() == "")
 			return;
 		else
 		{
+			configurePresetFields();
+
 			String presetFile_Path = "";
 			// INITIALIZE PATHS, STORE INFO
 			presetFile_Path = File::getSpecialLocation(File::currentApplicationFile).getFullPathName();
@@ -118,125 +239,194 @@ class UI_MappingMatrix
 			presetFile_Path += "Mapping Presets\\" + preset_Name.getText() + ".csv";
 			
 			presetFile = fopen(presetFile_Path.toStdString().c_str(), "w");
+			
+			int lineIterator = 0;
 
-			// SAVE CSV FILE
-			String formatSpecifier = "%s,\n";
-
-			// SPECIFY TOTAL LINES
-			int numLines = 1 + num_MP + num_MP + 3 + 8;
-
-			String lineString = "";
-			String lineHeader = "";
-
-			for (int l = 0; l < numLines; l++)											// FULL FILE
+			// POPULATE ROW DATA MATRIX
+			for (int i = 0; i < num_lineHeaders; i++)
 			{
-				lineString = "";
-				for (int a = 0; a < num_AP; a++)										// EACH LINE
+				if (lineHeaders_Main[i] == "AP Names")
 				{
-					if (l == 0)															// FIRST LINE - AP NAMES
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+
+					for (int k = 0; k < numCols_inRow[i]; k++)
 					{
-						lineHeader = "AP Names";
-						lineString += apArray[a].name + ",";
+						rowData[lineIterator] += apArray[k].name + ",";
 					}
 
-					if (l >= 1 && l < num_MP + 1)										// MAPPING MATRIX BOOLEANS
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "isMap_")
+				{
+					for (int j = 0; j < numRows_inHeader[i]; j++)
 					{
-						lineHeader = "isMap_" + mpArray[l - 1].name;
-						lineString += mapping_Matrix[l - 1][a].getToggleState() ? "1," : "0,";
-					}
-
-					if (l >= num_MP + 1 && l < num_MP + 1 + num_MP)						// MAPPING MATRIX STRENGTH
-					{
-						lineHeader = "mapStr_" + mpArray[l - num_MP - 1].name;
-						lineString += String(mapping_Strength[l - num_MP - 1][a].getValue(), 2) + ",";
-					}
-
-					//if (l >= num_MP + 1 + num_MP && l < num_MP + num_MP + num_MP + 1)	// MAPPING THRESH
-					//{
-					//	if (a == 0)
-					//	{
-					//		lineHeader = "mapThr_" + mpArray[l - 2 * num_MP - 1].name;
-					//		lineString += String(normRange_MP[l - 2 * num_MP - 1].getMinValue(), 2) + ",";
-					//	}
-					//}
-
-					if (l == 2 * num_MP + 1)											// MAPPING FUNCTION IDX
-					{
-						lineHeader = "Map Func Idx";
-						lineString += String(mapping_Function[a].getSelectedId()) + ",";
-					}
-
-					if (l == 2 * num_MP + 2)											// MAPPING POLARITY
-					{
-						lineHeader = "Polarity";
-						lineString += String(mapping_Polarity[a].getSelectedId()) + ",";
-					}
-
-					if (l == 2 * num_MP + 3)											// MAPPING QUANT BITS
-					{
-						lineHeader = "Quant Bits";
-						lineString += String(mapping_QuantLevels[a].getSelectedId() - 1) + ",";
-					}
-
-					if (a == 0)
-					{
-						if (l == 2 * num_MP + 4)										// OSC BPM
+						rowHeaders[lineIterator] = lineHeaders_Main[i] + mpArray[j].name;
+						
+						for (int k = 0; k < numCols_inRow[i]; k++)
 						{
-							lineHeader = "OSC_BPM";
-							lineString = String(dataHolder_oscBPM, 4);
+							rowData[lineIterator] += mapping_Matrix[j][k].getToggleState() ? "1," : "0,";
 						}
 
-						if (l == 2 * num_MP + 5)										// VOICE CUE ON
-						{
-							lineHeader = "VoiceCue_ON";
-							lineString = dataHolder_voiceCue_ON ? "1" : "0";
-						}
-
-						if (l == 2 * num_MP + 6)										// TIMING FINE
-						{
-							lineHeader = "VoiceCue_TimingFine";
-							lineString = String(dataHolder_voiceCue_timingFine,2);
-						}
-
-						if (l == 2 * num_MP + 7)										// VOICE CUE LEVEL
-						{
-							lineHeader = "VoiceCue_LeveldB";
-							lineString = String(dataHolder_voiceCue_voldB,2);
-						}
-
-						if (l == 2 * num_MP + 8)										// VOICE CUE LENGTH
-						{
-							lineHeader = "VoiceCue_Length";
-							lineString = String(dataHolder_voiceCue_Length);
-						}
-					}
-
-					if (a < 3)
-					{
-						if (l == 2 * num_MP + 9)										// IS INTERVAL ENABLED
-						{
-							lineHeader = "VoiceCue_isIntervalEnabled";
-							lineString += dataHolder_voiceCue_isIntervalEnabled[a] ? "1," : "0,";
-						}
-
-						if (l == 2 * num_MP + 10)										// IS INTERVAL POSITIVE CROSS
-						{
-							lineHeader = "VoiceCue_isIntervalPos";
-							lineString += dataHolder_voiceCue_isPos[a] ? "1," : "0,";
-						}
-
-						if (l == 2 * num_MP + 11)										// CUE LOCATION
-						{
-							lineHeader = "VoiceCue_intervalLocation";
-							lineString += String(dataHolder_voiceCue_location[a],2) + ",";
-						}
+						lineIterator++;
 					}
 				}
 
+				if (lineHeaders_Main[i] == "mapStr_")
+				{
+					for (int j = 0; j < numRows_inHeader[i]; j++)
+					{
+						rowHeaders[lineIterator] = lineHeaders_Main[i] + mpArray[j].name;
+
+						for (int k = 0; k < numCols_inRow[i]; k++)
+						{
+							rowData[lineIterator] += String(mapping_Strength[j][k].getValue(),2) + ",";
+						}
+
+						lineIterator++;
+					}
+				}
+
+				if (lineHeaders_Main[i] == "Map Func Idx")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					{
+						rowData[lineIterator] += String(mapping_Function[k].getSelectedId()) + ",";
+					}
+
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "Polarity")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					{
+						rowData[lineIterator] += String(mapping_Polarity[k].getSelectedId()) + ",";
+					}
+
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "Quant Bits")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					{
+						rowData[lineIterator] += String(mapping_QuantLevels[k].getSelectedId() - 1) + ",";
+					}
+
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "OSC_BPM")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					rowData[lineIterator] += String(dataHolder_oscBPM,4);
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_ON")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					rowData[lineIterator] += dataHolder_voiceCue_ON ? "1" : "0";
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_TimingFine")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					rowData[lineIterator] += String(dataHolder_voiceCue_timingFine, 2);
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_LeveldB")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					rowData[lineIterator] += String(dataHolder_voiceCue_voldB, 2);
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_Length")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					rowData[lineIterator] += String(dataHolder_voiceCue_Length);
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_isIntervalEnabled")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					rowData[lineIterator] += String(dataHolder_voiceCue_isIntervalEnabled[k] ? "1," : "0,");
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_isIntervalPos")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					rowData[lineIterator] += String(dataHolder_voiceCue_isPos[k] ? "1," : "0,");
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "VoiceCue_intervalLocation")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					rowData[lineIterator] += String(dataHolder_voiceCue_location[k], 2) + ",";
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "mapThresh_AP_Min")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					{
+						rowData[lineIterator] += String(apArray[k].rangeNorm_MIN,2) + ",";
+					}
+
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "mapThresh_AP_Max")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					{
+						rowData[lineIterator] += String(apArray[k].rangeNorm_MAX, 2) + ",";
+					}
+
+					lineIterator++;
+				}
+
+				if (lineHeaders_Main[i] == "mapThresh_MP_")
+				{
+					for (int j = 0; j < numRows_inHeader[i]; j++)
+					{
+						rowHeaders[lineIterator] = lineHeaders_Main[i] + mpArray[j].name;
+						rowData[lineIterator] = String(mpArray[j].rangeNorm_MIN, 2) + ","
+							+ String(mpArray[j].rangeNorm_MAX, 2);
+						lineIterator++;
+					}
+				}
+			}
+			
+			// SAVE CSV FILE
+			String formatSpecifier = "%s,\n";
+
+			for (int i = 0; i < lineIterator; i++)
+			{
 				fprintf(
 					presetFile,
 					formatSpecifier.toStdString().c_str(),
-					lineHeader + "," + lineString
+					rowHeaders[i] + "," + rowData[i]
 				);
 			}
 
@@ -335,14 +525,12 @@ class UI_MappingMatrix
 					}
 				}
 
-				//if (line_header == "mapThr_" + mpArray[i].name)			// MAPPING MATRIX THR ROWS
-				//{
-				//	for (int j = 0; j < num_AP; j++)
-				//	{
-				//			presetContainer->mappingThresh[i] =
-				//				line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
-				//	}
-				//}
+				if (line_header == "mapThresh_MP_" + mpArray[i].name)			
+				{
+					presetContainer->mappingThresh_MP_Min[i] = line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+					line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					presetContainer->mappingThresh_MP_Max[i] = line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+				}
 			}
 
 			if (line_header == "Map Func Idx")
@@ -437,6 +625,32 @@ class UI_MappingMatrix
 				}
 				mat_writeIdx = 0;
 			}
+
+			if (line_header == "mapThresh_AP_Min")
+			{
+				for (int j = 0; j < num_AP; j++)
+				{
+					if (apOrder_inFile[j] != -1)
+					{
+						presetContainer->mappingThresh_AP_Min[apOrder_inFile[j]] =
+							line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					}
+				}
+			}
+
+			if (line_header == "mapThresh_AP_Max")
+			{
+				for (int j = 0; j < num_AP; j++)
+				{
+					if (apOrder_inFile[j] != -1)
+					{
+						presetContainer->mappingThresh_AP_Max[apOrder_inFile[j]] =
+							line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					}
+				}
+			}
 		}
 	}
 
@@ -444,15 +658,23 @@ class UI_MappingMatrix
 	{
 		for (int i = 0; i < num_AP; i++)
 		{
+			normRange_AP[i].setMinValue(loadedPreset->mappingThresh_AP_Min[i]);
+			normRange_AP[i].setMaxValue(loadedPreset->mappingThresh_AP_Max[i]);
+
 			for (int j = 0; j < num_MP; j++)
 			{
 				mapping_Matrix[j][i].setToggleState(loadedPreset->mappingMatrix[j][i],sendNotificationSync);
 				mapping_Strength[j][i].setValue(loadedPreset->mappingStrength[j][i]);
-				//normRange_MP[j].setValue(loadedPreset->mappingThresh[j]);
 			}
 			mapping_Function[i].setSelectedId(loadedPreset->mapFunc_Idx[i]);
 			mapping_Polarity[i].setSelectedId(loadedPreset->polarity[i]);
 			mapping_QuantLevels[i].setSelectedId(loadedPreset->num_quantBits[i] + 1);
+		}
+
+		for (int k = 0; k < num_MP; k++)
+		{
+			normRange_MP[k].setMinValue(loadedPreset->mappingThresh_MP_Min[k]);
+			normRange_MP[k].setMaxValue(loadedPreset->mappingThresh_MP_Max[k]);
 		}
 	}
     
