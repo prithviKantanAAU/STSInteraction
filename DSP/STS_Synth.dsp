@@ -126,9 +126,10 @@ Synth_T1_MainPerc =
 pm.djembe(DJ_FREQ,DJ_SHRPNS/8,DJ_SHRPNS,1,TRG_PERC_MAIN) * DJ_GAIN : monoChannel(1) : getPanFunction(0);
 
 // TRACK 2 - MELODY
-F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
-synthFunc_Melody(freq) = voiceSynth_FormantBP(freq,PARAM_VAL_DYNAMICS,TRG_MEL,PARAM_VAL_DYNAMICS/2.0);
-Synth_T2_Melody = leadSynth(F0_M,synthFunc_Melody,PARAM_VAL_DYNAMICS,TRG_MEL,RL_M,FC_LP_M,PARAM_VAL_DYNAMICS/2.0) : stereoChannel(2);
+//F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
+F0_M = FRQ_MEL : Soni_FreqWarpFactor;
+synthFunc_Melody(freq) = voiceSynth_FormantBP;
+Synth_T2_Melody = voiceSynth_FormantBP(F0_M,PARAM_VAL_DYNAMICS,TRG_MEL,PARAM_VAL_DYNAMICS/2.0) : monoChannel(2) : getPanFunction(0);
   
 // TRACK 3 - CHORD
 FREQ_LIST_C = FRQ_CHORD_N1,FRQ_CHORD_N2,FRQ_CHORD_N3,FRQ_CHORD_N4;																// LIST MIDI KEYS
@@ -157,9 +158,9 @@ Synth_T6_Guitar = leadSynth(F0_GTR,synthFunc_Guitar,PARAM_VAL_DYNAMICS,TRG_GTR,R
 // TRACK 7 - WARNINGS
 Synth_T7_Warning = 
   pm.churchBell(1,10000,0.8,1,TRG_BELL) * en.ar(0.001,2,TRG_BELL) 
-  + ((FRQ_SINE1 > 20) : si.smoo) * 2 * os.osc(max(20,FRQ_SINE1))
-  + ((FRQ_SINE2 > 20) : si.smoo) * 2 * os.osc(max(20,FRQ_SINE2))
-  + ((FRQ_SINE3 > 20) : si.smoo) * 2 * os.osc(max(20,FRQ_SINE3))
+  + ((FRQ_SINE1 > 310) : si.smoo) * 2 * os.osc(max(20,FRQ_SINE1))
+  + ((FRQ_SINE2 > 610) : si.smoo) * 2 * os.osc(max(20,FRQ_SINE2))
+  + ((FRQ_SINE3 > 1210) : si.smoo) * 2 * os.osc(max(20,FRQ_SINE3))
   : monoChannel(7) : getPanFunction(0);
 
 track1 = Synth_T1_MainPerc : stereoMasterSection(1);
@@ -169,7 +170,7 @@ track4 = Synth_T4_SecPerc  : stereoMasterSection(4);
 track5 = Synth_T5_Bass     : stereoMasterSection(5);
 track6 = Synth_T6_Guitar   : stereoMasterSection(6);
 track7 = Synth_T7_Warning  : stereoMasterSection(7);
-reverbTrack = track2,track6 :> reverbMaster;
+reverbTrack = track2,track3,track6 :> reverbMaster;
 dryBus = track1,track2,track3,track4,track5,track6,track7 :> stereodBGain(0 - 24 * sqrt(1 - PARAM_VAL_PROXIMITY));
 
 masterChannel = masterComp : stereoLinGain(masterGain) : stereoEffect(masterLimiter(0)) : stereoEffect(hard_clip(1));
@@ -323,19 +324,24 @@ pianoSim_singleNote(freq,trigger,acc) = monoOut
 {
   monoOut = pulseWave(freq,PIANO_WAVEWIDTH1),pulseWave(freq,
 			PIANO_WAVEWIDTH2),pulseWave(freq,PIANO_WAVEWIDTH3):> fi.lowpass(2,cutoff) * ampEnv;							// WAVESUMMING
-  cutoff = (freqEnv + 0.01) * 4000 * freq / 600 * (1 - min(freq,1000)/2000) : limit(20,20000);							// FC
+  cutoff = (freqEnv + 0.01) * 7000 * freq / 600 * (1 - min(freq,1000)/2000) : limit(20,20000);							// FC
   freqEnv = (1 + (acc - 5.0)/5.0) * en.arfe(0.001,1.6,0.4 * 1,trigger) : si.smooth(ba.tau2pole(0.01));	// FREQUENCY ENV
   ampEnv = pow(en.ar(0.001,4 * 1,trigger),6)  : si.smooth(ba.tau2pole(0.002));							// AMPLITUDE ENV
 };
 
-voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM_VAL_VOICEFRIC,freqLow,0.4) * env : fi.resonlp(8000,3,1) with
+voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM_VAL_VOICEFRIC,freqFinal,0.4) * env : fi.resonlp(8000,3,1) with
 {
+  	trig_unFilt = SONI_3_MelodyTr : ba.selectn(4,0);
 	vib = (1 + 0.01 * os.osc(6));
-	freqLow = freq : _*vib : si.smooth(ba.tau2pole(0.02));
+	freqFinal = 2 * freq : _* vib * soniVibratoLFO : si.smooth(ba.tau2pole(0.02));
+  	soniVibratoLFO = 1 + PARAM_VAL_DETUNE * vibLFO * 0.5 : si.smoo;								// CF DIST SONI - VIBRATO LFO
   	vowel_idx = PARAM_VAL_VOWEL;
-	env = sqrt(en.ar(0.02, 0.8, trigger)) * vib;
+	env = vib * (trig_unFilt > 0) : si.smooth(ba.tau2pole(0.02));
+  	//env = 1;
   	vowel_H = vowel_idx;
+  	vibLFO = os.osc(8);
 };
+
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
 { 
   freqSelector(n) = freqList : ba.selectn(4,n-1);																			// INDIVIDUAL FREQS
