@@ -23,10 +23,10 @@ public:
 		"Warnings"
 	};
 
-	float masterGain = -6;
+	float masterGain = -19;
 	float gain_Track[10] =
 	{
-		13.2, -2.3, -2.8, 14.3, 7.5, 17.7,6,0,0,0
+		13.2, -2.3, -5.8, 14.3, 7.5, 23,6,0,0,0
 	};
 
 	float comp_Track[10][4] =

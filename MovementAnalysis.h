@@ -18,7 +18,7 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-5, 40, "Orientation Trunk AP",false);
+		movementParams[0].initialize(-90, 90, "Orientation Trunk AP",false);
 		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
 		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
@@ -44,8 +44,8 @@ public:
 		movementParams[23].initialize(0, 1, "Up Progress");
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(0.29, 0.51, "Horiz Disp");
-		movementParams[16].initialize(0.36, 0.98, "Verti Disp");
+		movementParams[15].initialize(0.34, 0.49, "Horiz Disp");
+		movementParams[16].initialize(0.67, 0.94, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.3, "Horiz Vel");
@@ -125,7 +125,7 @@ public:
 		setDispIndex_MP("Tri Osc",9);
 	}
 	
-	short numMovementParams = 23;
+	short numMovementParams = 24;
 	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
