@@ -18,7 +18,7 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-90, 90, "Orientation Trunk AP",false);
+		movementParams[0].initialize(-50, 90, "Orientation Trunk AP",false);
 		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
 		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
@@ -44,8 +44,8 @@ public:
 		movementParams[23].initialize(0, 1, "Up Progress");
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(0.34, 0.49, "Horiz Disp");
-		movementParams[16].initialize(0.67, 0.94, "Verti Disp");
+		movementParams[15].initialize(-1, 1, "Horiz Disp");
+		movementParams[16].initialize(0, 1, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.3, "Horiz Vel");
@@ -283,7 +283,8 @@ public:
 	double forJerk_Gyr_z2[3][3];
 
 	// CoP Displacement Calculation
-	float segmentWise_WtPct[3] = { 0.624, 0.111, 0.05 };
+	float seg_wtFracs[3] = { 0.59, 0.29, 0.09 };				
+	float segmentWise_WtPct[3] = { 0.624, 0.111, 0.05 };			// REMOVE
 	float segmentWise_HtPct[3] = { 0.402, 0.241, 0.25 };
 	float CoM_Horiz_AP_z1 = 0.0;
 	float CoM_Vert_z1 = 0.0;
@@ -400,7 +401,8 @@ public:
 		computeJerkParams(0, "Trunk Jerk - Ang");
 		computeJerkParams(1, "Thigh Jerk - Ang");
 		computeJerkParams(2, "Shank Jerk - Ang");
-		computeCoM_Disp_Vel();
+		//computeCoM_Disp_Vel();
+		computeCoM_Pos_NEW();
 		computeProgress();
 		triOsc_Update();
 
@@ -530,6 +532,68 @@ public:
 			forJerk_Gyr_z2[locationIdx][i] = forJerk_Gyr_z1[locationIdx][i];
 			forJerk_Gyr_z1[locationIdx][i] = sensors_OSCReceivers[locationsOnline[locationIdx]].gyr_Buf[i];
 		}
+	}
+
+	void computeCoM_Pos_NEW()
+	{
+		float seg_AP_Ang_Vals[3] = {
+			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Val"),
+			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Val"),
+			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Val")
+		};
+
+		float seg_LnFracs[3] = { 0.402, 0.241, 0.25 };
+		float seg_CoM_Dist_Joint[3] = {0.57, 0.59, 0.55};
+
+		float seg_CoM_X[3] = { 0.0, 0.0, 0.0 };
+		float seg_CoM_Y[3] = { 0.0, 0.0, 0.0 };
+
+		float body_CoM_X = 0;
+		float body_CoM_Y = 0;
+
+		// Helper Variables	-- START WITH ANKLE
+		float lastJointX = 0;
+		float lastJointY = 0;
+
+		// Calculate CoM Locations of each body segment
+		for (int i = 0; i < 3; i++)
+		{
+			int j = 2 - i;
+			// CoM of Segment: Last Joint Position + sin(seg Angle) x seg length x seg CoM percentage of length
+			seg_CoM_X[j] = lastJointX + sin(M_PI / 180.0 * seg_AP_Ang_Vals[j]) * seg_LnFracs[j] * seg_CoM_Dist_Joint[j];
+			seg_CoM_Y[j] = lastJointY + cos(M_PI / 180.0 * seg_AP_Ang_Vals[j]) * seg_LnFracs[j] * seg_CoM_Dist_Joint[j];
+
+			// Find relative position of next joint in space
+			lastJointX += sin(M_PI / 180.0 * seg_AP_Ang_Vals[j]) * seg_LnFracs[j];
+			lastJointY += cos(M_PI / 180.0 * seg_AP_Ang_Vals[j]) * seg_LnFracs[j];
+		}
+
+		float numSum_X = 0;
+		float numSum_Y = 0;
+		float denSum = seg_wtFracs[0] + seg_wtFracs[1] + seg_wtFracs[2];
+
+		for (int i = 0; i < 3; i++)
+		{
+			numSum_X += seg_wtFracs[0] * seg_CoM_X[i];
+			numSum_Y += seg_wtFracs[0] * seg_CoM_Y[i];
+		}
+
+		body_CoM_X = numSum_X / denSum;
+		body_CoM_Y = numSum_Y / denSum;
+
+		store_MP_Value("Horiz Disp", body_CoM_X);
+		store_MP_Value("Verti Disp", body_CoM_Y);
+
+		// CALCULATE NORMALIZED CoM Velocity
+
+		float horiz_Vel_AP = LPF_CoM_Vel[0].doBiQuad(fabs(body_CoM_X - CoM_Horiz_AP_z1) * 100, 0);
+		float vert_Vel = LPF_CoM_Vel[1].doBiQuad(fabs(body_CoM_Y - CoM_Vert_z1) * 100, 0);
+
+		CoM_Horiz_AP_z1 = body_CoM_X;
+		CoM_Vert_z1 = body_CoM_Y;
+
+		store_MP_Value("Horiz Vel", horiz_Vel_AP);
+		store_MP_Value("Verti Vel", vert_Vel);
 	}
 
 	void computeCoM_Disp_Vel()

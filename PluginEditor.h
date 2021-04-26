@@ -197,6 +197,10 @@ private:
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_H_MAX);
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_INDIC_VAL_H);
 
+		addAndMakeVisible(ui_movementAnalysis.CoM_Wt_Dist);
+		addAndMakeVisible(ui_movementAnalysis.CoM_Wt_Dist_LAB);
+		for (int i = 0; i < 3; i++) addAndMakeVisible(ui_movementAnalysis.CoM_Wt_Dist_Vals[i]);
+
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V);
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_Lab);
 		addAndMakeVisible(ui_movementAnalysis.CoM_Disp_Bounds_V_MIN);
@@ -455,6 +459,19 @@ private:
 					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::red);
 			}
 		};
+
+		// WT DIST
+		ui_movementAnalysis.CoM_Wt_Dist.setMaxValue(mAnalysisPtr->seg_wtFracs[0] + mAnalysisPtr->seg_wtFracs[1]);
+		ui_movementAnalysis.CoM_Wt_Dist.setMinValue(mAnalysisPtr->seg_wtFracs[0]);
+		
+		ui_movementAnalysis.CoM_Wt_Dist.onValueChange = [this]
+		{
+			mAnalysisPtr->seg_wtFracs[0] = ui_movementAnalysis.CoM_Wt_Dist.getMinValue();
+			mAnalysisPtr->seg_wtFracs[1] = ui_movementAnalysis.CoM_Wt_Dist.getMaxValue() -
+												ui_movementAnalysis.CoM_Wt_Dist.getMinValue();
+			mAnalysisPtr->seg_wtFracs[2] = 0.97 - ui_movementAnalysis.CoM_Wt_Dist.getMaxValue();
+		};
+
 		
 		// CALIBRATE SIT
 		ui_movementAnalysis.cal_CoM_SIT.onClick = [this]
@@ -795,6 +812,7 @@ private:
 		}
 
 		ui_movementAnalysis.update_Indicators_SensorOrientation(mpArrayPtr);
+		ui_movementAnalysis.update_WeightDist(mAnalysisPtr->seg_wtFracs);
 
 		// JOINT ANGLE DISPLAYS
 		for (int j = 0; j < 3; j++)
