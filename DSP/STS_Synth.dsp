@@ -46,8 +46,8 @@ SONI_6_DefaultVals = 0,0,0,0;
 SONI_6_Detune = array_soniSliders(6,SONI_6_DefaultVals);
 //SONI_7_DefaultVals = 0.5,0,0,0;
 //SONI_7_Pan = array_soniSliders(7,SONI_7_DefaultVals);
-SONI_8_DefaultVals = 0,0,0,0;
-SONI_8_Perc2Tr = array_soniSliders(8,SONI_8_DefaultVals);
+SONI_8_DefaultVals = 420,0,0,0;
+SONI_8_FluteFr = array_soniSliders(8,SONI_8_DefaultVals);
 //SONI_9_DefaultVals = 7,0,0,0;
 //SONI_9_Dynamics = array_soniSliders(9,SONI_9_DefaultVals);
 SONI_10_DefaultVals = 0.5,0,0,0;
@@ -62,8 +62,8 @@ SONI_13_GtrStf = array_soniSliders(13,SONI_13_DefaultVals);
 //SONI_14_VoiceFric = array_soniSliders(14,SONI_14_DefaultVals);
 SONI_15_DefaultVals = 1,0,0,0;
 SONI_15_DjembeSharp = array_soniSliders(15,SONI_15_DefaultVals);
-//SONI_16_DefaultVals = 1,0,0,0;
-//SONI_16_MarimbaSharp = array_soniSliders(16,SONI_16_DefaultVals);
+SONI_16_DefaultVals = 0.9,0,0,0;
+SONI_16_FluteGn = array_soniSliders(16,SONI_16_DefaultVals);
 SONI_17_DefaultVals = 0,0,0,0;
 SONI_17_WarningBell = array_soniSliders(17,SONI_17_DefaultVals);
 SONI_18_DefaultVals = 1500,0,0,0;
@@ -76,8 +76,8 @@ SONI_21_DefaultVals = 10,0,0,0;
 SONI_21_Sine2P = array_soniSliders(21,SONI_21_DefaultVals);
 SONI_22_DefaultVals = 10,0,0,0;
 SONI_22_Sine3P = array_soniSliders(22,SONI_22_DefaultVals);
-SONI_23_DefaultVals = 1,0,0,0;
-SONI_23_Proximity = array_soniSliders(23,SONI_23_DefaultVals);
+SONI_23_DefaultVals = 0.5,0,0,0;
+SONI_23_FluteMouthPos = array_soniSliders(23,SONI_23_DefaultVals);
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
@@ -91,7 +91,7 @@ FRQ_CHORD_N3 = SONI_4_ChordFr : ba.selectn(4,2) : limit(20,20000);
 FRQ_CHORD_N4 = SONI_4_ChordFr : ba.selectn(4,3) : limit(20,20000);
 TRG_CHORD = FVToTrigger(SONI_5_ChordTr : ba.selectn(4,0));		
 
-TRG_PERC_2 = FVToTrigger(SONI_8_Perc2Tr : ba.selectn(4,0));			// TRACK 4
+FRQ_FLUTE = SONI_8_FluteFr : ba.selectn(4,0) : si.smooth(ba.tau2pole(0.001));			// TRACK 4
 
 FRQ_BASS = FRQ_CHORD_N1 / 2.0;										// TRACK 5
 
@@ -112,9 +112,9 @@ PARAM_VAL_VOWEL = SONI_11_Vowel : ba.selectn(4,0) : limit(0,3);					// VOWEL
 PARAM_VAL_GTRSTF = SONI_13_GtrStf : ba.selectn(4,0) : limit(0.01,1);				// GUITAR STIFFNESS
 PARAM_VAL_VOICEFRIC = 0;
 PARAM_VAL_DJEMBESHARP = SONI_15_DjembeSharp : ba.selectn(4,0) : limit(0.01,5);		// DJEMBE STRIKE SHARPNESS
-PARAM_VAL_MARIMBASHARP = 1;
+PARAM_VAL_FLUTEGN = SONI_16_FluteGn : ba.selectn(4,0);
 PARAM_VAL_GTRDYN = SONI_18_GtrDyn : ba.selectn(4,0) : *(10) : si.smoo : limit(500,15000);				// GUITAR EXCITATION CUTOFF
-PARAM_VAL_PROXIMITY = SONI_23_Proximity : ba.selectn(4,0);
+PARAM_VAL_FLUTEMOUTHPOS = SONI_23_FluteMouthPos : ba.selectn(4,0);
 
 // TRACK SYNTHESIS DEFINITION  
 
@@ -140,11 +140,9 @@ synthFunc_Chord(trigger,freq) = pianoSim_singleNote(freq,trigger,PARAM_VAL_DYNAM
 chordSum = par(i,4,chordSingle_Synth(chordFreq(i), synthFunc_Chord(chordTrg(i)))) :> _,_;
 Synth_T3_Chord = chordSum : stereoChannel(3);
 
-// TRACK 4 - SECONDARY PERCUSSION
-MR_FREQ = SONI_8_Perc2Tr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_2) + 100;
-MR_SHRPNS = 1 + PARAM_VAL_MARIMBASHARP;
-Synth_T4_SecPerc = 
-pm.marimba(MR_FREQ,0.7,12000,MR_SHRPNS,1,TRG_PERC_2) : monoChannel(4) : getPanFunction(2);
+// TRACK 4 - FLUTE
+F0_FLUTE = FRQ_FLUTE : Soni_FreqWarpFactor;
+Synth_T4_Flute = fluteSimple(F0_FLUTE,PARAM_VAL_FLUTEGN,PARAM_VAL_FLUTEMOUTHPOS) : monoChannel(4) : getPanFunction(0);
 
 // TRACK 5 - BASSLINE
 F0_R = FRQ_BASS : ba.sAndH(TRG_CHORD) : Soni_FreqWarpFactor;
@@ -166,11 +164,11 @@ Synth_T7_Warning =
 track1 = Synth_T1_MainPerc : stereoMasterSection(1);
 track2 = Synth_T2_Melody   : stereoMasterSection(2);
 track3 = Synth_T3_Chord    : stereoMasterSection(3);
-track4 = Synth_T4_SecPerc  : stereoMasterSection(4);
+track4 = Synth_T4_Flute    : stereoMasterSection(4);
 track5 = Synth_T5_Bass     : stereoMasterSection(5);
 track6 = Synth_T6_Guitar   : stereoMasterSection(6);
 track7 = Synth_T7_Warning  : stereoMasterSection(7);
-reverbTrack = track2,track3,track6 :> reverbMaster;
+reverbTrack = track2,track3,track4,track6 :> reverbMaster;
 dryBus = track1,track2,track3,track4,track5,track6,track7 :> stereodBGain(0 - 24 * sqrt(1 - PARAM_VAL_PROXIMITY));
 
 masterChannel = masterComp : stereoLinGain(masterGain) : stereoEffect(masterLimiter(0)) : stereoEffect(hard_clip(1));
@@ -342,6 +340,17 @@ voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM
   	vibLFO = os.osc(8);
 };
 
+fluteSimple(f_Hz,gain,mouthPos) = pm.fluteModel(tubeLength,mouthPos,blow)*0.5
+with{
+  	gate = (f_Hz > 430);
+    envelope = gate*gain : si.smooth(ba.tau2pole(0.001));
+  	freqDiff = f_Hz - 440;
+	freqFactor = 0.999999999999 + freqDiff * 0.0080951 - freqDiff*freqDiff * 0.00002777 + freqDiff*freqDiff*freqDiff * 0.00000004097;
+    tubeLength = 440 + (f_Hz - 440) * freqFactor : pm.f2l;
+    pressure = envelope;
+    blow = pm.blower(pressure,0.05,2000,5,0.036);
+};
+
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
 { 
   freqSelector(n) = freqList : ba.selectn(4,n-1);																			// INDIVIDUAL FREQS
@@ -366,6 +375,8 @@ with{
 };
 
 ///////////////////////////////////////////////////////////////////////////// CONST PARAM DUMP ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+PARAM_VAL_PROXIMITY = 1;
 
 // Panner
 NUM_PANPOS = 7;
