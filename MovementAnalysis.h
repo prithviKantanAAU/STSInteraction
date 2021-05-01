@@ -41,15 +41,14 @@ public:
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		movementParams[14].initialize(-1, 6, "STS Phase");
-		movementParams[23].initialize(0, 1, "Up Progress");
 		
 		// CoM NORMALIZED DISPLACEMENTS
 		movementParams[15].initialize(-1, 1, "Horiz Disp");
 		movementParams[16].initialize(0, 1, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
-		movementParams[17].initialize(0, 0.3, "Horiz Vel");
-		movementParams[18].initialize(0, 0.45, "Verti Vel");
+		movementParams[17].initialize(0, 0.8, "CoM Speed");
+		movementParams[18].initialize(0, 3000, "CoM Jerk");
 
 		// ANGULAR JERK MEASURES
 		movementParams[19].initialize(0, 100, "Trunk Jerk - Ang",false);
@@ -58,6 +57,9 @@ public:
 
 		// TRIANGLE OSCILLATOR
 		movementParams[22].initialize(0, 1, "Tri Osc");
+
+		// PROGRESS
+		movementParams[23].initialize(0, 1, "Dist to Stand");
 
 		populateDispIndex_MP();
 		setupReceivers();
@@ -106,15 +108,15 @@ public:
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		setDispIndex_MP("STS Phase", 5);
-		setDispIndex_MP("Up Progress", 5);
+		setDispIndex_MP("Dist to Stand", 5);
 
 		// CoM NORMALIZED DISPLACEMENTS
 		setDispIndex_MP("Horiz Disp", 6);
 		setDispIndex_MP("Verti Disp", 6);
 
 		// CoM NORMALIZED VELOCITY
-		setDispIndex_MP("Horiz Vel", 7);
-		setDispIndex_MP("Verti Vel", 7);
+		setDispIndex_MP("CoM Speed", 7);
+		setDispIndex_MP("CoM Jerk", 7);
 
 		// ANGULAR JERK MEASURES
 		setDispIndex_MP("Trunk Jerk - Ang", 8);
@@ -159,7 +161,7 @@ public:
 		for (int j = 0; j < 2; j++)
 		{
 			LPF_CoM_Vel[j].flushDelays();
-			LPF_CoM_Vel[j].calculateLPFCoeffs(7, 0.7, 100);
+			LPF_CoM_Vel[j].calculateLPFCoeffs(20, 0.7, 100);
 		}
 	}
 
@@ -284,10 +286,8 @@ public:
 
 	// CoP Displacement Calculation
 	float seg_wtFracs[3] = { 0.59, 0.29, 0.09 };				
-	float segmentWise_WtPct[3] = { 0.624, 0.111, 0.05 };			// REMOVE
 	float segmentWise_HtPct[3] = { 0.402, 0.241, 0.25 };
-	float CoM_Horiz_AP_z1 = 0.0;
-	float CoM_Vert_z1 = 0.0;
+	float CoM_H_Disp_z1,CoM_V_Disp_z1,CoM_H_Vel_z1,CoM_V_Vel_z1,CoM_Acc_H_z1,CoM_Acc_V_z1 = 0.0;
 
 	// Triangle Oscillator
 	double triOsc_Freq = 1;
@@ -584,92 +584,38 @@ public:
 		store_MP_Value("Horiz Disp", body_CoM_X);
 		store_MP_Value("Verti Disp", body_CoM_Y);
 
-		// CALCULATE NORMALIZED CoM Velocity
+		// CALCULATE CoM Speed
 
-		float horiz_Vel_AP = LPF_CoM_Vel[0].doBiQuad(fabs(body_CoM_X - CoM_Horiz_AP_z1) * 100, 0);
-		float vert_Vel = LPF_CoM_Vel[1].doBiQuad(fabs(body_CoM_Y - CoM_Vert_z1) * 100, 0);
+		float CoM_H_Vel = LPF_CoM_Vel[0].doBiQuad(fabs(body_CoM_X - CoM_H_Disp_z1) * 100, 0);
+		float CoM_V_Vel = LPF_CoM_Vel[1].doBiQuad(fabs(body_CoM_Y - CoM_V_Disp_z1) * 100, 0);
 
-		CoM_Horiz_AP_z1 = body_CoM_X;
-		CoM_Vert_z1 = body_CoM_Y;
+		//float CoM_H_Vel = fabs(body_CoM_X - CoM_H_Disp_z1) * 100;
+		//float CoM_V_Vel = fabs(body_CoM_Y - CoM_V_Disp_z1) * 100;
 
-		store_MP_Value("Horiz Vel", horiz_Vel_AP);
-		store_MP_Value("Verti Vel", vert_Vel);
-	}
+		CoM_H_Disp_z1 = body_CoM_X;
+		CoM_V_Disp_z1 = body_CoM_Y;
 
-	void computeCoM_Disp_Vel()
-	{
-		float seg_AP_Ang_Vals[3] = {
-			getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Val"),
-			getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Val"),
-			getMPVal_fromArray(movementParams, "Orientation Shank AP", "Val")
-		};
+		float CoM_Speed = sqrt(CoM_H_Vel * CoM_H_Vel + CoM_V_Vel * CoM_V_Vel);
+		store_MP_Value("CoM Speed", CoM_Speed);
 
-		float seg_AP_Ang_Mins[3] = { -80, -80, -80 };
-		float seg_AP_Ang_Maxs[3] = { 80, 80, 80 };
+		// CALCULATE CoM Acceleration
 
-		// DISPLACEMENT FRACTIONS
-		float horiz_DispFracs_AP[3] = { 0.0,0.0,0.0 };
-		float vert_DispFracs[3] = { 0.0,0.0,0.0 };
+		float CoM_H_Acc = fabs(CoM_H_Vel - CoM_H_Vel_z1) * 100;
+		float CoM_V_Acc = fabs(CoM_V_Vel - CoM_V_Vel_z1) * 100;
 
-		// HELPER VARIABLES
-		float horiz_DispMax_AP_Lin[3] = { 0.0,0.0,0.0 };
-		float vert_DispMax_Lin[3] = { 0.0,0.0,0.0 };
-		float horiz_DispMin_AP_Lin[3] = { 0.0,0.0,0.0 };
-		float vert_DispMin_Lin[3] = { 0.0,0.0,0.0 };
+		CoM_H_Vel_z1 = CoM_H_Vel;
+		CoM_V_Vel_z1 = CoM_V_Vel;
 
-		float horiz_DispRanges_AP[3] = { 0.0,0.0,0.0 };
-		float vert_DispRanges[3] = { 0.0,0.0,0.0 };
+		// CALCULATE CoM Jerk
 
-		// SEGMENT WEIGHTS - MODIFY FOR BEST EFFECT
-		float horiz_DispWts_Seg[3] = { 1.2, 1, 1 };
-		float verti_DispWts_Seg[3] = { 0.8, 1.3, 1 };
+		float CoM_H_Jerk = fabs(CoM_H_Acc - CoM_Acc_H_z1) * 100;
+		float CoM_V_Jerk = fabs(CoM_V_Acc - CoM_Acc_V_z1) * 100;
 
-		for (int i = 0; i < 3; i++)						// FOR EACH BODY SEGMENT
-		{
-			horiz_DispMax_AP_Lin[i] = sin(M_PI / 180.0 * seg_AP_Ang_Maxs[i]);
-			horiz_DispMin_AP_Lin[i] = sin(M_PI / 180.0 * seg_AP_Ang_Mins[i]);
+		CoM_Acc_H_z1 = CoM_H_Acc;
+		CoM_Acc_V_z1 = CoM_V_Acc;
 
-			horiz_DispRanges_AP[i] = horiz_DispMax_AP_Lin[i] - horiz_DispMin_AP_Lin[i];
-
-			vert_DispMax_Lin[i] = cos(M_PI / 180.0 * seg_AP_Ang_Maxs[i]);
-			vert_DispMin_Lin[i] = cos(M_PI / 180.0 * seg_AP_Ang_Mins[i]);
-
-			vert_DispRanges[i] = (vert_DispMax_Lin[i] > vert_DispMin_Lin[i]) ? 
-				(1 - vert_DispMax_Lin[i]) : (1 - vert_DispMin_Lin[i]);
-
-			horiz_DispFracs_AP[i] = (sin(M_PI / 180.0 * seg_AP_Ang_Vals[i]) - sin(M_PI / 180.0 * seg_AP_Ang_Mins[i])) / horiz_DispRanges_AP[i];
-			vert_DispFracs[i] = (cos(M_PI / 180.0 * seg_AP_Ang_Vals[i]) - cos(M_PI / 180.0 * seg_AP_Ang_Mins[i])) / vert_DispRanges[i];
-		}
-
-		float horiz_Disp_AP = horiz_DispFracs_AP[2] * horiz_DispWts_Seg[2] * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
-			segmentWise_HtPct[1] * segmentWise_WtPct[1] + segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
-
-			horiz_DispFracs_AP[1] * horiz_DispWts_Seg[1] * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
-				+ segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
-
-			horiz_DispFracs_AP[0] * horiz_DispWts_Seg[0] * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
-
-		float vert_Disp = vert_DispFracs[2] * verti_DispWts_Seg[2] * (segmentWise_HtPct[2] * segmentWise_WtPct[2] +
-			segmentWise_HtPct[1] * segmentWise_WtPct[1] + segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
-
-			vert_DispFracs[1] * verti_DispWts_Seg[1] * (segmentWise_HtPct[1] * segmentWise_WtPct[1]
-				+ segmentWise_HtPct[0] * segmentWise_WtPct[0]) +
-
-			vert_DispFracs[0] * horiz_DispWts_Seg[0] * (segmentWise_HtPct[0] * segmentWise_WtPct[0]);
-
-		store_MP_Value("Horiz Disp", horiz_Disp_AP);
-		store_MP_Value("Verti Disp", vert_Disp);
-
-		// CALCULATE NORMALIZED CoM Velocity
-
-		float horiz_Vel_AP = LPF_CoM_Vel[0].doBiQuad(fabs(horiz_Disp_AP - CoM_Horiz_AP_z1) * 100,0);
-		float vert_Vel = LPF_CoM_Vel[1].doBiQuad(fabs(vert_Disp - CoM_Vert_z1) * 100,0);
-
-		CoM_Horiz_AP_z1 = horiz_Disp_AP;
-		CoM_Vert_z1 = vert_Disp;
-
-		store_MP_Value("Horiz Vel", horiz_Vel_AP);
-		store_MP_Value("Verti Vel", vert_Vel);
+		float CoM_Jerk = sqrt(CoM_H_Jerk*CoM_H_Jerk + CoM_V_Jerk*CoM_V_Jerk);
+		store_MP_Value("CoM Jerk", CoM_Jerk);
 	}
 
 	void computeProgress()
@@ -683,13 +629,18 @@ public:
 		float CoM_V_MAX = getMPVal_fromArray(movementParams, "Verti Disp", "Max");
 		float CoM_V_VAL = getMPVal_fromArray(movementParams, "Verti Disp", "Val");
 
-		float norm_Prog_H = (CoM_H_VAL - CoM_H_MIN) / (CoM_H_MAX - CoM_H_MIN);
-		float norm_Prog_V = (CoM_V_VAL - CoM_V_MIN) / (CoM_V_MAX - CoM_V_MIN);
+		float totalDist = sqrt(pow((CoM_H_MAX - CoM_H_MIN), 2) + pow((CoM_V_MAX - CoM_V_MIN), 2));
+		float presentDist = sqrt(pow((CoM_H_MAX - CoM_H_VAL), 2) + pow((CoM_V_MAX - CoM_V_VAL), 2));
+
+		store_MP_Value("Dist to Stand", presentDist / totalDist);
+
+		//float norm_Prog_H = (CoM_H_VAL - CoM_H_MIN) / (CoM_H_MAX - CoM_H_MIN);
+		//float norm_Prog_V = (CoM_V_VAL - CoM_V_MIN) / (CoM_V_MAX - CoM_V_MIN);
 
 		//upProgress = 1.0 / 1.414 * sqrt(pow(norm_Prog_H,2) + pow(norm_Prog_V, 2));
-		upProgress = 0.5 * (norm_Prog_H + norm_Prog_V);
+		//upProgress = 0.5 * (norm_Prog_H + norm_Prog_V);
 
-		store_MP_Value("Up Progress", upProgress);
+		//store_MP_Value("Up Progress", upProgress);
 	}
 
 	void updateSTSPhase()
