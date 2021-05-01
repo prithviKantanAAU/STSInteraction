@@ -28,7 +28,7 @@ public:
 		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0, 1, 1, 3, 4, 1, true);
 		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 1, 0, 1, 3, true);
 		feedbackVariables[6].initialize("Pan", 0, 1, 0.5, 1, 1, 0, 1, 3, false);
-		feedbackVariables[7].initialize("Perc2 Tr", 700, 1200, 700, 1, 1, 4, 1, 1, true);
+		feedbackVariables[7].initialize("Flute Fr", 420, 1320, 420, 1, 1, 4, 1, 1, true);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 1, 0, 1, 4, false);
 		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 1, 0, 1, 3, true);
 		feedbackVariables[10].initialize("Vowel", 0, 2, 0, 1, 1, 0, 1, 4, true);
@@ -36,14 +36,14 @@ public:
 		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, false);
 		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, false);
 		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
-		feedbackVariables[15].initialize("Mrmb Shrp", 1, 10, 1, 0, 1, 0, 1, 4, false);
+		feedbackVariables[15].initialize("Flute Gn", 0.6, 1, 0.9, 0, 1, 0, 1, 4, false);
 		feedbackVariables[16].initialize("Bell Tr", 0, 1, 0, 0, 1, 0, 1, 1, true);
 		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 1, 0, 1, 4, true);
 		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 1, 0, 1, 4, true);
 		feedbackVariables[19].initialize("Sin1 F", 300, 500, 300, 1, 1, 0, 1, 4, true);
 		feedbackVariables[20].initialize("Sin2 F", 600, 1000, 600, 1, 1, 0, 1, 4, true);
 		feedbackVariables[21].initialize("Sin3 F", 1200, 2000, 1200, 1, 1, 0, 1, 4, true);
-		feedbackVariables[22].initialize("Prox", 0, 1, 1, 1, 1, 0, 1, 3, true);
+		feedbackVariables[22].initialize("Flute Pos", 0, 0.5, 0.5, 1, 1, 0, 1, 3, true);
 
 		populateDispIndex_AP();
 	};
@@ -68,17 +68,17 @@ public:
 		setDispIndex_AP("Perc Tr", 0);
 		setDispIndex_AP("Mel Tr", 0);
 		setDispIndex_AP("Chord Tr", 0);
-		setDispIndex_AP("Perc2 Tr", 0);
 		setDispIndex_AP("Gtr Tr", 0);
 		setDispIndex_AP("Bell Tr", 0);
 		
 		setDispIndex_AP("Mel Fr", 1);
 		setDispIndex_AP("Chord Fr", 1);
 		setDispIndex_AP("Gtr Fr", 1);
+		setDispIndex_AP("Flute Fr", 1);
 
 		setDispIndex_AP("Dynamics", 2);
 		setDispIndex_AP("Djmb Shrp", 2);
-		setDispIndex_AP("Mrmb Shrp", 2);
+		setDispIndex_AP("Flute Gn", 2);
 		setDispIndex_AP("Gtr Dyn", 2);
 
 		setDispIndex_AP("Vowel", 3);
@@ -88,7 +88,7 @@ public:
 		setDispIndex_AP("Detune", 4);
 		setDispIndex_AP("Pan", 4);
 		setDispIndex_AP("Pitch Warp", 4);
-		setDispIndex_AP("Prox", 4);
+		setDispIndex_AP("Flute Pos", 4);
 
 		setDispIndex_AP("Sin1 F", 5);
 		setDispIndex_AP("Sin2 F", 5);
@@ -302,6 +302,14 @@ public:
 				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 
 			musicInfoCompute.convert_FbVar_to_ScaleDeg_to_Freq_MONO(&fbVar_finalArray[0]);
+		}
+
+		if (feedbackVariables[fbVar_Idx].name == "Flute Fr")
+		{
+			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
+				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
+
+			musicInfoCompute.convert_FbVar_to_FluteFreq(&fbVar_finalArray[0]);
 		}
 
 		// CHORD FREQS

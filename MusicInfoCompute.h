@@ -94,4 +94,14 @@ public:
 			fbVar[i] = MidiMessage::getMidiNoteInHertz(midiKeys[i]);
 		}
 	}
+
+	void convert_FbVar_to_FluteFreq(double fbVar[])
+	{
+		if (!isnan(*fbVar))
+		{
+			int scaleDeg = (int)(*fbVar * 8.1);
+			*fbVar = MidiMessage::getMidiNoteInHertz(60 + tonics_Offsets[idx_tonic_Present] +
+				scales[idx_scale_Present][min(8, scaleDeg)]);
+		}
+	}
 };
