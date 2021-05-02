@@ -301,7 +301,8 @@ public:
 			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
 				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 
-			musicInfoCompute.convert_FbVar_to_ScaleDeg_to_Freq_MONO(&fbVar_finalArray[0]);
+			//musicInfoCompute.convert_FbVar_to_ScaleDeg_to_Freq_MONO(&fbVar_finalArray[0]);
+			musicInfoCompute.convert_FbVar_to_ScaleDeg_to_Freq_MONO_GEN(&fbVar_finalArray[0],8,24);
 		}
 
 		if (feedbackVariables[fbVar_Idx].name == "Flute Fr")
@@ -309,7 +310,8 @@ public:
 			fbVar_finalArray[0] = (*val - feedbackVariables[fbVar_Idx].minVal) /
 				(feedbackVariables[fbVar_Idx].maxVal - feedbackVariables[fbVar_Idx].minVal);
 
-			musicInfoCompute.convert_FbVar_to_FluteFreq(&fbVar_finalArray[0]);
+			//musicInfoCompute.convert_FbVar_to_FluteFreq(&fbVar_finalArray[0]);
+			musicInfoCompute.convert_FbVar_to_ScaleDeg_to_Freq_MONO_GEN(&fbVar_finalArray[0], 8, 60);
 		}
 
 		// CHORD FREQS

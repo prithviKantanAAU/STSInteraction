@@ -28,6 +28,62 @@ public:
 	short tonics_Offsets[12] =
 	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
+	bool isRandom_MEL = false;
+	short order_MEL_OCT_2[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+	short order_MEL_OCT_1[9] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+	void reset_order_MEL()	{	
+		for (int i = 0; i < 16; i++) order_MEL_OCT_2[i] = i;	
+		for (int i = 0; i < 8; i++) order_MEL_OCT_1[i] = i;
+	}
+	void set_order_MEL(int arrayPos, int scaleIdx)
+	{
+		order_MEL_OCT_1[arrayPos] = scaleIdx;
+		order_MEL_OCT_2[arrayPos] = scaleIdx;
+		order_MEL_OCT_1[arrayPos + 8] = scaleIdx + 8;
+	}
+	void randomize_order_MEL()
+	{
+		if (isRandom_MEL)
+		{
+			for (int i = 0; i < 16; i++) order_MEL_OCT_2[i] = -1;
+			for (int i = 0; i < 8; i++) order_MEL_OCT_1[i] = -1;
+			order_MEL_OCT_1[0] = 0;	order_MEL_OCT_2[0] = 0;
+
+			for (int i = 0; i < 16; i++)
+				order_MEL_OCT_2[i] = getNewRandomIndex(16, i, order_MEL_OCT_2);
+
+			for (int i = 0; i < 8; i++)
+				order_MEL_OCT_2[i] = getNewRandomIndex(9, i, order_MEL_OCT_1);
+		}
+	}
+
+	Random randGen;
+	int getNewRandomIndex(int total, int totalElapsed, short* elapsedIndices)
+	{
+		int randomIndex = randGen.nextInt(total);
+		bool alreadyDone = false;
+
+		for (int i = 0; i < total; i++)
+		{
+			if (randomIndex == elapsedIndices[i])
+				alreadyDone = true;
+		} //Check if already done
+
+		while (alreadyDone)
+		{
+			randomIndex = randGen.nextInt(total);
+			alreadyDone = false;
+			for (int i = 0; i < total; i++)
+			{
+				if (randomIndex == elapsedIndices[i])
+					alreadyDone = true;
+			}
+		}
+
+		elapsedIndices[totalElapsed] = randomIndex;
+		return randomIndex;
+	}
+
 	short idx_scale_Present = 0;
 	short idx_tonic_Present = 0;
 	short idx_chordTypes_Present = 0;
@@ -71,6 +127,19 @@ public:
 		{0,0,3,5,7,10,12,15,17,19, 22, 24, 27, 29}				//Pentatonic
 	};
 
+	void convert_FbVar_to_ScaleDeg_to_Freq_MONO_GEN(double* fbVar, float numDegs, int baseKey)
+	{
+		short* orderVector;
+		orderVector = (numDegs > 9) ? order_MEL_OCT_2 : order_MEL_OCT_1;
+
+		if (!isnan(*fbVar))
+		{
+			int scaleDeg = (int)(*fbVar * numDegs);
+			*fbVar = MidiMessage::getMidiNoteInHertz(baseKey + tonics_Offsets[idx_tonic_Present] +
+				scales[idx_scale_Present][min((int)numDegs, (int)orderVector[scaleDeg])]);
+		}
+	}
+
 	// FB Var between 0 and 1
 	void convert_FbVar_to_ScaleDeg_to_Freq_MONO(double *fbVar)
 	{
@@ -84,11 +153,11 @@ public:
 
 	void convert_FbVar_to_ChordDeg_to_Freqs_POLY(double fbVar[])
 	{
-		int chordDeg = chord_degSequence[(int)(fbVar[0] * 8)];
+		int chordDeg = chord_degSequence[(int)(fbVar[0] * 9)];
 		int midiKeys[4] = { 36,36,36,36 };
 		for (int i = 0; i < 4; i++)
 		{
-			midiKeys[i] = 48 + tonics_Offsets[idx_tonic_Present] 
+			midiKeys[i] = 36 + tonics_Offsets[idx_tonic_Present] 
 				+ scales[idx_scale_Present][chordDeg + 
 				chordTypes_DegreeIntervals[idx_chordTypes_Present][i]];
 			fbVar[i] = MidiMessage::getMidiNoteInHertz(midiKeys[i]);

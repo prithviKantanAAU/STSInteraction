@@ -254,9 +254,10 @@ public:
 		"Sit Onset",
 		"Seat On"
 	};
+
 	short STS_Phase = 0;
 	short STS_Phase_z1 = 0;
-	bool STS_Phase_isChanged = false;
+	bool STS_isRepCompleted = false;
 	float thresh_Stand_trunk_AP = 10;
 	float range_horiz[2] = { -130, -50 };
 	float range_vert[2] = {-30,30};
@@ -401,11 +402,11 @@ public:
 		computeJerkParams(0, "Trunk Jerk - Ang");
 		computeJerkParams(1, "Thigh Jerk - Ang");
 		computeJerkParams(2, "Shank Jerk - Ang");
-		//computeCoM_Disp_Vel();
 		computeCoM_Pos_NEW();
 		computeProgress();
 		triOsc_Update();
 
+		if (STS_isRepCompleted) musicControl.musicInfoCompute.randomize_order_MEL();
 		musicControl.updateFBVariables(movementParams, numMovementParams);
 	}
 
@@ -633,14 +634,6 @@ public:
 		float presentDist = sqrt(pow((CoM_H_MAX - CoM_H_VAL), 2) + pow((CoM_V_MAX - CoM_V_VAL), 2));
 
 		store_MP_Value("Dist to Stand", presentDist / totalDist);
-
-		//float norm_Prog_H = (CoM_H_VAL - CoM_H_MIN) / (CoM_H_MAX - CoM_H_MIN);
-		//float norm_Prog_V = (CoM_V_VAL - CoM_V_MIN) / (CoM_V_MAX - CoM_V_MIN);
-
-		//upProgress = 1.0 / 1.414 * sqrt(pow(norm_Prog_H,2) + pow(norm_Prog_V, 2));
-		//upProgress = 0.5 * (norm_Prog_H + norm_Prog_V);
-
-		//store_MP_Value("Up Progress", upProgress);
 	}
 
 	void updateSTSPhase()
@@ -654,6 +647,7 @@ public:
 	bool updateSTSPhase_CheckTransition_POS()
 	{
 		bool conditions[4] = { false, false, false, false };
+		STS_isRepCompleted = false;
 
 		float trunk_AP = getMPVal_fromArray(movementParams, "Orientation Trunk AP", "Val");
 		float thigh_AP = getMPVal_fromArray(movementParams, "Orientation Thigh AP", "Val");
@@ -709,8 +703,8 @@ public:
 
 			if (STS_Phase == 0)
 			{
-				// INCREMENT REPETITIONS
-			}
+				STS_isRepCompleted = true;
+			}		
 
 			return true;
 		}

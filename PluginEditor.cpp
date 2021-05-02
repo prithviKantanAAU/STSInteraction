@@ -57,7 +57,10 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 	for (int i = 0; i < 8; i++)
 	{
 		if (box == &ui_musicControl.chord_Degree[i])
+		{
 			musInfoCompPtr->chord_degSequence[i] = box->getSelectedId();
+			musInfoCompPtr->set_order_MEL(i, box->getSelectedId());
+		}
 	}
 
 	for (int i = 0; i < musControlPtr->numFbVariables; i++)
