@@ -218,6 +218,7 @@ private:
 			for (int k = 0; k < 3; k++)
 			addAndMakeVisible(ui_movementAnalysis.stsAnim_Segments[k][j]);
 		}
+		addAndMakeVisible(ui_movementAnalysis.stsAnim_CoM_RangeZone);
 		addAndMakeVisible(ui_movementAnalysis.stsAnim_CoM_Indicator);
 	}
 
@@ -239,8 +240,6 @@ private:
 		addAndMakeVisible(ui_musicControl.chord_Type);
 		addAndMakeVisible(ui_musicControl.levelMeter[0]);
 		addAndMakeVisible(ui_musicControl.levelMeter[1]);
-		addAndMakeVisible(ui_musicControl.triOsc_BPM);
-		addAndMakeVisible(ui_musicControl.triOsc_BPM_LAB);
 
 		addAndMakeVisible(ui_musicControl.voiceCue_Enable);
 		addAndMakeVisible(ui_musicControl.voiceCue_Enable_Lab);
@@ -297,6 +296,8 @@ private:
 		addAndMakeVisible(ui_mappingMatrix.mp_isHidden);
 		addAndMakeVisible(ui_mappingMatrix.ap_isVisible);
 		addAndMakeVisible(ui_mappingMatrix.ap_isHidden);
+		addAndMakeVisible(ui_mappingMatrix.triOsc_BPM);
+		addAndMakeVisible(ui_mappingMatrix.triOsc_BPM_LAB);
 	}
 
 	// Initialize Sensor Config Tab Elements
@@ -539,7 +540,7 @@ private:
 		ui_musicControl.tonic.addListener(this);
 		for (int i = 0; i < 12; i++)
 			ui_musicControl.tonic.addItem(musInfoCompPtr->tonics_Names[i], i + 1);
-		ui_musicControl.tonic.setSelectedId(7);
+		ui_musicControl.tonic.setSelectedId(10);
 
 		// SCALE
 		ui_musicControl.scale.addListener(this);
@@ -560,12 +561,6 @@ private:
 				ui_musicControl.chord_Degree[i].addItem(String(j), j);
 			ui_musicControl.chord_Degree[i].setSelectedId(musInfoCompPtr->chord_degSequence[i]);
 		}
-
-		ui_musicControl.triOsc_BPM.onValueChange = [this]
-		{
-			mAnalysisPtr->triOsc_Freq = ui_musicControl.triOsc_BPM.getValue() / 60.0;
-			ui_mappingMatrix.dataHolder_oscBPM = ui_musicControl.triOsc_BPM.getValue() / 60.0;
-		};
 
 		ui_musicControl.voiceCue_Enable.setToggleState(voiceCuePtr->isEnabled, sendNotificationSync);
 		ui_musicControl.voiceCue_Enable.onStateChange = [this]
@@ -623,6 +618,7 @@ private:
 	void mappingMatrix_initializeControls()
 	{
 		Colour labelColour = Colours::black;
+		Colour textColour = Colours::white;
 
 		for (int i = 0; i < mAnalysisPtr->numMovementParams; i++)
 		{
@@ -686,16 +682,20 @@ private:
 			switch (apArrayPtr[k].parameterType)
 			{
 			case 1:
-				labelColour = Colours::magenta;
+				labelColour = Colours::grey;
+				textColour = Colours::black;
 				break;
 			case 2:
-				labelColour = Colours::lightblue;
+				labelColour = Colours::green;
+				textColour = Colours::white;
 				break;
 			case 3:
-				labelColour = Colours::lightgreen;
+				labelColour = Colours::orangered;
+				textColour = Colours::black;
 				break;
 			case 4:
-				labelColour = Colours::lightgrey;
+				labelColour = Colours::deepskyblue;
+				textColour = Colours::black;
 				break;
 			}
 
@@ -705,6 +705,12 @@ private:
 			);
 
 			ui_mappingMatrix.labels_audioParams[k].setColour(ui_mappingMatrix.labels_audioParams[k].textColourId, labelColour);
+			ui_mappingMatrix.mapping_Function[k].setColour(ui_mappingMatrix.mapping_Function[k].textColourId, textColour);
+			ui_mappingMatrix.mapping_Function[k].setColour(ui_mappingMatrix.mapping_Function[k].backgroundColourId, labelColour);
+			ui_mappingMatrix.mapping_Polarity[k].setColour(ui_mappingMatrix.mapping_Polarity[k].textColourId, textColour);
+			ui_mappingMatrix.mapping_Polarity[k].setColour(ui_mappingMatrix.mapping_Polarity[k].backgroundColourId, labelColour);
+			ui_mappingMatrix.mapping_QuantLevels[k].setColour(ui_mappingMatrix.mapping_QuantLevels[k].textColourId, textColour);
+			ui_mappingMatrix.mapping_QuantLevels[k].setColour(ui_mappingMatrix.mapping_QuantLevels[k].backgroundColourId, labelColour);
 
 			if (apArrayPtr[k].name == "Placeholder")
 				ui_mappingMatrix.labels_audioParams[k].setColour(
@@ -720,7 +726,7 @@ private:
 			ui_mappingMatrix.mapping_Polarity[k].addListener(this);
 			ui_mappingMatrix.mapping_Polarity[k].addItem("+", 1);
 			ui_mappingMatrix.mapping_Polarity[k].addItem("-", 2);
-			ui_mappingMatrix.mapping_Polarity[k].setSelectedId(1);
+			ui_mappingMatrix.mapping_Polarity[k].setSelectedId(apArrayPtr[k].polarity);
 
 			// ADD QUANTIZATION LEVELS 
 			ui_mappingMatrix.mapping_QuantLevels[k].addListener(this);
@@ -747,6 +753,12 @@ private:
 		ui_mappingMatrix.mp_isHidden.addListener(this);
 		ui_mappingMatrix.ap_isVisible.addListener(this);
 		ui_mappingMatrix.ap_isHidden.addListener(this);
+
+		ui_mappingMatrix.triOsc_BPM.onValueChange = [this]
+		{
+			mAnalysisPtr->triOsc_Freq = ui_mappingMatrix.triOsc_BPM.getValue() / 60.0;
+			ui_mappingMatrix.dataHolder_oscBPM = ui_mappingMatrix.triOsc_BPM.getValue() / 60.0;
+		};
 	}
 
 	// Update Sensor Config Tab Elements

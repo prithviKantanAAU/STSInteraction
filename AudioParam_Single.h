@@ -26,7 +26,7 @@ public:
 	float rangeNorm_MAX = 1;
 
 	void initialize(String apName, float mini, float maxi, float defVal, short pol, short mapF, short numQuantLevels,
-					short nSynthCtrls, short paramType, bool isVis)
+					short nSynthCtrls, short paramType, bool isVis = true)
 	{
 		name = apName;
 		minVal = mini;

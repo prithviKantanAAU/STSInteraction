@@ -39,6 +39,10 @@ class UI_MappingMatrix
 	int num_MP = 0;
 	int num_AP = 0;
 
+	// OSC CONTROL
+	Slider triOsc_BPM;
+	Label triOsc_BPM_LAB;
+
 	// CHANGE LAYOUT
 	ComboBox mp_isVisible;
 	ComboBox mp_isHidden;
@@ -111,6 +115,15 @@ class UI_MappingMatrix
 		mp_isHidden.addItem("HIDDEN MP", 100);		mp_isHidden.setSelectedId(100);
 		ap_isVisible.addItem("VISIBLE AP", 100);	ap_isVisible.setSelectedId(100);
 		ap_isHidden.addItem("HIDDEN AP", 100);		ap_isHidden.setSelectedId(100);
+
+		// Tri Osc BPM
+		triOsc_BPM.setRange(10, 100);
+		triOsc_BPM.setSkewFactor(0.3);
+		triOsc_BPM.setSliderStyle(Slider::SliderStyle::Rotary);
+		triOsc_BPM.setTextBoxStyle(Slider::NoTextBox, true, 20, 20);
+		triOsc_BPM.setValue(60);
+		triOsc_BPM.setColour(triOsc_BPM.rotarySliderFillColourId, Colours::yellow);
+		triOsc_BPM.setColour(triOsc_BPM.backgroundColourId, Colours::blue);
     }
 
 	void configurePresetFields()
@@ -725,6 +738,7 @@ class UI_MappingMatrix
 		mp_isHidden.setVisible(on);
 		ap_isVisible.setVisible(on);
 		ap_isHidden.setVisible(on);
+		triOsc_BPM.setVisible(on);
     }
     
 	int dispSeq_MP[40], num_MP_Visible = 0, dispPos_MP_present = 0;
@@ -831,6 +845,14 @@ class UI_MappingMatrix
 					matrix_startPointX - 110,
 					matrix_startPointY + gap_interRow * num_MP_populated,
 					110, 25);
+
+				if (mpArray[dispSeq_MP[i]].name == "Tri Osc")
+				{
+					triOsc_BPM.setBounds(
+						matrix_startPointX - 110 - width_Value - gap_interRow - 10,
+						matrix_startPointY + gap_interRow * num_MP_populated - 8,
+						50, 40);
+				}
 
 				normRange_MP[dispSeq_MP[i]].setBounds(
 					mp_startPointX - 3,

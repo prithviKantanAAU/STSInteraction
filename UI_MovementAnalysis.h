@@ -179,7 +179,7 @@ public:
 									 * IMU_Config_Column_Width[5];
 
 		float verti_Disp_Px_Offset = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Val")
-			* IMU_Config_Column_Width[5] / 2;
+			* IMU_Config_Column_Width[5];
 
 		// ADJUST INDICATOR POSITION - HORIZ DISP
 		CoM_Disp_INDIC_VAL_H.setBounds(
@@ -354,7 +354,7 @@ public:
 		CoM_Disp_INDIC_VAL_H.setColour(CoM_Disp_INDIC_VAL_H.backgroundColourId, Colours::yellow);
 
 		// VERTICAL
-		CoM_Disp_Bounds_V.setRange(0, 2);
+		CoM_Disp_Bounds_V.setRange(0, 1);
 		CoM_Disp_Bounds_V.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
 		CoM_Disp_Bounds_V.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
 		CoM_Disp_Bounds_V.setColour(CoM_Disp_Bounds_V.trackColourId, Colours::yellow);
@@ -375,6 +375,8 @@ public:
 
 		cal_CoM_STAND.setButtonText("Calibrate Stand");
 		cal_CoM_STAND.setColour(cal_CoM_STAND.buttonColourId, Colours::blue);
+
+		stsAnim_CoM_RangeZone.setColour(stsAnim_CoM_RangeZone.backgroundColourId, Colour::fromFloatRGBA(1, 1, 0, 0.25));
 	}
 
 	void toggleVisible(bool on, short dataInputMode)
@@ -453,6 +455,7 @@ public:
 				stsAnim_Segments[k][j].setVisible(on);
 			}
 		}
+		stsAnim_CoM_RangeZone.setVisible(on);
 		stsAnim_CoM_Indicator.setVisible(on);
 		cal_CoM_SIT.setVisible(on);
 		cal_CoM_STAND.setVisible(on);
@@ -734,6 +737,7 @@ public:
 	float segmentWise_HtPct[3] = { 0.25, 0.241, 0.402 };		// Shank Thigh Trunk
 
 	Label stsAnim_CoM_Indicator;
+	Label stsAnim_CoM_RangeZone;
 
 	void updateSTSAnim(MovementParameter mpArray[])
 	{
@@ -746,17 +750,15 @@ public:
 
 		float CoM_Disp_Horiz_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Val");
 		float CoM_Disp_Vert = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Val");
+		float CoM_H_Min = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Min");
+		float CoM_H_Max = MovementAnalysis::getMPVal_fromArray(mpArray, "Horiz Disp", "Max");
+		float CoM_V_Min = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Min");
+		float CoM_V_Max = MovementAnalysis::getMPVal_fromArray(mpArray, "Verti Disp", "Max");
 
-		/*float CoM_X_MIN = 10;
-		float CoM_X_MAX = 335;
-		float CoM_Y_MIN = 505;
-		float CoM_Y_MAX = 390;
-
-		stsAnim_CoM_Indicator.setBounds(
-			CoM_X_MIN + (CoM_X_MAX - CoM_X_MIN) * CoM_Disp_Horiz_AP,
-			CoM_Y_MIN + (CoM_Y_MAX - CoM_Y_MIN) * CoM_Disp_Vert
-			,5,5
-		);*/
+		bool isExt_Knee = MovementAnalysis::getMPVal_fromArray(mpArray, "Extend Knee", "Val") == 0 ? false : true;
+		stsAnim_joint[1].setColour(stsAnim_joint[1].backgroundColourId, isExt_Knee ? Colours::yellow : Colours::red);
+		bool isExt_Hip = MovementAnalysis::getMPVal_fromArray(mpArray, "Extend Hip", "Val") == 0 ? false : true;
+		stsAnim_joint[2].setColour(stsAnim_joint[2].backgroundColourId, isExt_Hip ? Colours::yellow : Colours::red);
 
 		float bodySeg_PxSide[3] = { 0.0, 0.0, 0.0 };
 		float bodyLengthPx = 0;
@@ -772,9 +774,15 @@ public:
 			, 5, 5
 		);
 
+		stsAnim_CoM_RangeZone.setBounds(
+			stsAnim_startX + CoM_H_Min * bodyLengthPx,
+			stsAnim_startY - CoM_V_Max * bodyLengthPx,
+			(CoM_H_Max - CoM_H_Min) * bodyLengthPx + 5,
+			(CoM_V_Max - CoM_V_Min) * bodyLengthPx + 5
+		);
+
 		// VECTORIZATION OF ANGLES AND SEGMENT LENGTHS
 		float seg_AngleVec[3] = {angle_Shank_AP,angle_Thigh_AP,angle_Trunk_AP};
-		//float seg_Length = stsAnim_Segments_PixelSide * stsAnim_Segment_numPix;
 		float seg_Lengths[3] = { 0,0,0 };
 		for (int i = 0; i < 3; i++)
 			seg_Lengths[i] = bodySeg_PxSide[i] * stsAnim_Segment_numPix;

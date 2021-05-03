@@ -17,33 +17,31 @@ public:
 			for (int j = 0; j < 40; j++)
 				mappingStrength[i][j] = 1.0;
 		}
-		// Initialize Audio Params !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// initialize(String apName, float mini, float maxi, float defaultVal,
-		//            short pol, short mapF, short numQuantLevels short numSynthControls,
-		//            short paramType, bool isVis)
-		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150, 0, 1, 4, 1, 1,true);
-		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100, 1, 1, 3, 1, 2, true);
-		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0, 0, 1, 3, 1, 1, true);
-		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50, 1, 1, 3, 4, 2, true);
-		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0, 1, 1, 3, 4, 1, true);
-		feedbackVariables[5].initialize("Detune", 0, 1, 0, 1, 1, 0, 1, 3, true);
-		feedbackVariables[6].initialize("Pan", 0, 1, 0.5, 1, 1, 0, 1, 3, false);
-		feedbackVariables[7].initialize("Flute Fr", 420, 1320, 420, 1, 1, 4, 1, 1, true);
-		feedbackVariables[8].initialize("Dynamics", 7, 10, 7, 1, 1, 0, 1, 4, false);
-		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5, 1, 1, 0, 1, 3, true);
-		feedbackVariables[10].initialize("Vowel", 0, 2, 0, 1, 1, 0, 1, 4, true);
-		feedbackVariables[11].initialize("Gtr Tr", 0, 200, 1, 0, 1, 4, 1, 1, true);
-		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1, 0, 1, 0, 1, 4, false);
-		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0, 0, 1, 0, 1, 4, false);
-		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1, 0, 1, 0, 1, 4, true);
-		feedbackVariables[15].initialize("Flute Gn", 0.6, 1, 0.9, 0, 1, 0, 1, 4, false);
-		feedbackVariables[16].initialize("Bell Tr", 0, 1, 0, 0, 1, 0, 1, 1, true);
-		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500, 1, 1, 0, 1, 4, true);
-		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500, 1, 1, 0, 1, 4, true);
-		feedbackVariables[19].initialize("Sin1 F", 300, 500, 300, 1, 1, 0, 1, 4, true);
-		feedbackVariables[20].initialize("Sin2 F", 600, 1000, 600, 1, 1, 0, 1, 4, true);
-		feedbackVariables[21].initialize("Sin3 F", 1200, 2000, 1200, 1, 1, 0, 1, 4, true);
-		feedbackVariables[22].initialize("Flute Pos", 0, 0.5, 0.5, 1, 1, 0, 1, 3, true);
+		
+		//								 NAME	   MIN  MAX	 DEF    POL F  Q   #CON TYPE  VIS
+		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150,	 1, 1, 3,	 1, 1			);
+		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100,	 2, 1, 0,	 1, 2			);
+		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0,		 1, 1, 3,	 1, 1			);
+		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50,	 1, 1, 0,	 4, 2			);
+		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0,		 1, 1, 1,	 4, 1			);
+		feedbackVariables[5].initialize("Detune", 0, 1, 0,			 1, 1, 0,	 1, 3			);
+		feedbackVariables[6].initialize("Pan", 0, 1, 0.5,			 1, 1, 0,	 1, 3,	 false	);
+		feedbackVariables[7].initialize("Flute Fr", 420, 1320, 420,	 2, 1, 0,	 1, 2			);
+		feedbackVariables[8].initialize("Dynamics", 7, 10, 7,		 1, 1, 0,	 1, 4,   false	);
+		feedbackVariables[9].initialize("Pitch Warp", 0.5, 1, 0.5,	 1, 1, 0,	 1, 3			);
+		feedbackVariables[10].initialize("Vowel", 0, 2, 0,			 1, 1, 0,	 1, 4			);
+		feedbackVariables[11].initialize("Gtr Tr", 0, 200, 1,		 1, 1, 3,	 1, 1			);
+		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1,	 1, 1, 0,	 1, 4,	 false	);
+		feedbackVariables[13].initialize("Voice Fric", 0, 1, 0,		 1, 1, 0,	 1, 4,	 false	);
+		feedbackVariables[14].initialize("Djmb Shrp", 0.4, 10, 1,	 1, 1, 0,	 1, 4,	 false	);
+		feedbackVariables[15].initialize("Flute Gn", 0.6, 1, 0.9,	 1, 1, 0,	 1, 4,	 false	);
+		feedbackVariables[16].initialize("Bell Tr", 0, 1, 0,		 1, 1, 0,	 1, 1			);
+		feedbackVariables[17].initialize("Gtr Dyn", 50, 1500, 1500,	 1, 1, 0,	 1, 4			);
+		feedbackVariables[18].initialize("Gtr Fr", 50, 1500, 1500,	 2, 1, 0,	 1, 2			);
+		feedbackVariables[19].initialize("Sin1 F", 300, 500, 300,	 1, 1, 0,	 1, 4,	 false	);
+		feedbackVariables[20].initialize("Sin2 F", 600, 1000, 600,	 1, 1, 0,	 1, 4,   false	);
+		feedbackVariables[21].initialize("Sin3 F", 1200, 2000, 1200, 1, 1, 0,	 1, 4,   false	);
+		feedbackVariables[22].initialize("Flute Pos", 0, 0.5, 0.5,	 2, 1, 0,	 1, 3			);
 
 		populateDispIndex_AP();
 	};

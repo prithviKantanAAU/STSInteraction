@@ -87,7 +87,7 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 			auto preset = &mapPresetPtr[box->getSelectedId() - 1];
 			
 			// SET VOICE CUE RELATED CONTROLS
-			ui_musicControl.triOsc_BPM.setValue(preset->dataHolder_oscBPM * 60);
+			ui_mappingMatrix.triOsc_BPM.setValue(preset->dataHolder_oscBPM * 60);
 			ui_musicControl.voiceCue_Enable.setToggleState(preset->dataHolder_voiceCue_ON,sendNotificationSync);
 			ui_musicControl.voiceCue_Level.setValue(preset->dataHolder_voiceCue_voldB);
 			ui_musicControl.voiceCue_CountLength.setValue(preset->dataHolder_voiceCue_Length);

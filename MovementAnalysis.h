@@ -18,7 +18,7 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-50, 90, "Orientation Trunk AP",false);
+		movementParams[0].initialize(-50, 90, "Orientation Trunk AP");
 		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
 		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
 		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
@@ -28,23 +28,23 @@ public:
 		// JOINT ANGLES
 		movementParams[6].initialize(-10, 180, "Angle Hip");
 		movementParams[7].initialize(-10, 180, "Angle Knee");
-		movementParams[8].initialize(-10, 40, "Angle Ankle");
+		movementParams[8].initialize(-10, 40, "Angle Ankle",false);
 
 		// JOINT HYPEREXTENSION
 		movementParams[9].initialize(0, 1, "Extend Hip");
 		movementParams[10].initialize(0, 1, "Extend Knee");
 
 		// JOINT ANGULAR VELOCITY
-		movementParams[11].initialize(0, 3, "Ang Velocity Knee");
-		movementParams[12].initialize(0, 3, "Ang Velocity Hip");
+		movementParams[11].initialize(0, 3, "Ang Velocity Knee",false);
+		movementParams[12].initialize(0, 3, "Ang Velocity Hip",false);
 		movementParams[13].initialize(0, 3, "Ang Velocity Ankle",false);
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		movementParams[14].initialize(-1, 6, "STS Phase");
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(-1, 1, "Horiz Disp");
-		movementParams[16].initialize(0, 1, "Verti Disp");
+		movementParams[15].initialize(-0.12, 0.11, "Horiz Disp");
+		movementParams[16].initialize(0.58, 0.75, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.8, "CoM Speed");
