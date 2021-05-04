@@ -278,6 +278,7 @@ private:
 			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][0]);
 			addAndMakeVisible(ui_mappingMatrix.audioParams_Value[a][1]);
 			addAndMakeVisible(ui_mappingMatrix.normRange_AP[a]);
+			addAndMakeVisible(ui_mappingMatrix.apSmoothing_Fc[a]);
 		}
 
 		for (int m = 0; m < 40; m++)
@@ -740,6 +741,12 @@ private:
 				apArrayPtr[k].quantLevels_2raisedTo + 1
 			);
 
+			ui_mappingMatrix.apSmoothing_Fc[k].setValue(apArrayPtr[k].freq_Smoothing);
+			ui_mappingMatrix.apSmoothing_Fc[k].onValueChange = [this, k]
+			{
+				apArrayPtr[k].freq_Smoothing = ui_mappingMatrix.apSmoothing_Fc[k].getValue();
+				musControlPtr->apSmoothing_SET_FREQ(k, ui_mappingMatrix.apSmoothing_Fc[k].getValue());
+			};
 		}
 
 		ui_mappingMatrix.preset_Save.onClick = [this]

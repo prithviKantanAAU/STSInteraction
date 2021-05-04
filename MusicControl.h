@@ -6,6 +6,7 @@
 #include "MusicInfoCompute.h"
 #include "MixerSettings.h"
 #include "MappingPreset.h"
+#include "BiQuad.h"
 
 class MusicControl
 {
@@ -44,10 +45,24 @@ public:
 		feedbackVariables[22].initialize("Flute Pos", 0, 0.5, 0.5,	 2, 1, 0,	 1, 3			);
 
 		populateDispIndex_AP();
+		apSmoothing_INIT();
 	};
 	~MusicControl() 
 	{
 	};
+
+	// Smoothing Filter Definition and Initialization
+	BiQuad apSmoothing[40];
+	void apSmoothing_INIT()
+	{
+		for (int i = 0; i < 40; i++)
+			apSmoothing[i].calculateLPFCoeffs(feedbackVariables[i].freq_Smoothing, 0.7, 100);
+	};
+
+	void apSmoothing_SET_FREQ(int idx, float freq)
+	{
+		apSmoothing[idx].calculateLPFCoeffs(freq, 0.7, 100);
+	}
 
 	void setDispIndex_AP(String apName, short dispIndex)
 	{
@@ -254,6 +269,8 @@ public:
 		}
 
 		*val = new_Min + *val * (new_Max - new_Min);
+
+		*val = apSmoothing[fbVar_Idx].doBiQuad(*val, 0);
 
 		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo, new_Range, new_Min);
 

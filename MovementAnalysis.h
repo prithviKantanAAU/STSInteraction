@@ -58,8 +58,9 @@ public:
 		// TRIANGLE OSCILLATOR
 		movementParams[22].initialize(0, 1, "Tri Osc");
 
-		// PROGRESS
+		// PROGRESS, DIRECTION
 		movementParams[23].initialize(0, 1, "Dist to Stand");
+		movementParams[24].initialize(0, 90, "CoM Direction");
 
 		populateDispIndex_MP();
 		setupReceivers();
@@ -109,6 +110,7 @@ public:
 		// STS MOVEMENT PHASE CLASSIFICATIONS
 		setDispIndex_MP("STS Phase", 5);
 		setDispIndex_MP("Dist to Stand", 5);
+		setDispIndex_MP("CoM Direction", 5);
 
 		// CoM NORMALIZED DISPLACEMENTS
 		setDispIndex_MP("Horiz Disp", 6);
@@ -127,7 +129,7 @@ public:
 		setDispIndex_MP("Tri Osc",9);
 	}
 	
-	short numMovementParams = 24;
+	short numMovementParams = 25;
 	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
@@ -597,7 +599,9 @@ public:
 		CoM_V_Disp_z1 = body_CoM_Y;
 
 		float CoM_Speed = sqrt(CoM_H_Vel * CoM_H_Vel + CoM_V_Vel * CoM_V_Vel);
+		float CoM_Direction = abs(atan(CoM_V_Vel/CoM_H_Vel) * 180 / M_PI);
 		store_MP_Value("CoM Speed", CoM_Speed);
+		store_MP_Value("CoM Direction", CoM_Direction);
 
 		// CALCULATE CoM Acceleration
 

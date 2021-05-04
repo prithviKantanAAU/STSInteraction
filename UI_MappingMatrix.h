@@ -29,6 +29,7 @@ class UI_MappingMatrix
 	Slider mapping_Strength[40][40];
 	Slider normRange_MP[40];
 	Slider normRange_AP[40];
+	Slider apSmoothing_Fc[40];
 	ComboBox mapping_Function[40];
 	ComboBox mapping_Polarity[40];
 	ComboBox mapping_QuantLevels[40];
@@ -101,6 +102,12 @@ class UI_MappingMatrix
 			normRange_AP[i].setColour(normRange_AP[i].trackColourId, Colours::yellow);
 			normRange_AP[i].setColour(normRange_AP[i].backgroundColourId, Colours::blue);
 			normRange_AP[i].setTextBoxStyle(Slider::NoTextBox, false, 10, 10);
+
+			apSmoothing_Fc[i].setRange(1, 49);
+			apSmoothing_Fc[i].setColour(apSmoothing_Fc[i].trackColourId, Colours::yellow);
+			apSmoothing_Fc[i].setColour(apSmoothing_Fc[i].backgroundColourId, Colours::blue);
+			apSmoothing_Fc[i].setTextBoxStyle(Slider::NoTextBox, false, 10, 10);
+			apSmoothing_Fc[i].setSkewFactor(0.5);
 		}
 
 		preset_Name.setJustification(Justification::centred);
@@ -220,6 +227,11 @@ class UI_MappingMatrix
 		lineHeaders_Main[15] = "mapThresh_MP_";
 		numRows_inHeader[15] = num_MP;
 		numCols_inRow[15] = 2;
+
+		// AP Smoothing Fc
+		lineHeaders_Main[15] = "apSmoothing_Fc";
+		numRows_inHeader[15] = 1;
+		numCols_inRow[15] = num_AP;
 
 		// Find Num Line Headers
 		for (int i = 0; i < 40; i++)
@@ -428,6 +440,18 @@ class UI_MappingMatrix
 							+ String(mpArray[j].rangeNorm_MAX, 2);
 						lineIterator++;
 					}
+				}
+
+				if (lineHeaders_Main[i] == "apSmoothing_Fc")
+				{
+					rowHeaders[lineIterator] = lineHeaders_Main[i];
+
+					for (int k = 0; k < numCols_inRow[i]; k++)
+					{
+						rowData[lineIterator] += String(apArray[k].freq_Smoothing, 2) + ",";
+					}
+
+					lineIterator++;
 				}
 			}
 			
@@ -664,6 +688,19 @@ class UI_MappingMatrix
 					}
 				}
 			}
+
+			if (line_header == "apSmoothing_Fc")
+			{
+				for (int j = 0; j < num_AP; j++)
+				{
+					if (apOrder_inFile[j] != -1)
+					{
+						presetContainer->apSmoothing_Fc[apOrder_inFile[j]] =
+							line_Rem.upToFirstOccurrenceOf(",", false, true).getFloatValue();
+						line_Rem = line_Rem.fromFirstOccurrenceOf(",", false, true);
+					}
+				}
+			}
 		}
 	}
 
@@ -673,6 +710,7 @@ class UI_MappingMatrix
 		{
 			normRange_AP[i].setMinValue(loadedPreset->mappingThresh_AP_Min[i]);
 			normRange_AP[i].setMaxValue(loadedPreset->mappingThresh_AP_Max[i]);
+			apSmoothing_Fc[i].setValue(loadedPreset->apSmoothing_Fc[i]);
 
 			for (int j = 0; j < num_MP; j++)
 			{
@@ -715,6 +753,7 @@ class UI_MappingMatrix
 				audioParams_Value[a][0].setVisible(on);
 				audioParams_Value[a][1].setVisible(on);
 				normRange_AP[a].setVisible(on);
+				apSmoothing_Fc[a].setVisible(on);
 			}
 		}
 
@@ -927,6 +966,15 @@ class UI_MappingMatrix
 					width_Value_AP * 1.2,
 					10
 				);
+
+				apSmoothing_Fc[dispSeq_AP[k]].setBounds(
+					matrix_startPointX + gap_interCol * num_AP_populated - gap_interCol * 0.3,
+					matrix_startPointY + num_MP_Visible * gap_interRow + 5,
+					width_Value_AP * 1.2,
+					10
+				);
+				////////////////////////////////////////////////////////////////////////////////////////////////
+				// ADD PARAM SMOOTHING SLIDER
 
 				num_AP_populated += 1;
 			}

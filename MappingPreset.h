@@ -17,6 +17,7 @@ public:
 			mappingThresh_AP_Min[i] = 0;
 			mappingThresh_MP_Max[i] = 1;
 			mappingThresh_AP_Max[i] = 1;
+			apSmoothing_Fc[i] = 49;
 		}
 	};
 
@@ -36,6 +37,7 @@ public:
 	float mappingThresh_MP_Max[40];
 	float mappingThresh_AP_Min[40];
 	float mappingThresh_AP_Max[40];
+	float apSmoothing_Fc[40];
 
 	// VOICE - DATA HOLDERS
 	float dataHolder_oscBPM = 1;

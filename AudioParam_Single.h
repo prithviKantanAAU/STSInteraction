@@ -15,6 +15,7 @@ public:
 	short quantLevels_2raisedTo = -1;
 	short numSynthControls = 1;
 	short dispIdx = -1;
+	float freq_Smoothing = 49;
 	// 1 = Instrument Trigger
 	// 2 = Freq
 	// 3 = Sound Effect
@@ -26,7 +27,7 @@ public:
 	float rangeNorm_MAX = 1;
 
 	void initialize(String apName, float mini, float maxi, float defVal, short pol, short mapF, short numQuantLevels,
-					short nSynthCtrls, short paramType, bool isVis = true)
+					short nSynthCtrls, short paramType, bool isVis = true, float freq_Smo = 49)
 	{
 		name = apName;
 		minVal = mini;
@@ -38,6 +39,7 @@ public:
 		numSynthControls = nSynthCtrls;
 		parameterType = paramType;
 		isVisible = isVis;
+		freq_Smoothing = freq_Smo;
 	}
 
 	void setDispIdx(short dispIndex)
