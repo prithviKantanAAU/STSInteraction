@@ -821,8 +821,8 @@ class UI_MappingMatrix
 			}
 		}
 
-		int numDispGrp_MP = 10;
-		int numDispGrp_AP = 10;
+		int numDispGrp_MP = 15;
+		int numDispGrp_AP = 15;
 
 		// CREATE DISPLAY SEQUENCE OF MPS
 		// ITERATE OVER DISPLAY POSITION GRP (UNIQUE)

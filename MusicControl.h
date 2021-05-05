@@ -270,6 +270,7 @@ public:
 
 		*val = new_Min + *val * (new_Max - new_Min);
 
+		if (feedbackVariables[fbVar_Idx].freq_Smoothing <= 48)
 		*val = apSmoothing[fbVar_Idx].doBiQuad(*val, 0);
 
 		*val = quantizeParam(*val, feedbackVariables[fbVar_Idx].quantLevels_2raisedTo, new_Range, new_Min);

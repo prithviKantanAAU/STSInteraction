@@ -656,7 +656,7 @@ private:
 					ui_mappingMatrix.mapping_Strength[i][j].setVisible(ui_mappingMatrix.mapping_Matrix[i][j].getToggleState());
 				};
 
-				ui_mappingMatrix.mapping_Strength[i][j].setRange(-2, 2, 0.5);
+				ui_mappingMatrix.mapping_Strength[i][j].setRange(-2, 2);
 				ui_mappingMatrix.mapping_Strength[i][j].setValue(1);
 				ui_mappingMatrix.mapping_Strength[i][j].setSliderStyle(Slider::SliderStyle::Rotary);
 				ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].rotarySliderFillColourId, Colours::yellow);
@@ -665,12 +665,12 @@ private:
 				ui_mappingMatrix.mapping_Strength[i][j].onValueChange = [this, i, j]
 				{
 					musControlPtr->mappingStrength[i][j] = ui_mappingMatrix.mapping_Strength[i][j].getValue();
-					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == 1.0)
+					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() - 1.0 <= 0.05)
 						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId,Colours::green);
 					else ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::blue);
-					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == -1.0)
+					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() + 1.0 <= 0.05)
 						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::red);
-					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() == 0.0)
+					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() <= 0.05)
 						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::white);
 				};
 			}

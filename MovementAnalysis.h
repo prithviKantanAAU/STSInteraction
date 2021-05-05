@@ -26,8 +26,8 @@ public:
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
 		// JOINT ANGLES
-		movementParams[6].initialize(-10, 180, "Angle Hip");
-		movementParams[7].initialize(-10, 180, "Angle Knee");
+		movementParams[6].initialize(-10, 180, "Angle Hip",false);
+		movementParams[7].initialize(-10, 180, "Angle Knee",false);
 		movementParams[8].initialize(-10, 40, "Angle Ankle",false);
 
 		// JOINT HYPEREXTENSION
@@ -40,7 +40,7 @@ public:
 		movementParams[13].initialize(0, 3, "Ang Velocity Ankle",false);
 
 		// STS MOVEMENT PHASE CLASSIFICATIONS
-		movementParams[14].initialize(-1, 6, "STS Phase");
+		movementParams[14].initialize(-1, 6, "STS Phase",false);
 		
 		// CoM NORMALIZED DISPLACEMENTS
 		movementParams[15].initialize(-0.12, 0.11, "Horiz Disp");
@@ -61,6 +61,11 @@ public:
 		// PROGRESS, DIRECTION
 		movementParams[23].initialize(0, 1, "Dist to Stand");
 		movementParams[24].initialize(0, 90, "CoM Direction");
+
+		movementParams[25].initialize(0, 1.02, "Steady Sit");
+		movementParams[26].initialize(0, 1.02, "Steady Stand");
+		movementParams[27].initialize(0, 1.02, "Seat Off",false);
+		movementParams[28].initialize(0, 1, "Randomness");
 
 		populateDispIndex_MP();
 		setupReceivers();
@@ -125,11 +130,17 @@ public:
 		setDispIndex_MP("Thigh Jerk - Ang", 8);
 		setDispIndex_MP("Shank Jerk - Ang", 8);
 
+		// PHASE ONSETS
+		setDispIndex_MP("Steady Sit", 8);
+		setDispIndex_MP("Steady Stand", 8);
+		setDispIndex_MP("Seat Off", 8);
+
 		// TRIANGLE OSCILLATOR
 		setDispIndex_MP("Tri Osc",9);
+		setDispIndex_MP("Randomness",9);
 	}
 	
-	short numMovementParams = 25;
+	short numMovementParams = 29;
 	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };
@@ -151,6 +162,7 @@ public:
 	// ANGULAR VELOCITY, CoM VELOCITY BIQUADS
 	BiQuad LPF_JointAngularVel[3];
 	BiQuad LPF_CoM_Vel[2];
+	BiQuad LPF_Randomness;
 
 	void LPF_Init()
 	{
@@ -165,6 +177,9 @@ public:
 			LPF_CoM_Vel[j].flushDelays();
 			LPF_CoM_Vel[j].calculateLPFCoeffs(20, 0.7, 100);
 		}
+
+		LPF_Randomness.flushDelays();
+		LPF_Randomness.calculateLPFCoeffs(50, 0.7, 100);
 	}
 
 	void eulerSmoothing_INIT()
@@ -319,6 +334,14 @@ public:
 		store_MP_Value("Tri Osc",funcVal);
 	}
 
+	// Randomness Generator
+	Random randGen;
+	void getNewRandomValue()
+	{
+		int randomIndex = randGen.nextInt(1000);
+		store_MP_Value("Randomness", LPF_Randomness.doBiQuad(randomIndex / 1000.0,0));
+	}
+
 	// SETUP OSC UDP RECEIVERS - PORT, LISTENER, SAMPLE RATE
 	void setupReceivers()
 	{
@@ -407,6 +430,7 @@ public:
 		computeCoM_Pos_NEW();
 		computeProgress();
 		triOsc_Update();
+		getNewRandomValue();
 
 		if (STS_isRepCompleted) musicControl.musicInfoCompute.randomize_order_MEL();
 		musicControl.updateFBVariables(movementParams, numMovementParams);
@@ -645,6 +669,23 @@ public:
 		// COMPUTE STS PHASE BASED ON ANGLES AND PREVIOUS PHASE
 		if(!updateSTSPhase_CheckTransition_POS());
 		updateSTSPhase_CheckTransition_NEG();
+
+		store_MP_Value("Steady Sit", 0);
+		store_MP_Value("Steady Stand", 0);
+		store_MP_Value("Seat Off", 0);
+		switch ((int)getMPVal_fromArray(movementParams, "STS Phase", "Val"))
+		{
+		case 0:
+			store_MP_Value("Steady Sit", 1.0);
+			break;
+		case 2:
+			store_MP_Value("Seat Off", 1.0);
+			break;
+		case 3:
+			store_MP_Value("Steady Stand", 1.0);
+			break;
+		}
+
 		store_MP_Value("STS Phase", STS_Phase);
 	}
 
