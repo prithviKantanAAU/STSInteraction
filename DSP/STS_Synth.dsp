@@ -78,6 +78,8 @@ SONI_22_DefaultVals = 10,0,0,0;
 SONI_22_Sine3P = array_soniSliders(22,SONI_22_DefaultVals);
 SONI_23_DefaultVals = 0.5,0,0,0;
 SONI_23_FluteMouthPos = array_soniSliders(23,SONI_23_DefaultVals);
+SONI_24_DefaultVals = 0,0,0,0;
+SONI_24_FluteTrg = array_soniSliders(24,SONI_24_DefaultVals);
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
@@ -91,7 +93,8 @@ FRQ_CHORD_N3 = SONI_4_ChordFr : ba.selectn(4,2) : limit(20,20000);
 FRQ_CHORD_N4 = SONI_4_ChordFr : ba.selectn(4,3) : limit(20,20000);
 TRG_CHORD = FVToTrigger(SONI_5_ChordTr : ba.selectn(4,0));		
 
-FRQ_FLUTE = SONI_8_FluteFr : ba.selectn(4,0) : si.smooth(ba.tau2pole(0.001));			// TRACK 4
+TRG_FLUTE = FVToTrigger(SONI_24_FluteTrg : ba.selectn(4,0));
+FRQ_FLUTE = SONI_8_FluteFr : ba.selectn(4,0) : ba.sAndH(TRG_FLUTE) : si.smooth(ba.tau2pole(0.001));			// TRACK 4
 
 FRQ_BASS = FRQ_CHORD_N1 / 2.0;										// TRACK 5
 
