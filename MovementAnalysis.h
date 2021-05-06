@@ -67,6 +67,7 @@ public:
 		movementParams[27].initialize(0, 1.02, "Seat Off",false);
 		movementParams[28].initialize(0, 1, "Randomness");
 
+		populate_num_MP();
 		populateDispIndex_MP();
 		setupReceivers();
 		eulerSmoothing_INIT();
@@ -75,6 +76,17 @@ public:
 		musicControl.numMovementParams = numMovementParams;
 	};
 	~MovementAnalysis() {};
+
+	short numMovementParams = 0;
+
+	void populate_num_MP()
+	{
+		for (int i = 0; i < 40; i++)
+		{
+			if (movementParams[i].name != "Placeholder")
+				numMovementParams++;
+		}
+	}
 
 	void setDispIndex_MP(String mpName, short dispIndex)
 	{
@@ -139,8 +151,6 @@ public:
 		setDispIndex_MP("Tri Osc",9);
 		setDispIndex_MP("Randomness",9);
 	}
-	
-	short numMovementParams = 29;
 	
 	SensorInfo sensorInfo;
 	short locationsOnline[3] = { -1,-1,-1 };

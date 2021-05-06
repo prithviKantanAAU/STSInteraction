@@ -25,7 +25,7 @@ public:
 		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0,		 1, 1, 3,	 1, 1			);
 		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50,	 1, 1, 0,	 4, 2			);
 		feedbackVariables[4].initialize("Chord Tr", 0, 10, 0,		 1, 1, 1,	 4, 1			);
-		feedbackVariables[5].initialize("Detune", 0, 1, 0,			 1, 1, 0,	 1, 3			);
+		feedbackVariables[5].initialize("Detune", 0, 1, 0,			 1, 1, 0,	 1, 3,	 false	);
 		feedbackVariables[6].initialize("Pan", 0, 1, 0.5,			 1, 1, 0,	 1, 3,	 false	);
 		feedbackVariables[7].initialize("Flute Fr", 420, 1320, 420,	 2, 1, 0,	 1, 2			);
 		feedbackVariables[8].initialize("Dynamics", 7, 10, 7,		 1, 1, 0,	 1, 4,   false	);
@@ -43,13 +43,25 @@ public:
 		feedbackVariables[20].initialize("Sin2 F", 600, 1000, 600,	 1, 1, 0,	 1, 4,   false	);
 		feedbackVariables[21].initialize("Sin3 F", 1200, 2000, 1200, 1, 1, 0,	 1, 4,   false	);
 		feedbackVariables[22].initialize("Flute Pos", 0, 0.5, 0.5,	 2, 1, 0,	 1, 3			);
+		feedbackVariables[23].initialize("Flute Tr", 0, 200, 0,		 1, 1, 3,	 1, 1			);
 
+		populate_num_AP();
 		populateDispIndex_AP();
 		apSmoothing_INIT();
 	};
 	~MusicControl() 
 	{
 	};
+
+	short numFbVariables = 0;
+	void populate_num_AP()
+	{
+		for (int i = 0; i < 40; i++)
+		{
+			if (feedbackVariables[i].name != "Placeholder")
+				numFbVariables++;
+		}
+	}
 
 	// Smoothing Filter Definition and Initialization
 	BiQuad apSmoothing[40];
@@ -83,6 +95,7 @@ public:
 		setDispIndex_AP("Chord Tr", 0);
 		setDispIndex_AP("Gtr Tr", 0);
 		setDispIndex_AP("Bell Tr", 0);
+		setDispIndex_AP("Flute Tr", 0);
 		
 		setDispIndex_AP("Mel Fr", 1);
 		setDispIndex_AP("Chord Fr", 1);
@@ -112,7 +125,6 @@ public:
 	bool isMusicDSP_On = false;
 
 	FeedbackVariable feedbackVariables[40];
-	short numFbVariables = 23;
 	short numMovementParams = 0;
 
 	// HELPER CLASSES
