@@ -688,11 +688,17 @@ public:
 		case 0:
 			store_MP_Value("Steady Sit", 1.0);
 			break;
+		case 1:
+			store_MP_Value("Steady Sit", 0.5);
+			break;
 		case 2:
 			store_MP_Value("Seat Off", 1.0);
 			break;
 		case 3:
 			store_MP_Value("Steady Stand", 1.0);
+			break;
+		case 4:
+			store_MP_Value("Steady Stand", 0.5);
 			break;
 		}
 

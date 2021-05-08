@@ -20,7 +20,7 @@ public:
 		}
 		
 		//								 NAME	   MIN  MAX	 DEF    POL F  Q   #CON TYPE  VIS
-		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150,	 1, 1, 3,	 1, 1			);
+		feedbackVariables[0].initialize("Perc Tr", 150, 600, 150,	 1, 1, 3,	 1, 1,	 false	);
 		feedbackVariables[1].initialize("Mel Fr", 100, 700, 100,	 2, 1, 0,	 1, 2			);
 		feedbackVariables[2].initialize("Mel Tr", 0, 200, 0,		 1, 1, 3,	 1, 1			);
 		feedbackVariables[3].initialize("Chord Fr", 50, 1000, 50,	 1, 1, 0,	 4, 2			);
@@ -131,7 +131,7 @@ public:
 	FaustStrings faustStrings;
 	MusicInfoCompute musicInfoCompute;
 	MixerSettings mixerSettings;
-	MappingPreset mappingPresets[20];
+	MappingPreset mappingPresets[50];
 
 	// MAPPING FUNCTIONS
 	short numMapFunc = 7;

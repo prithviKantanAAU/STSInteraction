@@ -234,6 +234,7 @@ class UI_MappingMatrix
 		numCols_inRow[15] = num_AP;
 
 		// Find Num Line Headers
+		num_lineHeaders = 0;
 		for (int i = 0; i < 40; i++)
 		{
 			if (lineHeaders_Main[i] != "")
@@ -490,12 +491,12 @@ class UI_MappingMatrix
 		{
 			currentFile = presetFiles.getUnchecked(i);
 			presetArray[i].name = currentFile.getFileNameWithoutExtension();
-			loadPreset_SINGLE(&presetArray[i + 1], currentFile, mpArray, apArray);
+			if (loadPreset_SINGLE(&presetArray[i], currentFile, mpArray, apArray))
 			preset_ListLoad.addItem(presetArray[i].name, i + 2);
 		}
 	}
 
-	void loadPreset_SINGLE(MappingPreset *presetContainer, File currentFile, MovementParameter mpArray[],
+	bool loadPreset_SINGLE(MappingPreset *presetContainer, File currentFile, MovementParameter mpArray[],
 							FeedbackVariable apArray[])
 	{
 		juce::FileInputStream inputStream(currentFile); // [2]
@@ -504,7 +505,7 @@ class UI_MappingMatrix
 		short apOrder_writeIdx = 0;
 
 		if (!inputStream.openedOk())
-			return;  // failed to open
+			return false;  // failed to open
 
 		while (!inputStream.isExhausted())
 		{
@@ -702,6 +703,8 @@ class UI_MappingMatrix
 				}
 			}
 		}
+
+		return true;
 	}
 
 	void loadPreset(MappingPreset *loadedPreset)
