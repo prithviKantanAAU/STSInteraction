@@ -31,45 +31,58 @@ array_soniSliders(idx,defaultVals) = finalGroup with
   defaultVal(x) = defaultVals : ba.selectn(4,x);
 };
 
-// Definition of Sonification UI and Variables
-SONI_1_DefaultVals = 0,0,0,0;
+// Definition of Sonification UI and Variables - CURRENT TOTAL: 24
+// Triggers
+SONI_1_DefaultVals = 50,0,0,0;
 SONI_1_PercTr = array_soniSliders(1,SONI_1_DefaultVals);
+SONI_3_DefaultVals = 50,0,0,0;
+SONI_3_MelodyTr = array_soniSliders(3,SONI_3_DefaultVals);
+SONI_5_DefaultVals = 50,0,0,0;
+SONI_5_ChordTr = array_soniSliders(5,SONI_5_DefaultVals);
+SONI_24_DefaultVals = 50,0,0,0;
+SONI_24_FluteTrg = array_soniSliders(24,SONI_24_DefaultVals);
+SONI_12_DefaultVals = 50,0,0,0;
+SONI_12_GtrTr = array_soniSliders(12,SONI_12_DefaultVals);
+SONI_17_DefaultVals = 50,0,0,0;
+SONI_17_WarningBell = array_soniSliders(17,SONI_17_DefaultVals);
+
+// Fundamental Frequencies
+SONI_9_DefaultVals = 7,0,0,0;
+SONI_9_DjembeFr = array_soniSliders(9,SONI_9_DefaultVals);
 SONI_2_DefaultVals = 440,0,0,0;
 SONI_2_MelodyFr = array_soniSliders(2,SONI_2_DefaultVals);
-SONI_3_DefaultVals = 0,0,0,0;
-SONI_3_MelodyTr = array_soniSliders(3,SONI_3_DefaultVals);
 SONI_4_DefaultVals = 440, 440, 440, 440;
 SONI_4_ChordFr = array_soniSliders(4,SONI_4_DefaultVals);
-SONI_5_DefaultVals = 0,0,0,0;
-SONI_5_ChordTr = array_soniSliders(5,SONI_5_DefaultVals);
-SONI_6_DefaultVals = 0,0,0,0;
-SONI_6_Detune = array_soniSliders(6,SONI_6_DefaultVals);
-//SONI_7_DefaultVals = 0.5,0,0,0;
-//SONI_7_Pan = array_soniSliders(7,SONI_7_DefaultVals);
-SONI_8_DefaultVals = 420,0,0,0;
+SONI_8_DefaultVals = 440,0,0,0;
 SONI_8_FluteFr = array_soniSliders(8,SONI_8_DefaultVals);
-//SONI_9_DefaultVals = 7,0,0,0;
-//SONI_9_Dynamics = array_soniSliders(9,SONI_9_DefaultVals);
-SONI_10_DefaultVals = 0.5,0,0,0;
-SONI_10_PitchWarp = array_soniSliders(10,SONI_10_DefaultVals);
-SONI_11_DefaultVals = 0,0,0,0;
-SONI_11_Vowel = array_soniSliders(11,SONI_11_DefaultVals);
-SONI_12_DefaultVals = 0,0,0,0;
-SONI_12_GtrTr = array_soniSliders(12,SONI_12_DefaultVals);
-SONI_13_DefaultVals = 0.01,0,0,0;
-SONI_13_GtrStf = array_soniSliders(13,SONI_13_DefaultVals);
-//SONI_14_DefaultVals = 0,0,0,0;
-//SONI_14_VoiceFric = array_soniSliders(14,SONI_14_DefaultVals);
-SONI_15_DefaultVals = 1,0,0,0;
-SONI_15_DjembeSharp = array_soniSliders(15,SONI_15_DefaultVals);
-SONI_16_DefaultVals = 0.9,0,0,0;
-SONI_16_FluteGn = array_soniSliders(16,SONI_16_DefaultVals);
-SONI_17_DefaultVals = 0,0,0,0;
-SONI_17_WarningBell = array_soniSliders(17,SONI_17_DefaultVals);
-SONI_18_DefaultVals = 1500,0,0,0;
-SONI_18_GtrDyn = array_soniSliders(18,SONI_18_DefaultVals);
 SONI_19_DefaultVals = 440,0,0,0;
 SONI_19_GtrFr = array_soniSliders(19,SONI_19_DefaultVals);
+
+// Dynamics
+SONI_15_DefaultVals = 1,0,0,0;
+SONI_15_DjembeSharp = array_soniSliders(15,SONI_15_DefaultVals);
+SONI_14_DefaultVals = 0,0,0,0;
+SONI_14_VoiceDyn = array_soniSliders(14,SONI_14_DefaultVals);
+SONI_7_DefaultVals = 1,0,0,0;
+SONI_7_ChordDyn = array_soniSliders(7,SONI_7_DefaultVals);
+SONI_16_DefaultVals = 0.9,0,0,0;
+SONI_16_FluteGn = array_soniSliders(16,SONI_16_DefaultVals);
+SONI_18_DefaultVals = 1500,0,0,0;
+SONI_18_GtrDyn = array_soniSliders(18,SONI_18_DefaultVals);
+
+// Timbre
+SONI_11_DefaultVals = 0,0,0,0;
+SONI_11_Vowel = array_soniSliders(11,SONI_11_DefaultVals);
+SONI_13_DefaultVals = 0.01,0,0,0;
+SONI_13_GtrStf = array_soniSliders(13,SONI_13_DefaultVals);
+
+// Negative Feedback
+SONI_6_DefaultVals = 0,0,0,0;
+SONI_6_Detune = array_soniSliders(6,SONI_6_DefaultVals);
+SONI_10_DefaultVals = 0.5,0,0,0;
+SONI_10_PitchWarp = array_soniSliders(10,SONI_10_DefaultVals);
+
+// Sine Waves
 SONI_20_DefaultVals = 10,0,0,0;
 SONI_20_Sine1P = array_soniSliders(20,SONI_20_DefaultVals);
 SONI_21_DefaultVals = 10,0,0,0;
@@ -78,22 +91,25 @@ SONI_22_DefaultVals = 10,0,0,0;
 SONI_22_Sine3P = array_soniSliders(22,SONI_22_DefaultVals);
 SONI_23_DefaultVals = 0.5,0,0,0;
 SONI_23_FluteMouthPos = array_soniSliders(23,SONI_23_DefaultVals);
-SONI_24_DefaultVals = 0,0,0,0;
-SONI_24_FluteTrg = array_soniSliders(24,SONI_24_DefaultVals);
+
 
 // TRIGGERS
 TRG_PERC_MAIN = FVToTrigger(SONI_1_PercTr : ba.selectn(4,0));		// TRACK 1
+FRQ_PERC_MAIN = SONI_9_DjembeFr : ba.selectn(4,0);
 
 FRQ_MEL = SONI_2_MelodyFr : ba.selectn(4,0);						// TRACK 2
-TRG_MEL = FVToTrigger(SONI_3_MelodyTr : ba.selectn(4,0));										
+TRG_MEL = FVToTrigger(SONI_3_MelodyTr : ba.selectn(4,0));
+DYN_MEL = SONI_14_VoiceDyn : ba.selectn(4,0);
 
 FRQ_CHORD_N1 = SONI_4_ChordFr : ba.selectn(4,0) : limit(20,20000);					// TRACK 3
 FRQ_CHORD_N2 = SONI_4_ChordFr : ba.selectn(4,1) : limit(20,20000);
 FRQ_CHORD_N3 = SONI_4_ChordFr : ba.selectn(4,2) : limit(20,20000);
 FRQ_CHORD_N4 = SONI_4_ChordFr : ba.selectn(4,3) : limit(20,20000);
 TRG_CHORD = FVToTrigger(SONI_5_ChordTr : ba.selectn(4,0));		
+DYN_CHORD = SONI_7_ChordDyn : ba.selectn(4,0);
 
-TRG_FLUTE = FVToTrigger(SONI_24_FluteTrg : ba.selectn(4,0));
+TRG_FLUTE_RAW = SONI_24_FluteTrg : ba.selectn(4,0);
+TRG_FLUTE = FVToTrigger(TRG_FLUTE_RAW);
 FRQ_FLUTE = SONI_8_FluteFr : ba.selectn(4,0) : ba.sAndH(TRG_FLUTE) : si.smooth(ba.tau2pole(0.001));			// TRACK 4
 
 FRQ_BASS = FRQ_CHORD_N1 / 2.0;										// TRACK 5
@@ -122,17 +138,16 @@ PARAM_VAL_FLUTEMOUTHPOS = SONI_23_FluteMouthPos : ba.selectn(4,0);
 // TRACK SYNTHESIS DEFINITION  
 
 // TRACK 1 - MAIN PERCUSSION
-DJ_FREQ = SONI_1_PercTr : ba.selectn(4,0) : ba.sAndH(TRG_PERC_MAIN) + 50;
+DJ_FREQ = FRQ_PERC_MAIN : ba.sAndH(TRG_PERC_MAIN) + 50;
 DJ_SHRPNS = 1 + PARAM_VAL_DJEMBESHARP * 2;
 DJ_GAIN = 1 + ba.db2linear(PARAM_VAL_DJEMBESHARP);
 Synth_T1_MainPerc = 
 pm.djembe(DJ_FREQ,DJ_SHRPNS/8,DJ_SHRPNS,1,TRG_PERC_MAIN) * DJ_GAIN : monoChannel(1) : getPanFunction(0);
 
 // TRACK 2 - MELODY
-//F0_M = FRQ_MEL : ba.sAndH(TRG_MEL) : Soni_FreqWarpFactor;
 F0_M = FRQ_MEL : Soni_FreqWarpFactor;
 synthFunc_Melody(freq) = voiceSynth_FormantBP;
-Synth_T2_Melody = voiceSynth_FormantBP(F0_M,PARAM_VAL_DYNAMICS,TRG_MEL,PARAM_VAL_DYNAMICS/2.0) : monoChannel(2) : getPanFunction(0);
+Synth_T2_Melody = voiceSynth_FormantBP(F0_M,DYN_MEL,TRG_MEL,PARAM_VAL_DYNAMICS/2.0) : *(DYN_MEL) : monoChannel(2) : getPanFunction(0);
   
 // TRACK 3 - CHORD
 FREQ_LIST_C = FRQ_CHORD_N1,FRQ_CHORD_N2,FRQ_CHORD_N3,FRQ_CHORD_N4;																// LIST MIDI KEYS
@@ -141,10 +156,10 @@ chordFreq(noteIdx) = F0_LIST_HZ_C : ba.selectn(4,noteIdx) : ba.sAndH(TRG_CHORD);
 chordTrg(noteIdx) =  TRG_CHORD;																								// TRG SELECTOR
 synthFunc_Chord(trigger,freq) = pianoSim_singleNote(freq,trigger,PARAM_VAL_DYNAMICS/2);
 chordSum = par(i,4,chordSingle_Synth(chordFreq(i), synthFunc_Chord(chordTrg(i)))) :> _,_;
-Synth_T3_Chord = chordSum : stereoChannel(3);
+Synth_T3_Chord = chordSum : stereoLinGain(DYN_CHORD) : stereoChannel(3);
 
 // TRACK 4 - FLUTE
-F0_FLUTE = FRQ_FLUTE : Soni_FreqWarpFactor;
+F0_FLUTE = FRQ_FLUTE : detuneFreq : Soni_FreqWarpFactor;
 Synth_T4_Flute = fluteSimple(F0_FLUTE,PARAM_VAL_FLUTEGN,PARAM_VAL_FLUTEMOUTHPOS) : monoChannel(4) : getPanFunction(0);
 
 // TRACK 5 - BASSLINE
@@ -152,9 +167,8 @@ F0_R = FRQ_BASS : ba.sAndH(TRG_CHORD) : Soni_FreqWarpFactor;
 Synth_T5_Bass = fmSynth(F0_R,MOD_NUM_R,FREQ_FACTOR_R,RL_R,MOD_DEPTH_R,TRG_CHORD) : monoChannel(5) : getPanFunction(0);
 
 // TRACK 6 - GUITAR
-F0_GTR = FRQ_GTR * 2 : ba.sAndH(TRG_GTR) : Soni_FreqWarpFactor;
-synthFunc_Guitar(freq) = guitarString(freq,PARAM_VAL_GTRSTF,TRG_GTR);
-Synth_T6_Guitar = leadSynth(F0_GTR,synthFunc_Guitar,PARAM_VAL_DYNAMICS,TRG_GTR,RL_M,FC_LP_M,PARAM_VAL_DYNAMICS/2.0) : stereoChannel(6);
+F0_GTR = FRQ_GTR * 4 : ba.sAndH(TRG_GTR) : detuneFreq : Soni_FreqWarpFactor;
+Synth_T6_Guitar = guitarString(F0_GTR,PARAM_VAL_GTRSTF,TRG_GTR) : monoChannel(6) : getPanFunction(0);
 
 // TRACK 7 - WARNINGS
 Synth_T7_Warning = 
@@ -171,7 +185,7 @@ track4 = Synth_T4_Flute    : stereoMasterSection(4);
 track5 = Synth_T5_Bass     : stereoMasterSection(5);
 track6 = Synth_T6_Guitar   : stereoMasterSection(6);
 track7 = Synth_T7_Warning  : stereoMasterSection(7);
-reverbTrack = track2,track3,track4,track6 :> reverbMaster;
+reverbTrack = track1,track2,track3,track4,track6 :> reverbMaster;
 dryBus = track1,track2,track3,track4,track5,track6,track7 :> stereodBGain(0 - 24 * sqrt(1 - PARAM_VAL_PROXIMITY));
 
 masterChannel = masterComp : stereoLinGain(masterGain) : stereoEffect(masterLimiter(0)) : stereoEffect(hard_clip(1));
@@ -292,16 +306,14 @@ filter = stereoEffect(fi.bandpass(1,REV_MST_HPF_FC,LP_CUT)) : stereodBGain(12 * 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-leadSynth(fundamental,synthFunc,velocity,trigger,synthRelease,synthCutoff,acc) = output
+detuneFreq(inputFreq) = inputFreq * soniVibratoLFO
 with
-{																			
-  output = melSynth,melSynth;																					// OUTPUT SUMMING
-  melSynth = synthFunc(fundamentalCooked) * env : applyVelocity(velocity,trigger,9);							// MEL COMPONENT
-  fundamentalCooked = 2 * fundamental * soniVibratoLFO : limit(20,5000);
-  env = en.ar(0.001,synthRelease * 1,trigger);													// MEL ENVELOPE
+{
   vibLFO = os.osc(8);
   soniVibratoLFO = 1 + PARAM_VAL_DETUNE * vibLFO * 0.5 : si.smoo;								// CF DIST SONI - VIBRATO LFO
 };
+
+// leadSynth(fundamental,synthFunc,velocity,trigger,synthRelease,synthCutoff,acc) = output
 
 fmSynth(fundamental,numMod,freqFactor,release,depth,trigger) = (fmSynth + dirtyBus) * env 	with
 { 
@@ -337,15 +349,14 @@ voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM
 	freqFinal = 2 * freq : _* vib * soniVibratoLFO : si.smooth(ba.tau2pole(0.02));
   	soniVibratoLFO = 1 + PARAM_VAL_DETUNE * vibLFO * 0.5 : si.smoo;								// CF DIST SONI - VIBRATO LFO
   	vowel_idx = PARAM_VAL_VOWEL;
-	env = vib * (trig_unFilt > 0) : si.smooth(ba.tau2pole(0.02));
-  	//env = 1;
+	env = vib * (trig_unFilt > 50) : si.smooth(ba.tau2pole(0.02));
   	vowel_H = vowel_idx;
   	vibLFO = os.osc(8);
 };
 
 fluteSimple(f_Hz,gain,mouthPos) = pm.fluteModel(tubeLength,mouthPos,blow)*0.5
 with{
-  	gate = (f_Hz > 430);
+  	gate = (f_Hz > 430) : si.smooth(ba.tau2pole(0.02));
     envelope = gate*gain : si.smooth(ba.tau2pole(0.001));
   	freqDiff = f_Hz - 440;
 	freqFactor = 0.999999999999 + freqDiff * 0.0080951 - freqDiff*freqDiff * 0.00002777 + freqDiff*freqDiff*freqDiff * 0.00000004097;
