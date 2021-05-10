@@ -14,13 +14,13 @@ public:
 	short num_Tracks = 7;
 	String names_Tracks[10] = 
 	{
-		"Perc 1",
-		"Melody",
-		"Chords",
+		"Djembe",
+		"Voice",
+		"Piano",
 		"Flute",
 		"Bass",
 		"Gtr",
-		"Warnings"
+		"Misc"
 	};
 
 	float masterGain = -19;

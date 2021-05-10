@@ -665,12 +665,12 @@ private:
 				ui_mappingMatrix.mapping_Strength[i][j].onValueChange = [this, i, j]
 				{
 					musControlPtr->mappingStrength[i][j] = ui_mappingMatrix.mapping_Strength[i][j].getValue();
-					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() - 1.0 <= 0.05)
+					if (abs(ui_mappingMatrix.mapping_Strength[i][j].getValue() - 1.0) <= 0.05)
 						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId,Colours::green);
 					else ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::blue);
-					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() + 1.0 <= 0.05)
+					if (abs(ui_mappingMatrix.mapping_Strength[i][j].getValue() + 1.0) <= 0.05)
 						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::red);
-					if (ui_mappingMatrix.mapping_Strength[i][j].getValue() <= 0.05)
+					if (abs(ui_mappingMatrix.mapping_Strength[i][j].getValue() <= 0.05))
 						ui_mappingMatrix.mapping_Strength[i][j].setColour(ui_mappingMatrix.mapping_Strength[i][j].thumbColourId, Colours::white);
 				};
 			}
@@ -682,22 +682,31 @@ private:
 		{
 			switch (apArrayPtr[k].parameterType)
 			{
-			case 1:
+			case 1:												// Triggers
 				labelColour = Colours::grey;
 				textColour = Colours::black;
 				break;
-			case 2:
+			case 2:												// Frequency
 				labelColour = Colours::green;
 				textColour = Colours::white;
 				break;
-			case 3:
-				labelColour = Colours::orangered;
-				textColour = Colours::black;
-				break;
-			case 4:
+			case 3:												// Dynamics
 				labelColour = Colours::deepskyblue;
 				textColour = Colours::black;
 				break;
+			case 4:												// Timbre
+				labelColour = Colours::lightyellow;
+				textColour = Colours::black;
+				break;
+			case 5:												// -ve Feedback
+				labelColour = Colours::orangered;
+				textColour = Colours::black;
+				break;
+			case 6:												// Sine Waves
+				labelColour = Colours::darkgreen;
+				textColour = Colours::white;
+				break;
+			
 			}
 
 			ui_mappingMatrix.labels_audioParams[k].setText(

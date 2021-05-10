@@ -845,7 +845,7 @@ class UI_MappingMatrix
 
 		// CREATE DISPLAY SEQUENCE OF APS
 		// ITERATE OVER DISPLAY POSITION GRP (UNIQUE)
-		for (int dg_ap = 0; dg_ap < numDispGrp_AP; dg_ap++)
+		for (int dg_ap = 0; dg_ap < num_AP; dg_ap++)
 		{
 			// ITERATE OVER APs
 			for (int a = 0; a < num_MP; a++)

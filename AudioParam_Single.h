@@ -18,8 +18,10 @@ public:
 	float freq_Smoothing = 49;
 	// 1 = Instrument Trigger
 	// 2 = Freq
-	// 3 = Sound Effect
-	// 4 = Timbre Modifier
+	// 3 = Dynamics
+	// 4 = Timbre Modifier (Not +ve or -ve)
+	// 5 = -ve Feedback Param
+	// 6 = Sine Wave
 	short parameterType = 1;
 	bool isVisible = false;
 
