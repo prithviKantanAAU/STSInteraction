@@ -28,7 +28,7 @@ public:
 		feedbackVariables[4].initialize("T_Piano", 0, 100, 0,		 1, 1, 1,	 4, 1			);
 		feedbackVariables[23].initialize("T_Flute", 50, 100, 50,	 1, 1, 5,	 1, 1			);
 		feedbackVariables[11].initialize("T_Gtr", 0, 100, 50,		 1, 1, 3,	 1, 1			);
-		feedbackVariables[16].initialize("T_Bell", 50, 100, 50,		 1, 1, 0,	 1, 1			);
+		feedbackVariables[16].initialize("T_Bell", 0, 100, 0,		 1, 1, 0,	 1, 1			);
 		
 		//	FUNDAMENTAL FREQUENCIES
 

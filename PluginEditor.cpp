@@ -83,8 +83,8 @@ void StsinteractionAudioProcessorEditor::comboBoxChanged(ComboBox *box)
 
 		if (box == &ui_mappingMatrix.preset_ListLoad)
 		{
-			ui_mappingMatrix.loadPreset(&mapPresetPtr[box->getSelectedId() - 1]);
-			auto preset = &mapPresetPtr[box->getSelectedId() - 1];
+			ui_mappingMatrix.loadPreset(&mapPresetPtr[box->getSelectedId() - 2]);
+			auto preset = &mapPresetPtr[box->getSelectedId() - 2];
 			
 			// SET VOICE CUE RELATED CONTROLS
 			ui_mappingMatrix.triOsc_BPM.setValue(preset->dataHolder_oscBPM * 60);
