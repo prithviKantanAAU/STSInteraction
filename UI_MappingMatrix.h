@@ -848,7 +848,7 @@ class UI_MappingMatrix
 		for (int dg_ap = 0; dg_ap < num_AP; dg_ap++)
 		{
 			// ITERATE OVER APs
-			for (int a = 0; a < num_MP; a++)
+			for (int a = 0; a < num_AP; a++)
 			{
 				// CHECK IF DISPLAY POSITION GRP MATCHES MP DISP POS GRP
 				if (fbVars[a].isVisible && fbVars[a].dispIdx == dg_ap)

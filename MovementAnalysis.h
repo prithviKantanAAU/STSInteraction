@@ -48,12 +48,12 @@ public:
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.8, "CoM Speed");
-		movementParams[18].initialize(0, 3000, "CoM Jerk");
+		movementParams[18].initialize(0, 1500, "CoM Jerk");
 
 		// ANGULAR JERK MEASURES
-		movementParams[19].initialize(0, 100, "Trunk Jerk - Ang",false);
-		movementParams[20].initialize(0, 100, "Thigh Jerk - Ang",false);
-		movementParams[21].initialize(0, 100, "Shank Jerk - Ang",false);
+		movementParams[19].initialize(0, 300, "Trunk Jerk - Ang",false);
+		movementParams[20].initialize(0, 300, "Thigh Jerk - Ang",false);
+		movementParams[21].initialize(0, 300, "Shank Jerk - Ang",false);
 
 		// TRIANGLE OSCILLATOR
 		movementParams[22].initialize(0, 1, "Tri Osc");

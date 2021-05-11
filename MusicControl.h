@@ -131,7 +131,7 @@ public:
 		setDispIndex_AP("Gtr Stf", 17);
 		
 		setDispIndex_AP("Detune", 18);
-		setDispIndex_AP("Pitch Warp", 19);
+		setDispIndex_AP("F_Warp", 19);
 		setDispIndex_AP("Flute Pos", 20);
 
 		setDispIndex_AP("Sin1 F", 21);
