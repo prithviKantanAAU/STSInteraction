@@ -43,13 +43,14 @@ public:
 		feedbackVariables[14].initialize("D_Djemb", 0.01, 4.5, 1,	 1, 1, 0,	 1, 3			);
 		feedbackVariables[13].initialize("D_Voice", 0, 1, 1,		 1, 1, 0,	 1, 3			);
 		feedbackVariables[6].initialize("D_Piano", 0, 1, 1,			 1, 1, 3,	 1, 3			);
-		feedbackVariables[15].initialize("D_Flute", 0.7, 1, 0.9,	 1, 1, 0,	 1, 3			);
+		feedbackVariables[15].initialize("D_Flute", 0.63, 1, 0.9,	 1, 1, 0,	 1, 3			);
 		feedbackVariables[17].initialize("D_Gtr", 20, 1500, 1500,	 1, 1, 0,	 1, 3			);
 
 		// TIMBRE
 
 		feedbackVariables[10].initialize("Vowel", 0, 2, 0,			 1, 1, 0,	 1, 4,	 false	);
 		feedbackVariables[12].initialize("Gtr Stf", 0.01, 0.4, 0.1,	 1, 1, 0,	 1, 4,	 false	);
+		feedbackVariables[24].initialize("Flute Vib", 0.036, 0.13, 0.036,	 1, 1, 0,	 1, 4,	 false	);
 
 		// NEGATIVE FEEDBACK
 		
@@ -133,10 +134,11 @@ public:
 		setDispIndex_AP("Detune", 18);
 		setDispIndex_AP("F_Warp", 19);
 		setDispIndex_AP("Flute Pos", 20);
+		setDispIndex_AP("Flute Vib", 21);
 
-		setDispIndex_AP("Sin1 F", 21);
-		setDispIndex_AP("Sin2 F", 22);
-		setDispIndex_AP("Sin3 F", 23);
+		setDispIndex_AP("Sin1 F", 22);
+		setDispIndex_AP("Sin2 F", 23);
+		setDispIndex_AP("Sin3 F", 24);
 	}
 
 	// FAUST OBJECT
