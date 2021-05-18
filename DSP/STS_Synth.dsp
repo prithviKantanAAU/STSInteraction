@@ -75,6 +75,8 @@ SONI_11_DefaultVals = 0,0,0,0;
 SONI_11_Vowel = array_soniSliders(11,SONI_11_DefaultVals);
 SONI_13_DefaultVals = 0.01,0,0,0;
 SONI_13_GtrStf = array_soniSliders(13,SONI_13_DefaultVals);
+SONI_25_DefaultVals = 0.036,0,0,0;
+SONI_25_FluteVib = array_soniSliders(25,SONI_25_DefaultVals);
 
 // Negative Feedback
 SONI_6_DefaultVals = 0,0,0,0;
@@ -134,6 +136,7 @@ PARAM_VAL_DJEMBESHARP = SONI_15_DjembeSharp : ba.selectn(4,0) : limit(0.01,5);		
 PARAM_VAL_FLUTEGN = SONI_16_FluteGn : ba.selectn(4,0);
 PARAM_VAL_GTRDYN = SONI_18_GtrDyn : ba.selectn(4,0) : *(10) : si.smoo : limit(500,15000);				// GUITAR EXCITATION CUTOFF
 PARAM_VAL_FLUTEMOUTHPOS = SONI_23_FluteMouthPos : ba.selectn(4,0);
+PARAM_VAL_FLUTEVIB = SONI_25_FluteVib : ba.selectn(4,0);
 
 // TRACK SYNTHESIS DEFINITION  
 
@@ -160,7 +163,7 @@ Synth_T3_Chord = chordSum : stereoLinGain(DYN_CHORD) : stereoChannel(3);
 
 // TRACK 4 - FLUTE
 F0_FLUTE = FRQ_FLUTE : detuneFreq : Soni_FreqWarpFactor;
-Synth_T4_Flute = fluteSimple(F0_FLUTE,PARAM_VAL_FLUTEGN,PARAM_VAL_FLUTEMOUTHPOS) : monoChannel(4) : getPanFunction(0);
+Synth_T4_Flute = fluteSimple(F0_FLUTE,PARAM_VAL_FLUTEGN,PARAM_VAL_FLUTEMOUTHPOS,PARAM_VAL_FLUTEVIB) : monoChannel(4) : getPanFunction(0);
 
 // TRACK 5 - BASSLINE
 F0_R = FRQ_BASS : ba.sAndH(TRG_CHORD) : Soni_FreqWarpFactor;
@@ -354,7 +357,7 @@ voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM
   	vibLFO = os.osc(8);
 };
 
-fluteSimple(f_Hz,gain,mouthPos) = pm.fluteModel(tubeLength,mouthPos,blow)*0.5
+fluteSimple(f_Hz,gain,mouthPos,vib) = pm.fluteModel(tubeLength,mouthPos,blow)*0.5
 with{
   	gate = (f_Hz > 430) : si.smooth(ba.tau2pole(0.02));
     envelope = gate*gain : si.smooth(ba.tau2pole(0.001));
@@ -362,7 +365,8 @@ with{
 	freqFactor = 0.999999999999 + freqDiff * 0.0080951 - freqDiff*freqDiff * 0.00002777 + freqDiff*freqDiff*freqDiff * 0.00000004097;
     tubeLength = 440 + (f_Hz - 440) * freqFactor : pm.f2l;
     pressure = envelope;
-    blow = pm.blower(pressure,0.05,2000,5,0.036);
+    vibFreq = 5 * (1 + 0.4 * ((vib - 0.036)/ 0.036));
+    blow = pm.blower(pressure,0.05,2000,vibFreq,vib);
 };
 
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
