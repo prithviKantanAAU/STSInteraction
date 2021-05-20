@@ -15,6 +15,7 @@ public:
 	String baseName = "";
 
 	String masterGain = baseName + "/Mapping_Tabs/Mixer_And_Master/Master_Gain/Master_Gain";
+	String reverbOn = baseName + "/Mapping_Tabs/Mixer_And_Master/Master_Gain/Reverb_ON";
 
 	std::string getFBVar_FAUSTAddress_Full(short fbVar_Idx, short synthCtrl_Idx)
 	{

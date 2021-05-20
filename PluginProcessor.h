@@ -144,6 +144,12 @@ public:
 		fUI->setParamValue(movementAnalysis.musicControl.faustStrings.getTrackGainAddress(trackIdx).c_str(), faderVal);
 	}
 
+	void set_ReverbMode(bool on)
+	{
+		float val = on ? 1 : 0;
+		fUI->setParamValue(movementAnalysis.musicControl.faustStrings.reverbOn.toStdString().c_str(), val);
+	}
+
 	void set_COMP_EQ()
 	{
 		std::string address = "";

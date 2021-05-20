@@ -20,7 +20,8 @@ public:
 	Label gain_Track_LAB[10];
 	Label levelMeter[2];
 	float levelMeter_Width = 150;
-	
+	ToggleButton reverbOn;
+	Label reverbOn_LAB;
 
 	// MUSIC
 	ComboBox tonic;
@@ -124,6 +125,11 @@ public:
 		voiceCue_FineTimeAdjust.setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
 		voiceCue_FineTimeAdjust_Lab.setText("Timing Fine", dontSendNotification);
 		voiceCue_FineTimeAdjust_Lab.attachToComponent(&voiceCue_FineTimeAdjust, true);
+
+		// Reverb On
+		reverbOn.setToggleState(true, sendNotificationSync);
+		reverbOn_LAB.setText("Reverb Enabled", dontSendNotification);
+		reverbOn_LAB.attachToComponent(&reverbOn, true);
 	}
 
 	void toggleVisible(bool on)
@@ -142,6 +148,7 @@ public:
 		chord_Type.setVisible(on);
 		levelMeter[0].setVisible(on);
 		levelMeter[1].setVisible(on);
+		reverbOn.setVisible(on);
 
 		// Voice Cue
 		voiceCue_Enable.setVisible(on);
@@ -164,6 +171,7 @@ public:
 	{
 		toggle_DSP_OnOff.setBounds(20, 50, 300, 25);
 		gain_Master.setBounds(450, 50, 350, 25);
+		reverbOn.setBounds(1120, 50, 100, 25);
 		for (int i = 0; i < numTracks; i++)
 		{
 			gain_Track[i].setBounds(70, 100 + 30 * i, 250, 25);

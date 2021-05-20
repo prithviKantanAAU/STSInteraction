@@ -240,6 +240,7 @@ private:
 		addAndMakeVisible(ui_musicControl.chord_Type);
 		addAndMakeVisible(ui_musicControl.levelMeter[0]);
 		addAndMakeVisible(ui_musicControl.levelMeter[1]);
+		addAndMakeVisible(ui_musicControl.reverbOn);
 
 		addAndMakeVisible(ui_musicControl.voiceCue_Enable);
 		addAndMakeVisible(ui_musicControl.voiceCue_Enable_Lab);
@@ -562,6 +563,11 @@ private:
 				ui_musicControl.chord_Degree[i].addItem(String(j), j);
 			ui_musicControl.chord_Degree[i].setSelectedId(musInfoCompPtr->chord_degSequence[i]);
 		}
+
+		ui_musicControl.reverbOn.onStateChange = [this]
+		{
+			processor.set_ReverbMode(ui_musicControl.reverbOn.getToggleState());
+		};
 
 		ui_musicControl.voiceCue_Enable.setToggleState(voiceCuePtr->isEnabled, sendNotificationSync);
 		ui_musicControl.voiceCue_Enable.onStateChange = [this]
