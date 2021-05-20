@@ -19,6 +19,7 @@ sliderGroup_channelComp(i,x) = tab_Comp(hgroup("Track %i",x));
 
 // MASTER GAIN SLIDER
 masterGain = sliderGroup_MasterGain(vslider("Master Gain",-6,-96,12,0.01) : ba.db2linear);
+reverbOn = sliderGroup_MasterGain(checkbox("Reverb ON"));
 
 // Sonification Sliders and Preprocessing
 soniSlider(idx,defaultVal) = tab_SoniControl(vgroup("FV_Values",hslider("Soni %idx",defaultVal,0,2000,0.001)));
@@ -300,7 +301,7 @@ stereoMasterSection(trackIndex) = stereoOut
 // MASTER LIMITER
 masterLimiter(ipGaindB) = _ : compLimiter(ipGaindB,10,0,0.001,0.05,0.050);
 
-reverbMaster = _,_ <: re.zita_rev1_stereo(REV_MST_PDEL_MS,REV_MST_F_DC_MID,REV_MST_F_MID_HI,REV_MST_T60_DC,rt_60,REV_MST_FsMax) : filter
+reverbMaster = _,_ <: *(reverbOn),*(reverbOn) : re.zita_rev1_stereo(REV_MST_PDEL_MS,REV_MST_F_DC_MID,REV_MST_F_MID_HI,REV_MST_T60_DC,rt_60,REV_MST_FsMax) : filter
 with {
   rt_60 = 4;
 LP_CUT = REV_MST_LPF_FC * (0.1 + 0.9 * PARAM_VAL_PROXIMITY) : si.smooth(ba.tau2pole(0.001));
