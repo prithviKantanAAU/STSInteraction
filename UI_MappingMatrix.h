@@ -229,9 +229,9 @@ class UI_MappingMatrix
 		numCols_inRow[15] = 2;
 
 		// AP Smoothing Fc
-		lineHeaders_Main[15] = "apSmoothing_Fc";
-		numRows_inHeader[15] = 1;
-		numCols_inRow[15] = num_AP;
+		lineHeaders_Main[16] = "apSmoothing_Fc";
+		numRows_inHeader[16] = 1;
+		numCols_inRow[16] = num_AP;
 
 		// Find Num Line Headers
 		num_lineHeaders = 0;
