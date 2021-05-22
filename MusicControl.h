@@ -25,7 +25,7 @@ public:
 
 		feedbackVariables[0].initialize("T_Djemb", 50, 100, 50,	 1, 1, 3,	 1, 1			);
 		feedbackVariables[2].initialize("T_Voice", 50, 100, 50,		 1, 1, 3,	 1, 1			);
-		feedbackVariables[4].initialize("T_Piano", 0, 100, 0,		 1, 1, 1,	 4, 1			);
+		feedbackVariables[4].initialize("T_Piano", 0, 100, 0,		 1, 1, 0,	 4, 1			);
 		feedbackVariables[23].initialize("T_Flute", 50, 100, 50,	 1, 1, 5,	 1, 1			);
 		feedbackVariables[11].initialize("T_Gtr", 0, 100, 50,		 1, 1, 3,	 1, 1			);
 		feedbackVariables[16].initialize("T_Bell", 0, 100, 0,		 1, 1, 0,	 1, 1			);
@@ -34,7 +34,7 @@ public:
 
 		feedbackVariables[8].initialize("F_Djemb", 150, 600, 150,	 1, 1, 0,	 1, 2			);		
 		feedbackVariables[1].initialize("F_Voice", 90, 700, 90,		 2, 1, 0,	 1, 2			);
-		feedbackVariables[3].initialize("F_Piano", 50, 1000, 50,	 1, 1, 0,	 4, 2			);
+		feedbackVariables[3].initialize("F_Piano", 50, 1000, 50,	 2, 1, 0,	 4, 2			);
 		feedbackVariables[7].initialize("F_Flute", 420, 1320, 420,	 2, 1, 0,	 1, 2			);
 		feedbackVariables[18].initialize("F_Gtr", 50, 1500, 50,		 2, 1, 0,	 1, 2			);
 
@@ -43,7 +43,7 @@ public:
 		feedbackVariables[14].initialize("D_Djemb", 0.01, 4.5, 1,	 1, 1, 0,	 1, 3			);
 		feedbackVariables[13].initialize("D_Voice", 0, 1, 1,		 1, 1, 0,	 1, 3			);
 		feedbackVariables[6].initialize("D_Piano", 0, 1, 1,			 1, 1, 3,	 1, 3			);
-		feedbackVariables[15].initialize("D_Flute", 0.63, 1, 0.9,	 1, 1, 0,	 1, 3			);
+		feedbackVariables[15].initialize("D_Flute", 0.5, 1, 0.9,	 1, 1, 0,	 1, 3			);
 		feedbackVariables[17].initialize("D_Gtr", 20, 1500, 1500,	 1, 1, 0,	 1, 3			);
 
 		// TIMBRE
@@ -55,7 +55,7 @@ public:
 		// NEGATIVE FEEDBACK
 		
 		feedbackVariables[5].initialize("Detune", 0, 1, 0,			 1, 1, 0,	 1, 5,	 false	);
-		feedbackVariables[9].initialize("F_Warp"	, 0.5, 1, 0.5,	 1, 1, 0,	 1, 5,	 false	);
+		feedbackVariables[9].initialize("F_Warp"	, 0.5, 1, 0.5,	 1, 1, 0,	 1, 5			);
 		feedbackVariables[22].initialize("Flute Pos", 0, 0.5, 0.5,	 2, 1, 0,	 1, 5,	 false	);
 		
 		// SINE WAVES		
@@ -293,7 +293,7 @@ public:
 			*val = pow(*val, 0.75);
 			break;
 		case 5:
-			*val = pow(*val, 0.5);
+			*val = pow(*val, 0.25);
 			break;
 		case 6:
 			*val = exp((*val - 0.5) * 12) / (1 + exp((*val - 0.5) * 12));

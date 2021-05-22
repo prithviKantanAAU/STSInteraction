@@ -153,14 +153,17 @@ public:
 
 	void convert_FbVar_to_ChordDeg_to_Freqs_POLY(double fbVar[])
 	{
-		int chordDeg = chord_degSequence[(int)(fbVar[0] * 9)];
-		int midiKeys[4] = { 36,36,36,36 };
-		for (int i = 0; i < 4; i++)
+		if (!isnan(fbVar[0]))
 		{
-			midiKeys[i] = 36 + tonics_Offsets[idx_tonic_Present] 
-				+ scales[idx_scale_Present][chordDeg + 
-				chordTypes_DegreeIntervals[idx_chordTypes_Present][i]];
-			fbVar[i] = MidiMessage::getMidiNoteInHertz(midiKeys[i]);
+			int chordDeg = chord_degSequence[(int)(fbVar[0] * 9)];
+			int midiKeys[4] = { 36,36,36,36 };
+			for (int i = 0; i < 4; i++)
+			{
+				midiKeys[i] = 36 + tonics_Offsets[idx_tonic_Present]
+					+ scales[idx_scale_Present][chordDeg +
+					chordTypes_DegreeIntervals[idx_chordTypes_Present][i]];
+				fbVar[i] = MidiMessage::getMidiNoteInHertz(midiKeys[i]);
+			}
 		}
 	}
 

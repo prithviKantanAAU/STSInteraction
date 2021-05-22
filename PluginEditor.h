@@ -766,9 +766,11 @@ private:
 
 		ui_mappingMatrix.preset_Save.onClick = [this]
 		{
+			processor.isRunning_Sonification = false;
 			ui_mappingMatrix.saveAsPreset(mpArrayPtr, apArrayPtr);
 			ui_mappingMatrix.populatePresets(mapPresetPtr,mpArrayPtr,apArrayPtr);
 			ui_mappingMatrix.preset_Name.setText("");
+			processor.isRunning_Sonification = true;
 		};
 
 		ui_mappingMatrix.mp_isVisible.addListener(this);

@@ -44,7 +44,7 @@ public:
 		
 		// CoM NORMALIZED DISPLACEMENTS
 		movementParams[15].initialize(-0.12, 0.11, "Horiz Disp");
-		movementParams[16].initialize(0.58, 0.75, "Verti Disp");
+		movementParams[16].initialize(0.52, 0.75, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.8, "CoM Speed");
@@ -53,7 +53,7 @@ public:
 		// ANGULAR JERK MEASURES
 		movementParams[19].initialize(0, 300, "Trunk Jerk - Ang",false);
 		movementParams[20].initialize(0, 300, "Thigh Jerk - Ang",false);
-		movementParams[21].initialize(0, 300, "Shank Jerk - Ang",false);
+		movementParams[21].initialize(0, 300, "Shank Jerk - Ang");
 
 		// TRIANGLE OSCILLATOR
 		movementParams[22].initialize(0, 1, "Tri Osc");
@@ -66,6 +66,9 @@ public:
 		movementParams[26].initialize(0, 1.02, "Steady Stand");
 		movementParams[27].initialize(0, 1.02, "Seat Off",false);
 		movementParams[28].initialize(0, 1, "Randomness");
+
+		// FREEZING
+		movementParams[29].initialize(0, 1, "Freeze");
 
 		populate_num_MP();
 		populateDispIndex_MP();
@@ -146,6 +149,7 @@ public:
 		setDispIndex_MP("Steady Sit", 8);
 		setDispIndex_MP("Steady Stand", 8);
 		setDispIndex_MP("Seat Off", 8);
+		setDispIndex_MP("Freeze", 8);
 
 		// TRIANGLE OSCILLATOR
 		setDispIndex_MP("Tri Osc",9);
@@ -172,6 +176,7 @@ public:
 	// ANGULAR VELOCITY, CoM VELOCITY BIQUADS
 	BiQuad LPF_JointAngularVel[3];
 	BiQuad LPF_CoM_Vel[2];
+	BiQuad LPF_Freeze;
 	BiQuad LPF_Randomness;
 
 	void LPF_Init()
@@ -185,11 +190,14 @@ public:
 		for (int j = 0; j < 2; j++)
 		{
 			LPF_CoM_Vel[j].flushDelays();
-			LPF_CoM_Vel[j].calculateLPFCoeffs(20, 0.7, 100);
+			LPF_CoM_Vel[j].calculateLPFCoeffs(49, 0.7, 100);
 		}
 
 		LPF_Randomness.flushDelays();
 		LPF_Randomness.calculateLPFCoeffs(50, 0.7, 100);
+
+		LPF_Freeze.flushDelays();
+		LPF_Freeze.calculateLPFCoeffs(20, 0.7, 100);
 	}
 
 	void eulerSmoothing_INIT()
@@ -703,6 +711,16 @@ public:
 		}
 
 		store_MP_Value("STS Phase", STS_Phase);
+
+		// CHECK FREEZING
+		float CoM_Speed_Filt = 0;
+		float freeze = 0;
+		if (STS_Phase == 1 || STS_Phase == 2 || STS_Phase == 4 || STS_Phase == 5)
+		{
+			CoM_Speed_Filt = LPF_Freeze.doBiQuad(getMPVal_fromArray(movementParams, "CoM Speed", "Val"),0);
+			if (CoM_Speed_Filt < 0.02) freeze = 1;
+		}
+		store_MP_Value("Freeze", freeze);
 	}
 
 	bool updateSTSPhase_CheckTransition_POS()

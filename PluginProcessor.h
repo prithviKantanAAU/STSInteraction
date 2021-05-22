@@ -46,6 +46,7 @@ public:
 	MovementAnalysis movementAnalysis;
 
 	// CALLBACK RELATED
+	bool isRunning_Sonification = true;
 	void hiResTimerCallback();
 	long pulsesElapsed = 0;
 

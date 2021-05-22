@@ -44,12 +44,15 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 				movementAnalysis.sensors_OSCReceivers[i].updateBuffers();
 
 		// MOVEMENT ANALYSIS, FB COMPUTATION, MAPPING CALLBACK
-		movementAnalysis.callback();
-        if (isReady)
+        if (isRunning_Sonification)
         {
-            for (int i = 0; i < movementAnalysis.musicControl.numFbVariables; i++)
+            movementAnalysis.callback();
+            if (isReady)
             {
-                mapFBVariable(i);
+                for (int i = 0; i < movementAnalysis.musicControl.numFbVariables; i++)
+                {
+                    mapFBVariable(i);
+                }
             }
         }
 		ipVerify_AssignedSensors();
