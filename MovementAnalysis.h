@@ -179,6 +179,11 @@ public:
 	BiQuad LPF_Freeze;
 	BiQuad LPF_Randomness;
 
+	// FREEZING
+	int freezeCounter = 0;
+	int freezeCounter_THRESH = 13;
+	float freeze_AngVel_THRESH = 0.2;
+
 	void LPF_Init()
 	{
 		for (int i = 0; i < 3; i++)
@@ -197,7 +202,7 @@ public:
 		LPF_Randomness.calculateLPFCoeffs(50, 0.7, 100);
 
 		LPF_Freeze.flushDelays();
-		LPF_Freeze.calculateLPFCoeffs(20, 0.7, 100);
+		LPF_Freeze.calculateLPFCoeffs(49, 0.7, 100);
 	}
 
 	void eulerSmoothing_INIT()
@@ -713,12 +718,13 @@ public:
 		store_MP_Value("STS Phase", STS_Phase);
 
 		// CHECK FREEZING
-		float CoM_Speed_Filt = 0;
+		float angVel_Hip = 0;
 		float freeze = 0;
-		if (STS_Phase == 1 || STS_Phase == 2 || STS_Phase == 4 || STS_Phase == 5)
+		if (STS_Phase == 2 || STS_Phase == 3 || STS_Phase == 4 || STS_Phase == 4)
 		{
-			CoM_Speed_Filt = LPF_Freeze.doBiQuad(getMPVal_fromArray(movementParams, "CoM Speed", "Val"),0);
-			if (CoM_Speed_Filt < 0.02) freeze = 1;
+			angVel_Hip = LPF_Freeze.doBiQuad(getMPVal_fromArray(movementParams, "Ang Velocity Hip", "Val"),0);
+			if (angVel_Hip < freeze_AngVel_THRESH) freezeCounter += 1; else freezeCounter = 0;
+			if (freezeCounter >= freezeCounter_THRESH) freeze = 1; else freeze = 0;
 		}
 		store_MP_Value("Freeze", freeze);
 	}
