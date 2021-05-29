@@ -358,7 +358,7 @@ voiceSynth_FormantBP(freq,vel,trigger,acc) = pm.SFFormantModelBP(1,vowel_H,PARAM
   	vibLFO = os.osc(8);
 };
 
-fluteSimple(f_Hz,gain,mouthPos,vib) = pm.fluteModel(tubeLength,mouthPos,blow)*0.5
+fluteSimple(f_Hz,gain,mouthPos,vib) = pm.fluteModel(tubeLength,mouthPos,blow) * gain * gain
 with{
   	gate = (f_Hz > 430) : si.smooth(ba.tau2pole(0.02));
     envelope = gate*gain : si.smooth(ba.tau2pole(0.001));
@@ -367,7 +367,8 @@ with{
     tubeLength = 440 + (f_Hz - 440) * freqFactor : pm.f2l;
     pressure = envelope;
     vibFreq = 5 * (1 + 0.4 * ((vib - 0.036)/ 0.036));
-    blow = pm.blower(pressure,0.05,2000,vibFreq,vib);
+    fCut_Hz = 1200 + gain * 2500;
+    blow = pm.blower(pressure,0.05,fCut_Hz,vibFreq,vib);
 };
 
 fullChordSynth(freqList,synthFunc,env) = stereoChordOut with
