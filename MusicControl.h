@@ -43,7 +43,7 @@ public:
 		feedbackVariables[14].initialize("D_Djemb", 0.01, 4.5, 1,	 1, 1, 0,	 1, 3			);
 		feedbackVariables[13].initialize("D_Voice", 0, 1, 1,		 1, 1, 0,	 1, 3			);
 		feedbackVariables[6].initialize("D_Piano", 0, 1, 1,			 1, 1, 3,	 1, 3			);
-		feedbackVariables[15].initialize("D_Flute", 0.5, 1, 0.9,	 1, 1, 0,	 1, 3			);
+		feedbackVariables[15].initialize("D_Flute", 0.6, 1, 0.9,	 1, 1, 0,	 1, 3			);
 		feedbackVariables[17].initialize("D_Gtr", 20, 1500, 1500,	 1, 1, 0,	 1, 3			);
 
 		// TIMBRE
@@ -293,7 +293,7 @@ public:
 			*val = pow(*val, 0.75);
 			break;
 		case 5:
-			*val = pow(*val, 0.25);
+			*val = pow(*val, 0.45);
 			break;
 		case 6:
 			*val = exp((*val - 0.5) * 12) / (1 + exp((*val - 0.5) * 12));
