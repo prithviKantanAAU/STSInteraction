@@ -80,6 +80,8 @@ public:
 	Label CoM_Disp_Bounds_V_MAX;
 	Label CoM_Disp_INDIC_VAL_V;
 
+	Slider BoS_Thresh_Adjust;
+
 	TextButton cal_CoM_SIT;
 	TextButton cal_CoM_STAND;
 
@@ -377,6 +379,16 @@ public:
 		cal_CoM_STAND.setColour(cal_CoM_STAND.buttonColourId, Colours::blue);
 
 		stsAnim_CoM_RangeZone.setColour(stsAnim_CoM_RangeZone.backgroundColourId, Colour::fromFloatRGBA(1, 1, 0, 0.25));
+
+		stsAnim_Line_BoS.setColour(stsAnim_Line_BoS.backgroundColourId, Colours::white);
+		stsAnim_Line_BoS_Warning.setColour(stsAnim_Line_BoS_Warning.backgroundColourId, Colours::orange);
+
+		// BoS Thresh Adjust
+		BoS_Thresh_Adjust.setRange(-0.5, 0.5);
+		BoS_Thresh_Adjust.setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+		BoS_Thresh_Adjust.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
+		BoS_Thresh_Adjust.setColour(CoM_Disp_Bounds_V.trackColourId, Colours::yellow);
+		BoS_Thresh_Adjust.setColour(CoM_Disp_Bounds_V.backgroundColourId, Colours::blue);
 	}
 
 	void toggleVisible(bool on, short dataInputMode)
@@ -457,6 +469,9 @@ public:
 		}
 		stsAnim_CoM_RangeZone.setVisible(on);
 		stsAnim_CoM_Indicator.setVisible(on);
+		stsAnim_Line_BoS.setVisible(on);
+		stsAnim_Line_BoS_Warning.setVisible(on);
+		BoS_Thresh_Adjust.setVisible(on);
 		cal_CoM_SIT.setVisible(on);
 		cal_CoM_STAND.setVisible(on);
 	}
@@ -584,6 +599,13 @@ public:
 				IMU_Config_Row_Height
 			);
 		}
+
+		BoS_Thresh_Adjust.setBounds(
+			stsAnim_startX - 116,
+			stsAnim_startY - 232,
+			232,
+			10
+		);
 
 		//// MP STREAMING
 		dataInput_Mode_Status.setBounds(
@@ -739,7 +761,10 @@ public:
 	Label stsAnim_CoM_Indicator;
 	Label stsAnim_CoM_RangeZone;
 
-	void updateSTSAnim(MovementParameter mpArray[])
+	Label stsAnim_Line_BoS;
+	Label stsAnim_Line_BoS_Warning;
+
+	void updateSTSAnim(MovementParameter mpArray[], float thresh_BoS, float thresh_BoS_Warning)
 	{
 		float angle_Trunk_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Trunk AP", "Val");
 		float angle_Thigh_AP = MovementAnalysis::getMPVal_fromArray(mpArray, "Orientation Thigh AP", "Val");
@@ -855,6 +880,10 @@ public:
 			}
 		}
 
+		// ADD CODE FOR BoS LINES
+		stsAnim_Line_BoS.setBounds(stsAnim_startX + thresh_BoS* bodyLengthPx, stsAnim_startY - bodyLengthPx, 1, bodyLengthPx);
+		
+		stsAnim_Line_BoS_Warning.setBounds(stsAnim_startX + thresh_BoS_Warning* bodyLengthPx, stsAnim_startY - bodyLengthPx, 1, bodyLengthPx);
 	}
 		
 };

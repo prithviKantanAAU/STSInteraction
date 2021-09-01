@@ -2,6 +2,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "BiQuad.h"
 #include "medianFilter.h"
+using namespace juce;
 
 class OSCReceiverUDP_Sensor : public Component,
 	private OSCReceiver,

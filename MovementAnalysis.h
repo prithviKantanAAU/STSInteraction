@@ -18,10 +18,10 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-50, 90, "Orientation Trunk AP");
+		movementParams[0].initialize(-50, 90, "Orientation Trunk AP",false);
 		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
 		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
-		movementParams[3].initialize(0, 40, "Orientation Trunk ML");
+		movementParams[3].initialize(0, 40, "Orientation Trunk ML",false);
 		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
 		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
 
@@ -48,7 +48,7 @@ public:
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.8, "CoM Speed");
-		movementParams[18].initialize(0, 1500, "CoM Jerk");
+		movementParams[18].initialize(0, 1500, "CoM Jerk",false);
 
 		// ANGULAR JERK MEASURES
 		movementParams[19].initialize(0, 300, "Trunk Jerk - Ang",false);
@@ -62,13 +62,19 @@ public:
 		movementParams[23].initialize(0, 1, "Dist to Stand");
 		movementParams[24].initialize(0, 90, "CoM Direction");
 
-		movementParams[25].initialize(0, 1.02, "Steady Sit");
-		movementParams[26].initialize(0, 1.02, "Steady Stand");
+		movementParams[25].initialize(0, 1.02, "Steady Sit",false);
+		movementParams[26].initialize(0, 1.02, "Steady Stand",false);
 		movementParams[27].initialize(0, 1.02, "Seat Off",false);
 		movementParams[28].initialize(0, 1, "Randomness");
 
 		// FREEZING
 		movementParams[29].initialize(0, 1, "Freeze");
+
+		// BASE OF SUPPORT
+		movementParams[30].initialize(0, 1, "Neg BoS Dist");
+		movementParams[31].initialize(0, 1, "Pos BoS Dist");
+		movementParams[32].initialize(0, 1, "Pos BoS Cross");
+		movementParams[33].initialize(0, 1, "Warning Cross");
 
 		populate_num_MP();
 		populateDispIndex_MP();
@@ -151,9 +157,15 @@ public:
 		setDispIndex_MP("Seat Off", 8);
 		setDispIndex_MP("Freeze", 8);
 
+		// BASE OF SUPPORT
+		setDispIndex_MP("Neg BoS Dist", 9);
+		setDispIndex_MP("Pos BoS Dist", 9);
+		setDispIndex_MP("Pos BoS Cross", 9);
+		setDispIndex_MP("Warning Cross", 9);
+
 		// TRIANGLE OSCILLATOR
-		setDispIndex_MP("Tri Osc",9);
-		setDispIndex_MP("Randomness",9);
+		setDispIndex_MP("Tri Osc",10);
+		setDispIndex_MP("Randomness",10);
 	}
 	
 	SensorInfo sensorInfo;
@@ -183,6 +195,12 @@ public:
 	int freezeCounter = 0;
 	int freezeCounter_THRESH = 13;
 	float freeze_AngVel_THRESH = 0.2;
+
+	// BASE OF SUPPORT
+	float horiz_Disp_BoS_Z1 = 0;
+	float horiz_Disp_Warning_Z1 = 0;
+	float thresh_BoS = 0;
+	float thresh_BoS_Warning = 0.2;
 
 	void LPF_Init()
 	{
@@ -668,6 +686,19 @@ public:
 
 		float CoM_Jerk = sqrt(CoM_H_Jerk*CoM_H_Jerk + CoM_V_Jerk*CoM_V_Jerk);
 		store_MP_Value("CoM Jerk", CoM_Jerk);
+
+		// CALCULATE BoS MEASURES
+		float BoS_Neg_Dist = jlimit(0.0, 1.0, abs(fmin(0, body_CoM_X - thresh_BoS)));
+		store_MP_Value("Neg BoS Dist", BoS_Neg_Dist);
+
+		float BoS_Pos_Dist = jlimit(0.0, 1.0, abs(fmax(0, body_CoM_X - thresh_BoS)));
+		store_MP_Value("Pos BoS Dist", BoS_Pos_Dist);
+
+		store_MP_Value("Pos BoS Cross", ((body_CoM_X - thresh_BoS) >= 0) ? 1.0 : 0.0);
+		horiz_Disp_BoS_Z1 = body_CoM_X - thresh_BoS;
+
+		store_MP_Value("Warning Cross", ((body_CoM_X - thresh_BoS_Warning) >= 0 && (horiz_Disp_Warning_Z1 < 0)) ? 1.0 : 0.0);
+		horiz_Disp_Warning_Z1 = body_CoM_X - thresh_BoS_Warning;
 	}
 
 	void computeProgress()

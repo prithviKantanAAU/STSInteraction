@@ -220,6 +220,9 @@ private:
 		}
 		addAndMakeVisible(ui_movementAnalysis.stsAnim_CoM_RangeZone);
 		addAndMakeVisible(ui_movementAnalysis.stsAnim_CoM_Indicator);
+		addAndMakeVisible(ui_movementAnalysis.stsAnim_Line_BoS);
+		addAndMakeVisible(ui_movementAnalysis.stsAnim_Line_BoS_Warning);
+		addAndMakeVisible(ui_movementAnalysis.BoS_Thresh_Adjust);
 	}
 
 	// Add Music Control Controls
@@ -494,6 +497,15 @@ private:
 
 			ui_movementAnalysis.CoM_Disp_Bounds_H.setMaxValue(CoM_H_Pos + 0.03);
 			ui_movementAnalysis.CoM_Disp_Bounds_V.setMaxValue(CoM_V_Pos);
+		};
+
+		// BoS THRESHOLDS
+		ui_movementAnalysis.BoS_Thresh_Adjust.setMinValue(mAnalysisPtr->thresh_BoS);
+		ui_movementAnalysis.BoS_Thresh_Adjust.setMaxValue(mAnalysisPtr->thresh_BoS_Warning);
+		ui_movementAnalysis.BoS_Thresh_Adjust.onValueChange = [this]
+		{
+			mAnalysisPtr->thresh_BoS_Warning = ui_movementAnalysis.BoS_Thresh_Adjust.getMaxValue();
+			mAnalysisPtr->thresh_BoS = ui_movementAnalysis.BoS_Thresh_Adjust.getMinValue();
 		};
 	}
 	
@@ -917,7 +929,7 @@ private:
 		ui_movementAnalysis.madgwick_Beta.setText("Beta: " + String(mAnalysisPtr->quaternionFilters[0].beta, 4), dontSendNotification);
 
 		// REAL TIME VISUALIZE
-		ui_movementAnalysis.updateSTSAnim(mpArrayPtr);
+		ui_movementAnalysis.updateSTSAnim(mpArrayPtr, mAnalysisPtr->thresh_BoS, mAnalysisPtr->thresh_BoS_Warning);
 	}
 
 	// Update Music Control Tab Elements
