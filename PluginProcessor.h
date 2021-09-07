@@ -45,6 +45,10 @@ public:
 	AudioFiles_PreLoaded audio_preLoaded;
 	MovementAnalysis movementAnalysis;
 
+	// WAV WRITING
+	std::unique_ptr<juce::FileOutputStream> outStream;
+	std::unique_ptr<juce::AudioFormatWriter> writer;
+
 	// CALLBACK RELATED
 	bool isRunning_Sonification = true;
 	void hiResTimerCallback();

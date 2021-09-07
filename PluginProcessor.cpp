@@ -76,6 +76,7 @@ void StsinteractionAudioProcessor::start_Recording_MPLog()
 	filepath_Rec = filepath_Rec.upToLastOccurrenceOf("\\", true, false);
 	filepath_Rec += "MP Log - " + getCurrentTime();
 	String filepath_Rec_FULL = filepath_Rec + "\\MP Log.csv";
+    String wavPath_Rec_FULL = filepath_Rec + "\\Audio Output.wav";
 	CreateDirectory(filepath_Rec.toStdString().c_str(), NULL);
 	mpLog = fopen(filepath_Rec_FULL.toStdString().c_str(), "w");
 
@@ -105,11 +106,17 @@ void StsinteractionAudioProcessor::start_Recording_MPLog()
         }
     }
 	
-	//WRITE FIRST LINE TO LOG - MP NAMES
+	// WRITE FIRST LINE TO LOG - MP NAMES
 	String line = "";
 	for (int i = 0; i < movementAnalysis.numMovementParams; i++)
 		line += movementAnalysis.movementParams[i].name + ",";
 	fprintf(mpLog, mpLog_FormatSpec.c_str(), line);
+
+    // CREATE WAV FILE FOR WRITING
+    File wavFile(wavPath_Rec_FULL);
+    outStream = wavFile.createOutputStream();
+    juce::WavAudioFormat format;
+    writer.reset(format.createWriterFor(outStream.get(), getSampleRate(), 2, 32, {}, 0));
 
 	is_Recording_MPLog = true;
 }
@@ -119,6 +126,8 @@ void StsinteractionAudioProcessor::stop_Recording_MPLog()
 	is_Recording_MPLog = false;
 	
     fclose(mpLog);
+    outStream.release();
+
     for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
     {
         if (movementAnalysis.sensorInfo.isOnline[i])
@@ -289,6 +298,12 @@ void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, Mid
 
             // GET DB LEVEL FOR METERING
             musicLevel_dB = fmax(-60,Decibels::gainToDecibels(buffer.getMagnitude(0,0,buffer.getNumSamples())));
+        }
+
+        if (is_Recording_MPLog)
+        {
+            writer->flush();
+            writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
         }
     }
 }
