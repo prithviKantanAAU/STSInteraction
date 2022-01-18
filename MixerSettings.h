@@ -23,7 +23,7 @@ public:
 		"Misc"
 	};
 
-	float masterGain = -19;
+	float masterGain = -100;
 	float gain_Track[10] =
 	{
 		13.2, -2.3, 6, 25, 7.5, 23,19,0,0,0

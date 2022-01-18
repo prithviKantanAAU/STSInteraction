@@ -57,9 +57,7 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
         }
 		ipVerify_AssignedSensors();
 
-		// WRITE LINE TO LOG IF RECORDING
-		if (is_Recording_MPLog)
-			writeLine_Recording_MPLog(movementAnalysis.movementParams);
+        handleLogging();
 	}
 
 	// UPDATE EVERY 2 SEC
@@ -67,6 +65,8 @@ void StsinteractionAudioProcessor::hiResTimerCallback()
 	{
 		movementAnalysis.updateSensorStatus();
 	}
+
+    
 }
 
 void StsinteractionAudioProcessor::start_Recording_MPLog()
@@ -113,20 +113,20 @@ void StsinteractionAudioProcessor::start_Recording_MPLog()
 	fprintf(mpLog, mpLog_FormatSpec.c_str(), line);
 
     // CREATE WAV FILE FOR WRITING
-    File wavFile(wavPath_Rec_FULL);
-    outStream = wavFile.createOutputStream();
-    juce::WavAudioFormat format;
-    writer.reset(format.createWriterFor(outStream.get(), getSampleRate(), 2, 32, {}, 0));
+    //File wavFile(wavPath_Rec_FULL);
+    //outStream = wavFile.createOutputStream();
+    //juce::WavAudioFormat format;
+    //writer.reset(format.createWriterFor(outStream.get(), getSampleRate(), 2, 32, {}, 0));
 
 	is_Recording_MPLog = true;
 }
 
 void StsinteractionAudioProcessor::stop_Recording_MPLog()
 {
-	is_Recording_MPLog = false;
+	//is_Recording_MPLog = false;
 	
     fclose(mpLog);
-    outStream.release();
+    // outStream.release();
 
     for (int i = 0; i < movementAnalysis.sensorInfo.numSensorsMax; i++)
     {
@@ -300,11 +300,11 @@ void StsinteractionAudioProcessor::processBlock (AudioBuffer<float>& buffer, Mid
             musicLevel_dB = fmax(-60,Decibels::gainToDecibels(buffer.getMagnitude(0,0,buffer.getNumSamples())));
         }
 
-        if (is_Recording_MPLog)
+        /*if (is_Recording_MPLog)
         {
             writer->flush();
             writer->writeFromAudioSampleBuffer(buffer, 0, buffer.getNumSamples());
-        }
+        }*/
     }
 }
 

@@ -733,7 +733,7 @@ public:
 		gyrMeasError.setBounds(10, 600, 200, 50);
 		operationMode.setBounds(10, 175, 200, 20);
 		orientationAlgo.setBounds(10, 205, 200, 20);
-		record_MovementLog.setBounds(10, 235, 200, 20);
+		record_MovementLog.setBounds(10, 220, 200, 40);
 	}
 
 	// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // //

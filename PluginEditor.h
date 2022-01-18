@@ -452,14 +452,14 @@ private:
 		{
 			if (!processor.is_Recording_MPLog)
 			{
-				processor.start_Recording_MPLog();
+				processor.is_Recording_MPLog = true;
 				ui_movementAnalysis.record_MovementLog.setButtonText("Stop Recording");
 				ui_movementAnalysis.record_MovementLog.setColour(
 					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::blue);
 			}
 			else
 			{
-				processor.stop_Recording_MPLog();
+				processor.is_Recording_MPLog = false;
 				ui_movementAnalysis.record_MovementLog.setButtonText("Record");
 				ui_movementAnalysis.record_MovementLog.setColour(
 					ui_movementAnalysis.record_MovementLog.buttonColourId, Colours::red);

@@ -82,6 +82,24 @@ public:
 	void stop_Recording_MPLog();
 	void writeLine_Recording_MPLog(MovementParameter mpArray[]);
 	bool is_Recording_MPLog = false;
+	bool is_Recording_MPLog_Z1 = false;
+	void handleLogging()
+	{
+		// START IF NECESSARY
+		if (is_Recording_MPLog && !is_Recording_MPLog_Z1)
+			start_Recording_MPLog();
+
+		// WRITE LINE TO LOG IF RECORDING
+		if (is_Recording_MPLog)
+			writeLine_Recording_MPLog(movementAnalysis.movementParams);
+
+		// STOP IF NECESSARY
+		if (!is_Recording_MPLog && is_Recording_MPLog_Z1)
+			stop_Recording_MPLog();
+
+		is_Recording_MPLog_Z1 = is_Recording_MPLog;
+	}
+
 	String getCurrentTime()
 	{
 		time_t rawtime;

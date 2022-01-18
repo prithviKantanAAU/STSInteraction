@@ -18,12 +18,12 @@ public:
 	MovementAnalysis()
 	{
 		// SEGMENT ORIENTATION
-		movementParams[0].initialize(-50, 90, "Orientation Trunk AP",false);
-		movementParams[1].initialize(-90, 0, "Orientation Thigh AP", false);
-		movementParams[2].initialize(0, 40, "Orientation Shank AP",false);
-		movementParams[3].initialize(0, 40, "Orientation Trunk ML",false);
-		movementParams[4].initialize(0, 60, "Orientation Thigh ML",false);
-		movementParams[5].initialize(0, 80, "Orientation Shank ML",false);
+		movementParams[0].initialize(-90, 90, "Orientation Trunk AP",false);
+		movementParams[1].initialize(-90, 90, "Orientation Thigh AP", false);
+		movementParams[2].initialize(-90, 90, "Orientation Shank AP",false);
+		movementParams[3].initialize(0, 90, "Orientation Trunk ML",false);
+		movementParams[4].initialize(0, 90, "Orientation Thigh ML",false);
+		movementParams[5].initialize(0, 90, "Orientation Shank ML",false);
 
 		// JOINT ANGLES
 		movementParams[6].initialize(-10, 180, "Angle Hip",false);
@@ -43,8 +43,8 @@ public:
 		movementParams[14].initialize(-1, 6, "STS Phase",false);
 		
 		// CoM NORMALIZED DISPLACEMENTS
-		movementParams[15].initialize(-0.12, 0.11, "Horiz Disp");
-		movementParams[16].initialize(0.52, 0.75, "Verti Disp");
+		movementParams[15].initialize(-0.48, 0.54, "Horiz Disp");
+		movementParams[16].initialize(0.00, 0.98, "Verti Disp");
 
 		// CoM NORMALIZED VELOCITY
 		movementParams[17].initialize(0, 0.8, "CoM Speed");
@@ -327,7 +327,7 @@ public:
 	
 	// IMU Axis and Invert
 	short IMU_Mount_Side[3] = {1,2,2};
-	short IMU_Polarity[3] = { 1,1,2 };
+	short IMU_Polarity[3] = { 2,1,2 };
 
 	// Joint Extention Thresholds
 	float jointAngles_thresh_Extend[3] = { 0.0, 0.0, 0.0 };
@@ -516,7 +516,7 @@ public:
 		
 		// COMPUTE JOINT ANGLES, CHECK HYPEREXTENSION
 		jointAngles_Deg[0] = orientation_Deg[0] - orientation_Deg[1];
-		jointAngles_Deg[1] = orientation_Deg[2] - orientation_Deg[1];
+		jointAngles_Deg[1] = (-orientation_Deg[2] - orientation_Deg[1]);
 		jointAngles_Deg[2] = -orientation_Deg[2];
 		
 		store_MP_Value("Angle Hip", jointAngles_Deg[0]);
