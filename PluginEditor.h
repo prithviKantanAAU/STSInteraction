@@ -371,6 +371,10 @@ private:
 				mpArrayPtr[i].minVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMinValue();
 				mpArrayPtr[i].maxVal = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getMaxValue();
 
+				mAnalysisPtr->offsets_AP[i] = ui_movementAnalysis.IMU_range_segmentAngles_AP[i].getValue();
+				ui_movementAnalysis.AP.setText("AP | " + String((int)mAnalysisPtr->offsets_AP[0]) + " | " + 
+					String((int)mAnalysisPtr->offsets_AP[1]) + " | " + String((int)mAnalysisPtr->offsets_AP[2]), dontSendNotification);
+
 				ui_movementAnalysis.simulation_OrientAngles[i].setRange(
 					mpArrayPtr[i].minVal,
 					mpArrayPtr[i].maxVal

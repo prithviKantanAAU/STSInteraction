@@ -177,6 +177,9 @@ public:
 	MovementParameter movementParams[40];
 	VoiceCues voiceCue;
 
+	// AP OFFSETS
+	float offsets_AP[3] = { 0,0,0 };
+
 	// EULER ANGLE POST-SMOOTHING FILTERS
 	MedianFilter eulerMedianFilt[3][2];
 	BiQuad eulerSmoothing[3][3][2];						// 3 Stages // 3 Locations // 2 Directions
@@ -506,9 +509,9 @@ public:
 		eulerSmoothing_APPLY();
 
 		// STORE ML AND AP ORIENTATIONS
-		store_MP_Value("Orientation Trunk AP", orientation_Deg[0] * ((IMU_Polarity[0] == 1) ? 1 : -1));
-		store_MP_Value("Orientation Thigh AP", orientation_Deg[1] * ((IMU_Polarity[1] == 1) ? 1 : -1));
-		store_MP_Value("Orientation Shank AP", orientation_Deg[2] * ((IMU_Polarity[2] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Trunk AP", (orientation_Deg[0] + offsets_AP[0]) * ((IMU_Polarity[0] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Thigh AP", (orientation_Deg[1] + offsets_AP[1]) * ((IMU_Polarity[1] == 1) ? 1 : -1));
+		store_MP_Value("Orientation Shank AP", (orientation_Deg[2] + offsets_AP[2]) * ((IMU_Polarity[2] == 1) ? 1 : -1));
 
 		store_MP_Value("Orientation Trunk ML", fabs(orientation_Deg_ML[0]));
 		store_MP_Value("Orientation Thigh ML", fabs(orientation_Deg_ML[1]));

@@ -264,7 +264,7 @@ public:
 			// 5 - AP Range Setter
 			IMU_range_segmentAngles_AP[i].setRange(-90, 90);
 			IMU_segmentAngles_AP_Indicator[i].attachToComponent(&IMU_range_segmentAngles_AP[i], true);
-			IMU_range_segmentAngles_AP[i].setSliderStyle(Slider::SliderStyle::TwoValueHorizontal);
+			IMU_range_segmentAngles_AP[i].setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
 			IMU_range_segmentAngles_AP[i].setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, false, 30, 20);
 			IMU_range_segmentAngles_AP[i].setColour(IMU_range_segmentAngles_AP[i].trackColourId, Colours::yellow);
 			IMU_range_segmentAngles_AP[i].setColour(IMU_range_segmentAngles_AP[i].backgroundColourId, Colours::blue);
@@ -309,7 +309,7 @@ public:
 			Joint_Range_AP[i].setRange(-10, 180);
 			Joint_Range_AP[i].setSliderStyle(Slider::SliderStyle::ThreeValueHorizontal);
 			Joint_Range_AP[i].setColour(Joint_Range_AP[i].trackColourId, Colours::yellow);
-			Joint_Range_AP[i].setColour(Joint_Range_AP[i].backgroundColourId, Colours::blue);
+			Joint_Range_AP[i].setColour(Joint_Range_AP[i].backgroundColourId, Colours::yellow);
 			Joint_Range_AP[i].setTextBoxStyle(Slider::NoTextBox, true, 10, 10);
 		}
 
